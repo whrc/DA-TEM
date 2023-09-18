@@ -1,0 +1,17 @@
+! Namelist for tem_to_dart.f90 & dart_to_tem.f90
+
+&tem_to_dart_nml
+   para_infile      = 'cmt_calparbgc.txt',    ! input parameter file 
+   para_outfile     = 'cpara_out.nc',         ! output nc file for DART input    
+   target_cmt       = 13,                     ! Target CMT (integer number) 
+   npft             = 10,                     ! total number of PFTs
+!  run_mask_path    = 'run-mask.nc'           ! run-mask.nc directory
+   debug            = .true.                  ! debugging mode  
+/
+
+&dart_to_tem_nml
+   nc_infile        = 0,
+   para_outfile     = 3600
+/
+
+

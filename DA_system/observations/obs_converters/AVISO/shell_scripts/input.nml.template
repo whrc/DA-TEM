@@ -1,0 +1,30 @@
+
+&obs_sequence_tool_nml
+   filename_seq_list  = 'olist'
+   filename_out       = 'obs_seq.0Z.YYYYMMDD'
+   print_only         = .false.
+   gregorian_cal      = .true.
+   first_obs_days     = GREG0
+   first_obs_seconds  = 43201
+   last_obs_days      = GREG1
+   last_obs_seconds   = 43200
+   edit_copy_metadata = .true.
+    new_copy_metadata = 'observation'
+   edit_qc_metadata   = .true.
+    new_qc_metadata   = 'original QC'
+  /
+
+&utilities_nml
+   module_details = .false.
+   write_nml = 'none'
+  /
+
+&obs_sequence_nml
+   write_binary_obs_sequence = .false.
+  /
+
+&obs_kind_nml
+  /
+
+&location_nml
+  /

@@ -1,0 +1,58 @@
+# comment test - single line
+
+GROUP bob
+ QTY_U_CURRENT_COMPONENT QTY_DEWPOINT 
+ QTY_SALINITY
+ QTY_SOIL_TEMPERATURE QTY_SOIL_LIQUID_WATER
+END GROUP
+
+GROUP sam
+ QTY_TRACER_SOURCE   # xxx comment on kind line
+ QTY_MEAN_SOURCE
+END GROUP
+
+GROUP fred   # comment on keywordline
+ ALLQTYS EXCEPT QTY_TEMPERATURE QTY_SPECIFIC_HUMIDITY
+END GROUP
+
+#
+# empty comment lines
+#
+
+GROUP george
+ ALLTYPES EXCEPT 
+ RADIOSONDE_TEMPERATURE RADIOSONDE_U_WIND_COMPONENT
+ MARINE_SFC_ALTIMETER 
+END GROUP
+
+#GROUP badgeorge  # cannot remove non-group member from group
+# ALLTYPES EXCEPT QTY_TEMPERATURE
+#END GROUP
+
+# actual table to define factors for impacts.
+# 
+# the first column can contain either types or kinds because
+# it applies to the current obs being assimilated.
+# 
+# the second column has to be kinds because it applies
+# to the state (also unassimilated obs, but states only 
+# have kinds so that's the most restrictive).
+#
+# either column can have a group name, but any group used
+# in column 2 can contain only kinds.
+
+IMPACT
+ QTY_U_WIND_COMPONENT  QTY_TEMPERATURE       0.5
+ QTY_V_WIND_COMPONENT  QTY_TEMPERATURE       0.5
+ bob                    QTY_LIQUID_WATER      0.3
+ bob                    sam                    0.1
+ QTY_TEMPERATURE       fred                   0.9
+ george                 QTY_SPECIFIC_HUMIDITY 0.8
+# AIRCRAFT_TEMPERATURE   george                 0.3    # cannot have groups with types on right
+# RADIOSONDE_TEMPERATURE QTY_DEWPOINT          0.2     # cannot reset to diff value
+ LAND_SFC_ALTIMETER     QTY_TEMPERATURE       0.2
+# LAND_SFC_ALTIMETER     QTY_TEMPERATURE      -0.2   # dup setting
+# LAND_SFC_ALTIMETER     QTY_PRESSURE         -0.2   # requires namelist change to accept
+# QTY_TEMPERATURE      LAND_SFC_ALTIMETER     0.1    # cannot have token 2 be type
+END IMPACT
+

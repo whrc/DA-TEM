@@ -1,0 +1,60 @@
+&filter_nml
+   single_file_in               = .false.,
+   input_state_files            = ''
+   input_state_file_list        = ''
+   init_time_days               = 0,
+   init_time_seconds            = 0,
+   perturb_from_single_instance = .false.,
+   perturbation_amplitude       = 0.2,
+
+   stages_to_write              = 'output'
+
+   single_file_out              = .false.,
+   output_state_files           = ''
+   output_state_file_list       = ''
+   output_interval              = 1,
+   output_members               = .true.
+   num_output_state_members     = 0,
+   output_mean                  = .true.
+   output_sd                    = .true.
+   write_all_stages_at_end      = .false.
+   compute_posterior            = .true.
+
+   ens_size                     = 20,
+   num_groups                   = 1,
+   distributed_state            = .true.
+
+   async                        = 0,
+   adv_ens_command              = "./advance_model.csh",
+   tasks_per_model_advance      = 1
+
+   obs_sequence_in_name         = "obs_seq.out",
+   obs_sequence_out_name        = "obs_seq.final",
+   num_output_obs_members       = 0,
+   first_obs_days               = -1,
+   first_obs_seconds            = -1,
+   last_obs_days                = -1,
+   last_obs_seconds             = -1,
+   obs_window_days              = -1,
+   obs_window_seconds           = -1,
+
+   inf_flavor                  = 0,                       0,
+   inf_initial_from_restart    = .false.,                 .false.,
+   inf_sd_initial_from_restart = .false.,                 .false.,
+   inf_deterministic           = .true.,                  .true.,
+   inf_initial                 = 1.0,                     1.0,
+   inf_lower_bound             = 0.0,                     1.0,
+   inf_upper_bound             = 1000000.0,               1000000.0,
+   inf_damping                 = 1.0,                     1.0,
+   inf_sd_initial              = 0.0,                     0.0,
+   inf_sd_lower_bound          = 0.0,                     0.0
+   inf_sd_max_change           = 1.05,                    1.05,
+
+   trace_execution              = .false.,
+   output_timestamps            = .false.,
+   output_forward_op_errors     = .false.,
+   write_obs_every_cycle        = .false.,
+   silence                      = .false.,
+   
+   allow_missing_clm            = .false.
+   /

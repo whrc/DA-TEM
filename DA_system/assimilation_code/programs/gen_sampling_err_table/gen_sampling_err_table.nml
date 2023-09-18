@@ -1,0 +1,5 @@
+&gen_sampling_error_table_nml
+   ens_sizes = -1
+   debug     = .false.
+  /
+

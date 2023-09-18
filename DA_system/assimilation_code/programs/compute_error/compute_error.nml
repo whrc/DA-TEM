@@ -1,0 +1,6 @@
+&compute_error_nml
+   truth_file_name   = 'true_state.nc'
+   diag_file_name    = 'preassim.nc'
+   skip_first_ntimes = 0
+  /
+

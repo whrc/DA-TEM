@@ -1,0 +1,26 @@
+
+# the supplied netcdf file contains all ensemble sizes from 3 to 200.
+#
+# you can run the generator program to append new ensemble sizes to the
+# existing file.
+#
+# the computation iterates many times to compute the factors;
+# each new size will take many minutes.
+#
+
+&gen_sampling_error_table_nml
+   ens_sizes = 250, 300
+   debug = .false.
+   /
+
+&utilities_nml
+   module_details = .false.
+   /
+
+
+# older research program, not used by filter anymore
+
+&full_error_nml
+   ens_size        = 80
+   output_filename = "final_full"
+   /
