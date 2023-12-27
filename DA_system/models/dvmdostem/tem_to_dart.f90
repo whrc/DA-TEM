@@ -57,10 +57,10 @@ use netcdf
  !-------------------------------------------
  ! parameters that can move to namelist later
  !-------------------------------------------
- integer :: target_cmt = 13  ! Target CMT
+ integer :: target_cmt = 13            ! Target CMT number
  integer,parameter :: cmt_num = 14     ! total CMT number
- integer :: npft = 10        ! number of PFT
- integer :: hlines = 4                     ! number of headlines 
+ integer :: npft = 10                  ! number of PFT
+ integer :: hlines = 4                 ! length of headlines 
  logical :: debug = .true.
  character(len=256) :: para_infile ='cmt_calparbgc.txt'  ! parameter file for cmax
  character(len=256) :: para_outfile = 'cmax_output.nc'                 ! output netcdf file name
@@ -333,13 +333,93 @@ allocate(cmax_state(nsize))
 
 end subroutine write_nc_state
 
-subroutine read_run_mask_nc()
+
+subroutine read_run_mask(filename,ndim,ngrid,lon,lat)
 !=============================================================
-! TODO: read run-mask.nc
+! read run-mask.nc and define dimension
 !=============================================================
-  
+ character(len=128), intent(in)     :: filename  ! run-mask.nc
+ integer, intent(out)               :: ndim  ! dimension (1 or 2 or 3) 
+ integer, intent(out)               :: ngrid ! number of grid cell
+ real(r8), allocatable, intent(out) :: lon(:), lat(:)
+
+ integer :: i, j, k
+ integer :: ncid, nx,ny
+ integer(r8), allocatable :: run(:,:)
+ real(r8), allocatable :: londata(:,:), latdata(:,:)
+ character(len=*), parameter :: routine = 'read_run_mask'
+
+ logical, parameter :: debug = .true.
+
+
+! open run-mask nc file
+ ncid = nc_open_file_readonly(trim(filename), routine)
  
-end subroutine read_run_mask_nc
+! get dimension names & lengths
+ nx = nc_get_dimension_size(ncid,'X',routine)
+ ny = nc_get_dimension_size(ncid,'Y',routine)
+
+! allocate data
+ allocate(run(ny,nx))
+ allocate(londata(ny,nx))
+ allocate(latdata(ny,nx))
+
+! read in data
+ call nc_get_variable(ncid, 'lat', latdata, routine)
+ call nc_get_variable(ncid, 'lon', londata, routine)
+ call nc_get_variable(ncid, 'run', run, routine) 
+
+! find which cell is used in dvmdostem (0= no use, 1 = use)
+ ngrid = 0
+ do i = 1,ny
+    do j=1, nx
+      if(run(i,j) > 0)then
+        ngrid = ngrid +1    
+        xindx(ngrid)=i
+        yindx(ngrid)=j  
+      endif
+    enddo
+ enddo
+
+ if (ngrid == 0)then
+    write(*,*)"========= ERROR : No cell is used in run-mask.nc ======="
+    return
+ else
+    write(*,*)"[read_run_msk] grid cells used in run-mask : ",ngrid     
+ endif
+
+
+! allocate output lon lat data
+ allocate(lon(ngrid))
+ allocate(lat(ngrid))
+
+! save lon, lat 
+ do k=1,ngrid
+   i=xindx(k)
+   j=yindx(k)
+   lon(k)=londata(i,j)
+   lat(k)=latdata(i,j) 
+ enddo
+
+! define ndim (1d or 2d) 
+ if(ngrid == 1) then
+     ndim = 1   ! single cell (site) 
+ elseif(ngrid > 1)then
+     ndim = 2   ! multiple cells   
+ else
+     write(*,*)"========= [read_run_mask] Dimension errors!  ======="    
+     return
+ endif
+
+ if(debug)then
+    print*,"lon = ",lon(1:ngrid)
+    print*,"lat = ",lat(1:ngrid)    
+ endif
+
+ ! close nc file
+ call nc_close_file(ncid)
+
+end subroutine read_run_mask
 
 
 

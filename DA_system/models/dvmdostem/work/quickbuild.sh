@@ -6,7 +6,7 @@
 
 main() {
 
-export DART=$(git rev-parse --show-toplevel)
+export DART=$(git rev-parse --show-toplevel)/DA_system
 source "$DART"/build_templates/buildfunctions.sh
 
 MODEL=dvmdostem
