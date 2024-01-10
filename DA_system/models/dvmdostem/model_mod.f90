@@ -118,17 +118,23 @@ namelist /model_nml/ model_input_filename, model_grid_filename, calendar, assimi
 
 
 !-------------------------------------------------------------------------
-! Things from dvmdostem run_mask (grid) file
-integer :: ngrid    = -1 
-integer :: nlon     = -1
-integer :: nlat     = -1
-integer :: npfts    = -1
+! For 2d/3d application
+!! Things from dvmdostem run_mask (grid) file
+!integer :: ngrid    = -1 
+!integer :: nlon     = -1
+!integer :: nlat     = -1
+!integer :: npfts    = -1
 !integer :: nlevgrnd = -1 ! Number of 'ground' levels
 !integer :: nlevsoi  = -1 ! Number of 'soil' levels
 
-real(r8), allocatable ::  lon(:) ! used grid longitude
-real(r8), allocatable ::  lat(:) ! used grid latitude
-integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
+!real(r8), allocatable ::  lon(:) ! used grid longitude
+!real(r8), allocatable ::  lat(:) ! used grid latitude
+!integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
+
+! For 1d site application
+type(location_type), allocatable :: state_loc(:)
+
+
 
 contains
 
@@ -201,15 +207,22 @@ dom_id = add_domain(model_input_filename, nfields, &
 
 model_size = get_domain_size(dom_id)
 
-! Define dimension
+! Define dimension & location
 !---------------------------------------------------
- call read_run_mask() 
+! For 1d application
+!if (para_1d == .true.)then
+  do i = 1, model_size
+     x_loc = (i - 1.0_r8) / model_size
+     state_loc(i) =  set_location(x_loc)
+  end do
+!endif
 
- 
+! If 2d/3d application, we need to get lon,lat
+!call get_grid_dims() !TODO: for future 2d/3d application, additional subroutine is 
+                      !      needed for reading lon/lat/depth from run_mask.nc
+
 ! Print out all the initialization info
 !--------------------------------------------------
-
-
 
 
 end subroutine static_init_model
@@ -360,33 +373,36 @@ integer :: lon_indx, lat_indx, level, local_qty
 if ( .not. module_initialized ) call static_init_model
 
 
-if (present(qty_type)) then
-
-   qty_type = MISSING_I
-
-   ! from the dart index get the local variables indices
-   call get_model_variable_indices(indx, lon_indx, lat_indx, level, &
-            var_id=var_id, dom_id=dom_id, kind_index=qty_type)
-
-   if( qty_type == MISSING_I ) then
-      write(string1,*) '[get_state_meta_data] Cannot find DART QTY  for indx ', indx
-      write(string2,*) 'variable "'//trim(get_variable_name(dom_id, var_id))//'"'
-      call error_handler(E_ERR,'get_state_meta_data',string1, source, text2=string2)
-   endif
-
-endif
-
+! For 2d/3d application
+! from the dart index get the local variables indices
+!===========================================================
+!if (present(qty_type)) then
+!
+!   qty_type = MISSING_I
+!
+!   call get_model_variable_indices(indx, lon_indx, lat_indx, level, &
+!            var_id=var_id, dom_id=dom_id, kind_index=qty_type)
+!
+!   if( qty_type == MISSING_I ) then
+!      write(string1,*) '[get_state_meta_data] Cannot find DART QTY  for indx ', indx
+!      write(string2,*) 'variable "'//trim(get_variable_name(dom_id, var_id))//'"'
+!      call error_handler(E_ERR,'get_state_meta_data',string1, source, text2=string2)
+!   endif
+!endif
 ! set_location subroutine varies according to model dimension: "oned" "twod" "threed"
 !------------------------------------------------------------------------------------------
+
 ! 3d (future use)
 !location = set_location(lon(lon_indx), lat(lat_indx), real(level,r8), VERTISLEVEL)
 
-! 1d
-location = set_location()
 
+
+! For 1d site application
+!==============================
+location = state_loc(indx)
+if (present(var_type)) var_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
 
 end subroutine get_state_meta_data
-
 
 
 !------------------------------------------------------------------
@@ -447,6 +463,7 @@ end subroutine nc_write_model_atts
 subroutine get_grid_dims()
 !=============================================================
 ! read run-mask.nc and define dimension
+! CCC: only used in 2d/3d application
 !=============================================================
  integer :: i, j, n, nx, ny
  integer :: ncid, ndim
