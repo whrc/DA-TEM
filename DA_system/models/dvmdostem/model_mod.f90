@@ -16,9 +16,10 @@ use types_mod,             only : r8, i8, i4, MISSING_R8, &
 
 use time_manager_mod,      only : time_type, set_time
 
-use location_mod,          only : location_type, set_location, get_location,  &
-                                  get_close_obs, get_close_state,             &
-                                  convert_vertical_obs, convert_vertical_state
+use location_mod,          only : location_type, set_location, get_location,    &
+                                  get_close_obs, get_close_state,               &
+                                  convert_vertical_obs, convert_vertical_state, &
+                                  LocationDims
 
 use utilities_mod,         only : register_module, do_nml_file, do_nml_term,    &
                                   nmlfileunit, find_namelist_in_file,           &
@@ -132,7 +133,7 @@ namelist /model_nml/ model_input_filename, model_grid_filename, calendar, assimi
 !integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
 
 ! For 1d site application
-type(location_type), allocatable :: state_loc(:)
+type(location_type) :: state_loc(model_size)
 
 
 
@@ -743,7 +744,7 @@ character(len=NF90_MAX_NAME) :: minvalstring  ! column 3
 character(len=NF90_MAX_NAME) :: maxvalstring  ! column 4
 character(len=NF90_MAX_NAME) :: update       ! column 5
 
-character(len=*) :: string1, string2, string3
+!character(len=*) :: string1, string2, string3
 
 
 
@@ -755,7 +756,7 @@ ncols = 5             ! = size(table,2)
 ngood = 0
 
 ! loop over all variables and assign values for the table
-MyLoop : do i = 1, nrows
+varLoop : do i = 1, nrows
 
    varname      = trim(state_variables(ncols*i - 4))
    dartstr      = trim(state_variables(ncols*i - 3))
@@ -802,7 +803,7 @@ MyLoop : do i = 1, nrows
    end select
  
   ngood = ngood + 1
-enddo MyLoop
+enddo varLoop
 
 if (ngood == nrows) then
    string1 = 'WARNING: There is a possibility you need to increase ''max_state_variables'''
@@ -813,7 +814,123 @@ endif
 end subroutine parse_variable_table
 
 
+subroutine compute_grid_value(state_handle, ens_size, location, qty_index,&
+                              interp_val, istatus)
+!----------------------------------------------------
+! For single grid point to do model_interpolation
+!----------------------------------------------------
 
+type(ensemble_type),  intent(in) :: state_handle
+integer,              intent(in) :: ens_size
+type(location_type),  intent(in) :: location  ! For 1d case, set in static_init_model
+integer,              intent(in) :: itype
+real(r8),            intent(out) :: interp_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+! local variables
+integer(i8) :: lower_index, upper_index
+real(r8) :: lctn, lctnfrac
+logical :: debug =.true.
+
+if ( .not. module_initialized ) call static_init_model
+
+! initialize flags
+interp_val = MISSING_R8  ! the DART bad value flag
+istatus    = 0
+
+! Convert location to real
+lctn = get_location(location)
+! Multiply by model size assuming domain is [0, 1] cyclic
+! In static_init_model, we set location = (1-i)/model_size
+lctn = model_size * lctn
+
+! Set lower & upper index window to include non-integer location setting
+lower_index = int(lctn) + 1
+upper_index = lower_index + 1
+if(lower_index > model_size) lower_index = lower_index - model_size
+if(upper_index > model_size) upper_index = upper_index - model_size
+
+
+lctnfrac = lctn - int(lctn) !In most of case of integer location, this term will be zero
+interp_val(:) = (1.0_r8 - lctnfrac) * get_state(lower_index, state_handle) + &
+                            lctnfrac  * get_state(upper_index, state_handle)
+
+if(debug)then
+    write(string1, *)'[compute_grid_value] Variable index = ',lower_index, upper_index
+    write(string2, *)'at grid location (lctn, lctnfrac) = (',lctn ,',',lctnfrac,')'
+    write(string3, *)'interp_val = ',interp_val   
+endif
+
+
+end subroutine compute_grid_value 
+
+
+!---------------------------------------------------------------------------------
+! Stolen from DART-CLM... modified to dvm-dos-tem version
+! Jan 2024 Note: will be used in PFT patches, not for 1d single-point testing  
+!
+!> Each gridcell may contain values for several land units, each land unit may contain
+!> several columns, each column may contain several pft's.
+!> aggregates across multiple pft's. So, each gridcell value
+!> is an area-weighted value of an unknown number of column-based quantities.
+
+subroutine compute_gridcell_value(state_handle, ens_size, location, qty_index, &
+                                  interp_val, istatus)
+
+! Purpose: model_interpolation for PFTs 1D/2D variables
+
+! Passed variables
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location     ! location somewhere in a grid cell
+integer,             intent(in)  :: qty_index    ! QTY in DART state needed for interpolation
+real(r8),            intent(out) :: interp_val(ens_size)   ! area-weighted result
+integer,             intent(out) :: istatus(ens_size)      ! error code (0 == good)
+
+character(len=*), parameter :: routine = 'compute_gridcell_value:'
+
+! Local storage
+integer  :: domain, varid, counter(ens_size)
+integer(i8) :: index1, indexi, indexN
+integer  :: gridloni,gridlatj
+real(r8) :: loc_lat, loc_lon
+real(r8) :: state(ens_size)
+real(r8) :: total(ens_size)
+real(r8) :: total_area(ens_size)
+real(r8), dimension(1) :: loninds,latinds
+real(r8), dimension(LocationDims) :: loc
+integer :: imem
+character(len=obstypelength) :: varname
+
+if ( .not. module_initialized ) call static_init_model
+
+interp_val = MISSING_R8  ! the DART bad value flag
+istatus    = 0
+
+loc        = get_location(location)  ! loc is in DEGREES
+loc_lon    = loc(1)
+loc_lat    = loc(2)
+! No vertical component is considered here
+
+
+
+
+
+
+
+if (varid < 1) then
+   istatus = 11
+   return
+endif
+
+
+
+
+
+
+
+
+end subroutine compute_gridcell_value
 
 
 
