@@ -151,7 +151,7 @@ contains
 subroutine static_init_model()
 !-----------------------------------------------------------------
 real(r8) :: x_loc
-integer  :: i, dom_id
+integer  :: i
 integer :: iunit, io
 
 integer :: qty_list(MAX_STATE_VARIABLES)
@@ -201,6 +201,8 @@ time_step = set_time(assimilation_period_seconds, assimilation_period_days)
  call parse_variable_table(tem_variables, nfields, variable_table, qty_list, update_list) 
 
 ! Define which variables are in the model state
+! compare to CLM, we only assume one domain
+
 dom_id = add_domain(model_input_filename, nfields, &
                     var_names = variable_table(1:nfields, VAR_NAME_INDEX), &
                     kind_list = qty_list(1:nfields), &
@@ -348,6 +350,14 @@ expected_obs(:) = MISSING_R8
 ! Using distinct positive values for different types of errors can be
 ! useful in diagnosing problems.
 istatus(:) = 1
+
+
+
+
+
+
+
+
 
 end subroutine model_interpolate
 
@@ -773,7 +783,7 @@ varLoop : do i = 1, nrows
    table(i,4) = trim(update)
 
    ! If the first element is empty, we have found the end of the list.
-   if ( table(i,1) == ' ' ) exit MyLoop
+   if ( table(i,1) == ' ' ) exit varLoop
  
    ! Any other condition is an error.
    if ( any(table(i,:) == ' ') ) then
@@ -877,7 +887,7 @@ end subroutine compute_grid_value
 subroutine compute_gridcell_value(state_handle, ens_size, location, qty_index, &
                                   interp_val, istatus)
 
-! Purpose: model_interpolation for PFTs 1D/2D variables
+! Purpose: model_interpolation for PFTs 1D/2D variables(no vertical interpolation)
 
 ! Passed variables
 type(ensemble_type), intent(in)  :: state_handle
@@ -890,7 +900,7 @@ integer,             intent(out) :: istatus(ens_size)      ! error code (0 == go
 character(len=*), parameter :: routine = 'compute_gridcell_value:'
 
 ! Local storage
-integer  :: domain, varid, counter(ens_size)
+integer  :: varid, counter(ens_size)
 integer(i8) :: index1, indexi, indexN
 integer  :: gridloni,gridlatj
 real(r8) :: loc_lat, loc_lon
@@ -913,22 +923,70 @@ loc_lat    = loc(2)
 ! No vertical component is considered here
 
 
+!! Check if variables are in state
+! initialization
+varname = "missing_varname"
+varid = -1
 
-
-
-
-
-if (varid < 1) then
+varid = get_varid_from_kind(dom_id, qty_index)
+if (varid < 0) then
    istatus = 11
    return
+else
+   varname = get_variable_name(dom_id,varid)
 endif
 
 
+! TODO: below are from CLM, need to modify to TEM coordinate
+
+! determine the grid cell for the location
+latinds  = minloc(abs(LAT - loc_lat))   ! these return 'arrays' ...
+loninds  = minloc(abs(LON - loc_lon))   ! these return 'arrays' ...
+gridlatj = latinds(1)
+gridloni = loninds(1)
+
+if (debug > 0) then
+   write(string1,*)'Working on "',trim(varname),'"'
+   write(string2,*)'targetlon, lon, lon index is ',loc_lon,LON(gridloni),gridloni
+   write(string3,*)'targetlat, lat, lat index is ',loc_lat,LAT(gridlatj),gridlatj
+   call error_handler(E_ALLMSG,routine,string1,source,text2=string2,text3=string3)
+endif
 
 
+index1 = get_index_start(dom_id, varid)
+indexN = get_index_end(  dom_id, varid)
+
+counter    = 0
+total      = 0.0_r8      ! temp storage for state vector
+total_area = 0.0_r8      ! temp storage for area
+ELEMENTS : do indexi = index1, indexN
+
+   if (   lonixy(indexi) /=  gridloni ) cycle ELEMENTS
+   if (   latjxy(indexi) /=  gridlatj ) cycle ELEMENTS
+   if ( landarea(indexi) ==   0.0_r8  ) cycle ELEMENTS
+
+   state = get_state(indexi, state_handle)
+
+   MEMBERS: do imem = 1, ens_size
+
+      if(state(imem) == MISSING_R8) cycle MEMBERS
+
+      counter(imem)    = counter(imem)    + 1
+      total(imem)      = total(imem)      + state(imem)*landarea(indexi)
+      total_area(imem) = total_area(imem) +             landarea(indexi)
 
 
+   enddo MEMBERS
+enddo ELEMENTS
 
+do imem = 1,ens_size
+   if (total_area(imem) > 0.0_r8 .and. istatus(imem) == 0) then
+      interp_val(imem) = total(imem) / total_area(imem)
+   else
+      interp_val(imem) = MISSING_R8
+      istatus(imem)    = 32
+   endif
+enddo
 
 end subroutine compute_gridcell_value
 
