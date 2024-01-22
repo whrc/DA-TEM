@@ -12,7 +12,7 @@ module model_mod
 ! interface and look for NULL INTERFACE). 
 
 use types_mod,             only : r8, i8, i4, MISSING_R8, &
-                                  metadatalength
+                                  metadatalength, obstypelength
 
 use time_manager_mod,      only : time_type, set_time
 
@@ -21,7 +21,8 @@ use location_mod,          only : location_type, set_location, get_location,    
                                   convert_vertical_obs, convert_vertical_state, &
                                   LocationDims
 
-use utilities_mod,         only : register_module, do_nml_file, do_nml_term,    &
+use utilities_mod,         only : error_handler,register_module, do_nml_file,   &
+                                  do_nml_term,                                  &
                                   nmlfileunit, find_namelist_in_file,           &
                                   check_namelist_read
 
@@ -31,13 +32,25 @@ use netcdf_utilities_mod, only : nc_add_global_attribute, nc_synchronize_file, &
                                  nc_add_global_creation_time, nc_begin_define_mode, &
                                  nc_end_define_mode
 
-use         obs_kind_mod,  only : QTY_STATE_VARIABLE
+use         obs_kind_mod,  only : QTY_STATE_VARIABLE,             & 
+                                  QTY_SOIL_TEMPERATURE,           &
+                                  QTY_SOIL_MOISTURE,              &
+                                  QTY_PAR_DIRECT,                 &
+                                  QTY_SOLAR_INDUCED_FLUORESCENCE, &
+                                  QTY_LEAF_AREA_INDEX,            &
+                                  QTY_GROSS_PRIMARY_PROD_FLUX,    &
+                                  get_index_for_quantity,         &
+                                  get_name_for_quantity
+
 
 use ensemble_manager_mod,  only : ensemble_type
 
 use distributed_state_mod, only : get_state
 
-use state_structure_mod,   only : add_domain
+use state_structure_mod,   only : add_domain,                         &
+                                  get_index_start, get_index_end,     &
+                                  get_num_domains, get_num_variables, &
+                                  get_variable_name 
 
 use default_model_mod,     only : end_model, pert_model_copies, nc_write_model_vars
 
@@ -154,8 +167,8 @@ real(r8) :: x_loc
 integer  :: i
 integer :: iunit, io
 
-integer :: qty_list(MAX_STATE_VARIABLES)
-logical :: update_list(MAX_STATE_VARIABLES)
+integer :: qty_list(max_state_variables)
+logical :: update_list(max_state_variables)
 
 integer :: nvars
 character(len=obstypelength) :: var_names(max_state_variables)
@@ -340,22 +353,65 @@ integer,              intent(in) :: iqty
 real(r8),            intent(out) :: expected_obs(ens_size) !< array of interpolated values
 integer,             intent(out) :: istatus(ens_size)
 
-! This should be the result of the interpolation of a
-! given quantity (iqty) of variable at the given location.
+! model_interpolate will interpolate any variable in the DART vector to the given location.
+! The first variable matching the quantity of interest will be used for the interpolation.
+
+! The return code for successful return should be 0.
+! Any positive number is an error.
+
+! istatus =  0 ... success
+! istatus =  1 ... No avaiable quantity
+! istatus =  3 ... quantity not in the DART vector
+
+! Local variables
+character(len=*), parameter  :: routine = 'model_interpolate'
+character(len=256) :: qty_string
+
+
+
+if ( .not. module_initialized ) call static_init_model
+
+! initialize status var
+istatus(:) = 0
 expected_obs(:) = MISSING_R8
 
-! The return code for successful return should be 0. 
-! Any positive number is an error.
-! Negative values are reserved for use by the DART framework.
-! Using distinct positive values for different types of errors can be
-! useful in diagnosing problems.
-istatus(:) = 1
+! check quantity existence
+varid = get_varid_from_kind(dom_id, iqty)
+
+if (varid < 1) then
+   istatus = 1
+   return
+endif
 
 
+! select interpolation method for variables
+select case( iqty )
 
+    case( QTY_STATE_VARIABLE ) ! 1D testing case
+       call compute_grid_value(state_handle, ens_size, location, iqty, &
+                                    expected_obs, istatus)
+   
+  
+    case( QTY_LEAF_AREA_INDEX, QTY_GROSS_PRIMARY_PROD_FLUX, &
+          QTY_PAR_DIRECT) ! 2D on grid cell 
+   
+        call compute_gridcell_value(state_handle, ens_size, location, iqty, &
+                                    expected_obs, istatus) 
 
+!case( QTY_SOIL_MOISTURE, QTY_SOIL_TEMPERATURE) ! 3D variables
+     
+         
+    case default
 
+      qty_string = get_name_for_quantity(iqty)
 
+      write(string1,*)'not written for (integer) kind ',iqty
+      write(string2,*)'AKA '//trim(qty_string)
+      call error_handler(E_ERR,routine,string1,source,text2=string2)
+      expected_obs = MISSING_R8
+      istatus = 3
+
+end select
 
 
 
