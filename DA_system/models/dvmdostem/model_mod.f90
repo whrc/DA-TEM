@@ -14,7 +14,7 @@ module model_mod
 use types_mod,             only : r8, i8, i4, MISSING_R8, &
                                   metadatalength, obstypelength
 
-use time_manager_mod,      only : time_type, set_time
+use time_manager_mod,      only : time_type, set_time, set_calendar_type
 
 use location_mod,          only : location_type, set_location, get_location,    &
                                   get_close_obs, get_close_state,               &
@@ -28,9 +28,14 @@ use utilities_mod,         only : error_handler,register_module, do_nml_file,   
 
 use location_io_mod,      only :  nc_write_location_atts, nc_write_location
 
-use netcdf_utilities_mod, only : nc_add_global_attribute, nc_synchronize_file, &
-                                 nc_add_global_creation_time, nc_begin_define_mode, &
-                                 nc_end_define_mode
+use netcdf_utilities_mod, only : nc_add_global_attribute, nc_synchronize_file,  &
+                                 nc_add_global_creation_time, nc_check,         &
+                                 nc_begin_define_mode, nc_end_define_mode,      &
+                                 nc_open_file_readonly, nc_close_file,          &
+                                 nc_get_dimension_size, nc_get_variable_size,   &
+                                 nc_get_variable, nc_put_variable,              &
+                                 nc_get_variable_dimension_names,               &
+
 
 use         obs_kind_mod,  only : QTY_STATE_VARIABLE,             & 
                                   QTY_SOIL_TEMPERATURE,           &
@@ -112,17 +117,18 @@ integer, parameter :: VAR_UPDATE_INDEX = 3
 
 ! Things should be defined in the namelist "model_mod.nml"
 character(len=32)  :: calendar = 'NOLEAP'    !!dvmdostem uses 365-year calendar (no leap year)
-character(len=256) :: model_input_filename = 'cpara_bkgd.nc'
-character(len=256) :: model_grid_filename = 'run-mask.nc'
+character(len=256) :: model_input_filename = 'model_bkgd.nc'
+character(len=256) :: model_para_filename  = 'cpara_bkgd.nc'
+character(len=256) :: model_grid_filename  = 'run-mask.nc'
 integer            :: assimilation_period_days = 0
 integer            :: assimilation_period_seconds = 60
 integer            :: assimilation_date = 201000101     ! DA time YYYYMMDD
-logical            :: debug = .true.        ! true = print out debugging message    
+!logical            :: debug = .true.        ! true = print out debugging message    
 logical            :: para_1d = .true.      ! true = 1d parameter estimation
 character(len=metadatalength) :: tem_variables(max_state_variables * num_state_table_columns ) = ' '
 
-namelist /model_nml/ model_input_filename, model_grid_filename, calendar, assimilation_date, debug,&
-                     tem_variables, para_1d
+namelist /model_nml/ model_input_filename, model_para_filename, model_grid_filename, & 
+                     calendar, assimilation_date, tem_variables, para_1d
 
 !--------------------------------------------------------------------------
 ! Things from dvmdostem simulation file
@@ -177,16 +183,19 @@ logical  :: var_update(max_state_variables)
 integer  :: var_qtys(  max_state_variables)
 
 
+if ( module_initialized ) return ! only need to do this once.
+
+
 module_initialized = .true.
 
 
 ! Read namelist information
 !----------------------------------------------
-call register_module(source) !Print module information
+!call register_module(source) !Print module information
 
 ! Read the namelist
-!call find_namelist_in_file("input.nml", "model_nml", iunit)
-call find_namelist_in_file("model_mod.nml", "model_nml", iunit)
+call find_namelist_in_file("input.nml", "model_nml", iunit)
+!call find_namelist_in_file("model_mod.nml", "model_nml", iunit)
 read(iunit, nml = model_nml, iostat = io)
 call check_namelist_read(iunit, io, "model_nml")
 
@@ -213,8 +222,7 @@ time_step = set_time(assimilation_period_seconds, assimilation_period_days)
 !---------------------------------------------------
  call parse_variable_table(tem_variables, nfields, variable_table, qty_list, update_list) 
 
-! Define which variables are in the model state
-! compare to CLM, we only assume one domain
+! Define domain index for model variables
 
 dom_id = add_domain(model_input_filename, nfields, &
                     var_names = variable_table(1:nfields, VAR_NAME_INDEX), &
@@ -226,12 +234,12 @@ model_size = get_domain_size(dom_id)
 ! Define dimension & location
 !---------------------------------------------------
 ! For 1d application
-!if (para_1d == .true.)then
+if (para_1d == .true.)then
   do i = 1, model_size
      x_loc = (i - 1.0_r8) / model_size
      state_loc(i) =  set_location(x_loc)
   end do
-!endif
+endif
 
 ! If 2d/3d application, we need to get lon,lat
 !call get_grid_dims() !TODO: for future 2d/3d application, additional subroutine is 
@@ -464,7 +472,7 @@ if ( .not. module_initialized ) call static_init_model
 
 
 
-! For 1d site application
+! For 1d site application (testing only)
 !==============================
 location = state_loc(indx)
 if (present(var_type)) var_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
@@ -836,7 +844,7 @@ varLoop : do i = 1, nrows
    table(i,2) = trim(dartstr)
    table(i,3) = trim(minvalstring)
    table(i,4) = trim(maxvalstring)
-   table(i,4) = trim(update)
+   table(i,5) = trim(update)
 
    ! If the first element is empty, we have found the end of the list.
    if ( table(i,1) == ' ' ) exit varLoop
