@@ -121,6 +121,18 @@
                                 'RAW_STATE_VAR_POWER'
    /
 
+# dvmdostem-DART variables
+# Each variable must have 6 entries.
+# 1: variable name
+# 2: DART KIND
+# 3: minimum value - as a character string - if none, use 'NA'
+# 4: maximum value - as a character string - if none, use 'NA'
+# 5: does the variable get updated or not :
+#    'UPDATE'       =>  update the variable in the restart file
+#    'NO_COPY_BACK' =>  do not update the variable in the restart file
+#    all these variables will be updated INTERNALLY IN DART
+#    only variables marked 'UPDATE' will be modified for dvmdostem restart file.
+
 &model_nml
    model_input_filename        = 'GPP_monthly_tr.nc'	
    model_para_filename         = 'cpara_bkgd.nc'	

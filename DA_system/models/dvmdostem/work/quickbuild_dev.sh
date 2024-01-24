@@ -6,7 +6,7 @@
 
 main() {
 
-export DART=$(git rev-parse --show-toplevel)
+export DART=$(git rev-parse --show-toplevel)/DA_system
 source "$DART"/build_templates/buildfunctions.sh
 
 MODEL=dvmdostem
@@ -15,7 +15,7 @@ LOCATION=oned
 
 programs=(
 #filter
-#model_mod_check
+model_mod_check
 )
 
 serial_programs=(
@@ -25,7 +25,7 @@ model_programs=(
 )
 
 model_serial_programs=(
-tem_to_dart	
+#tem_to_dart	
 )
 
 # quickbuild arguments

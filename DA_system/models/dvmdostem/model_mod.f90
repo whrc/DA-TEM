@@ -24,7 +24,8 @@ use location_mod,          only : location_type, set_location, get_location,    
 use utilities_mod,         only : error_handler,register_module, do_nml_file,   &
                                   do_nml_term,                                  &
                                   nmlfileunit, find_namelist_in_file,           &
-                                  check_namelist_read
+                                  check_namelist_read,                          &
+                                  E_ERR, E_ALLMSG
 
 use location_io_mod,      only :  nc_write_location_atts, nc_write_location
 
@@ -35,15 +36,16 @@ use netcdf_utilities_mod, only : nc_add_global_attribute, nc_synchronize_file,  
                                  nc_get_dimension_size, nc_get_variable_size,   &
                                  nc_get_variable, nc_put_variable,              &
                                  nc_get_variable_dimension_names,               &
+                                 NF90_MAX_NAME
 
 
-use         obs_kind_mod,  only : QTY_STATE_VARIABLE,             & 
-                                  QTY_SOIL_TEMPERATURE,           &
-                                  QTY_SOIL_MOISTURE,              &
-                                  QTY_PAR_DIRECT,                 &
-                                  QTY_SOLAR_INDUCED_FLUORESCENCE, &
-                                  QTY_LEAF_AREA_INDEX,            &
-                                  QTY_GROSS_PRIMARY_PROD_FLUX,    &
+use         obs_kind_mod,  only : QTY_STATE_VARIABLE,             &
+!                                  QTY_SOIL_TEMPERATURE,           &
+!                                  QTY_SOIL_MOISTURE,              &
+!                                  QTY_PAR_DIRECT,                 &
+!                                  QTY_SOLAR_INDUCED_FLUORESCENCE, &
+!                                  QTY_LEAF_AREA_INDEX,            &
+!                                  QTY_GROSS_PRIMARY_PROD_FLUX,    &
                                   get_index_for_quantity,         &
                                   get_name_for_quantity
 
@@ -52,10 +54,10 @@ use ensemble_manager_mod,  only : ensemble_type
 
 use distributed_state_mod, only : get_state
 
-use state_structure_mod,   only : add_domain,                         &
+use state_structure_mod,   only : add_domain,  get_domain_size,       &
                                   get_index_start, get_index_end,     &
                                   get_num_domains, get_num_variables, &
-                                  get_variable_name 
+                                  get_variable_name, get_varid_from_kind 
 
 use default_model_mod,     only : end_model, pert_model_copies, nc_write_model_vars
 
@@ -123,12 +125,14 @@ character(len=256) :: model_grid_filename  = 'run-mask.nc'
 integer            :: assimilation_period_days = 0
 integer            :: assimilation_period_seconds = 60
 integer            :: assimilation_date = 201000101     ! DA time YYYYMMDD
-!logical            :: debug = .true.        ! true = print out debugging message    
+logical            :: debug = .true.        ! true = print out debugging message    
 logical            :: para_1d = .true.      ! true = 1d parameter estimation
 character(len=metadatalength) :: tem_variables(max_state_variables * num_state_table_columns ) = ' '
 
 namelist /model_nml/ model_input_filename, model_para_filename, model_grid_filename, & 
-                     calendar, assimilation_date, tem_variables, para_1d
+                     assimilation_period_days, assimilation_period_seconds, assimilation_date, &
+                     calendar, para_1d, tem_variables
+
 
 !--------------------------------------------------------------------------
 ! Things from dvmdostem simulation file
@@ -140,19 +144,20 @@ namelist /model_nml/ model_input_filename, model_para_filename, model_grid_filen
 !-------------------------------------------------------------------------
 ! For 2d/3d application
 !! Things from dvmdostem run_mask (grid) file
-!integer :: ngrid    = -1 
-!integer :: nlon     = -1
-!integer :: nlat     = -1
-!integer :: npfts    = -1
-!integer :: nlevgrnd = -1 ! Number of 'ground' levels
-!integer :: nlevsoi  = -1 ! Number of 'soil' levels
+integer :: ngrid    = -1 
+integer :: nlon     = -1
+integer :: nlat     = -1
+integer :: npfts    = -1
+integer :: nlevgrnd = -1 ! Number of 'ground' levels
+integer :: nlevsoi  = -1 ! Number of 'soil' levels
 
-!real(r8), allocatable ::  lon(:) ! used grid longitude
-!real(r8), allocatable ::  lat(:) ! used grid latitude
-!integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
+real(r8), allocatable ::  lon(:) ! used grid longitude
+real(r8), allocatable ::  lat(:) ! used grid latitude
+integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
+
 
 ! For 1d site application
-type(location_type) :: state_loc(model_size)
+type(location_type), allocatable :: state_loc(:)
 
 
 
@@ -195,9 +200,9 @@ module_initialized = .true.
 
 ! Read the namelist
 call find_namelist_in_file("input.nml", "model_nml", iunit)
-!call find_namelist_in_file("model_mod.nml", "model_nml", iunit)
 read(iunit, nml = model_nml, iostat = io)
 call check_namelist_read(iunit, io, "model_nml")
+
 
 ! Output the namelist values if requested
 if (do_nml_file()) write(nmlfileunit, nml=model_nml)
@@ -234,7 +239,8 @@ model_size = get_domain_size(dom_id)
 ! Define dimension & location
 !---------------------------------------------------
 ! For 1d application
-if (para_1d == .true.)then
+allocate(state_loc(model_size))
+if (para_1d)then
   do i = 1, model_size
      x_loc = (i - 1.0_r8) / model_size
      state_loc(i) =  set_location(x_loc)
@@ -374,7 +380,7 @@ integer,             intent(out) :: istatus(ens_size)
 ! Local variables
 character(len=*), parameter  :: routine = 'model_interpolate'
 character(len=256) :: qty_string
-
+integer :: varid
 
 
 if ( .not. module_initialized ) call static_init_model
@@ -398,17 +404,15 @@ select case( iqty )
     case( QTY_STATE_VARIABLE ) ! 1D testing case
        call compute_grid_value(state_handle, ens_size, location, iqty, &
                                     expected_obs, istatus)
+     
+!    case( QTY_LEAF_AREA_INDEX, QTY_GROSS_PRIMARY_PROD_FLUX, &
+!          QTY_PAR_DIRECT) ! 2D on grid cell 
    
-  
-    case( QTY_LEAF_AREA_INDEX, QTY_GROSS_PRIMARY_PROD_FLUX, &
-          QTY_PAR_DIRECT) ! 2D on grid cell 
-   
-        call compute_gridcell_value(state_handle, ens_size, location, iqty, &
-                                    expected_obs, istatus) 
+!        call compute_gridcell_value(state_handle, ens_size, location, iqty, &
+!                                    expected_obs, istatus) 
 
 !case( QTY_SOIL_MOISTURE, QTY_SOIL_TEMPERATURE) ! 3D variables
-     
-         
+             
     case default
 
       qty_string = get_name_for_quantity(iqty)
@@ -475,7 +479,7 @@ if ( .not. module_initialized ) call static_init_model
 ! For 1d site application (testing only)
 !==============================
 location = state_loc(indx)
-if (present(var_type)) var_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
+if (present(qty_type)) qty_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
 
 end subroutine get_state_meta_data
 
@@ -711,7 +715,7 @@ subroutine epochtime_to_date(epochtime, run_type, year, month, day)
  ! Convert epochtime to date
   ! year 
   if (epochtime > 365) then
-     year = base_year + days / 365
+     year = base_year + day / 365
   else
      year = base_year      
   endif
@@ -742,6 +746,7 @@ subroutine date_to_epochtime(year, month, day, run_type, epochtime)
  character(len=8),intent(in)   :: run_type   ! transient('tr') or scenario('sc')
  integer, intent(out)          :: epochtime
 
+ integer :: i
  character(len=20) :: date_string
  integer :: base_year, base_month, base_day, total_days
  integer, dimension(12) :: days_in_month
@@ -888,7 +893,7 @@ endif
 end subroutine parse_variable_table
 
 
-subroutine compute_grid_value(state_handle, ens_size, location, qty_index,&
+subroutine compute_grid_value(state_handle, ens_size, location, iqty,&
                               interp_val, istatus)
 !----------------------------------------------------
 ! For single grid point to do model_interpolation
@@ -897,7 +902,7 @@ subroutine compute_grid_value(state_handle, ens_size, location, qty_index,&
 type(ensemble_type),  intent(in) :: state_handle
 integer,              intent(in) :: ens_size
 type(location_type),  intent(in) :: location  ! For 1d case, set in static_init_model
-integer,              intent(in) :: itype
+integer,              intent(in) :: iqty
 real(r8),            intent(out) :: interp_val(ens_size)
 integer,             intent(out) :: istatus(ens_size)
 
@@ -982,8 +987,10 @@ interp_val = MISSING_R8  ! the DART bad value flag
 istatus    = 0
 
 loc        = get_location(location)  ! loc is in DEGREES
-loc_lon    = loc(1)
-loc_lat    = loc(2)
+! uncomment this when use 2d/3d dimension compile setting
+!loc_lon    = loc(1)
+!loc_lat    = loc(2)
+
 ! No vertical component is considered here
 
 
@@ -1004,17 +1011,17 @@ endif
 ! TODO: below are from CLM, need to modify to TEM coordinate
 
 ! determine the grid cell for the location
-latinds  = minloc(abs(LAT - loc_lat))   ! these return 'arrays' ...
-loninds  = minloc(abs(LON - loc_lon))   ! these return 'arrays' ...
-gridlatj = latinds(1)
-gridloni = loninds(1)
+!latinds  = minloc(abs(LAT - loc_lat))   ! these return 'arrays' ...
+!loninds  = minloc(abs(LON - loc_lon))   ! these return 'arrays' ...
+!gridlatj = latinds(1)
+!gridloni = loninds(1)
 
-if (debug > 0) then
-   write(string1,*)'Working on "',trim(varname),'"'
-   write(string2,*)'targetlon, lon, lon index is ',loc_lon,LON(gridloni),gridloni
-   write(string3,*)'targetlat, lat, lat index is ',loc_lat,LAT(gridlatj),gridlatj
-   call error_handler(E_ALLMSG,routine,string1,source,text2=string2,text3=string3)
-endif
+!if (debug) then
+!   write(string1,*)'Working on "',trim(varname),'"'
+!   write(string2,*)'targetlon, lon, lon index is ',loc_lon,LON(gridloni),gridloni
+!   write(string3,*)'targetlat, lat, lat index is ',loc_lat,LAT(gridlatj),gridlatj
+!   call error_handler(E_ALLMSG,routine,string1,source,text2=string2,text3=string3)
+!endif
 
 
 index1 = get_index_start(dom_id, varid)
@@ -1025,32 +1032,32 @@ total      = 0.0_r8      ! temp storage for state vector
 total_area = 0.0_r8      ! temp storage for area
 ELEMENTS : do indexi = index1, indexN
 
-   if (   lonixy(indexi) /=  gridloni ) cycle ELEMENTS
-   if (   latjxy(indexi) /=  gridlatj ) cycle ELEMENTS
-   if ( landarea(indexi) ==   0.0_r8  ) cycle ELEMENTS
+!   if (   lonixy(indexi) /=  gridloni ) cycle ELEMENTS
+!   if (   latjxy(indexi) /=  gridlatj ) cycle ELEMENTS
+!   if ( landarea(indexi) ==   0.0_r8  ) cycle ELEMENTS
 
-   state = get_state(indexi, state_handle)
+!   state = get_state(indexi, state_handle)
 
    MEMBERS: do imem = 1, ens_size
 
-      if(state(imem) == MISSING_R8) cycle MEMBERS
+!      if(state(imem) == MISSING_R8) cycle MEMBERS
 
       counter(imem)    = counter(imem)    + 1
-      total(imem)      = total(imem)      + state(imem)*landarea(indexi)
-      total_area(imem) = total_area(imem) +             landarea(indexi)
+!      total(imem)      = total(imem)      + state(imem)*landarea(indexi)
+!      total_area(imem) = total_area(imem) +             landarea(indexi)
 
 
    enddo MEMBERS
 enddo ELEMENTS
 
-do imem = 1,ens_size
-   if (total_area(imem) > 0.0_r8 .and. istatus(imem) == 0) then
-      interp_val(imem) = total(imem) / total_area(imem)
-   else
-      interp_val(imem) = MISSING_R8
-      istatus(imem)    = 32
-   endif
-enddo
+!do imem = 1,ens_size
+!   if (total_area(imem) > 0.0_r8 .and. istatus(imem) == 0) then
+!      interp_val(imem) = total(imem) / total_area(imem)
+!   else
+!      interp_val(imem) = MISSING_R8
+!      istatus(imem)    = 32
+!   endif
+!enddo
 
 end subroutine compute_gridcell_value
 
