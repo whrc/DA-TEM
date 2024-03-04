@@ -14,7 +14,7 @@ module model_mod
 use types_mod,             only : r8, i8, i4, MISSING_R8, &
                                   metadatalength, obstypelength
 
-use time_manager_mod,      only : time_type, set_time, set_calendar_type
+use time_manager_mod,      only : time_type,set_date, set_time, set_calendar_type
 
 use location_mod,          only : location_type, set_location, get_location,    &
                                   get_close_obs, get_close_state,               &
@@ -22,7 +22,7 @@ use location_mod,          only : location_type, set_location, get_location,    
                                   LocationDims
 
 use utilities_mod,         only : error_handler,register_module, do_nml_file,   &
-                                  do_nml_term,                                  &
+                                  do_nml_term, to_upper, file_exist,            &
                                   nmlfileunit, find_namelist_in_file,           &
                                   check_namelist_read,                          &
                                   E_ERR, E_ALLMSG
@@ -61,7 +61,7 @@ use state_structure_mod,   only : add_domain,  get_domain_size,       &
 
 use default_model_mod,     only : end_model, pert_model_copies, nc_write_model_vars
 
-use dart_time_io_mod,      only : read_model_time, write_model_time
+use dart_time_io_mod,      only : write_model_time  
 
 implicit none
 private
@@ -174,7 +174,7 @@ contains
 
 subroutine static_init_model()
 !-----------------------------------------------------------------
-real(r8) :: x_loc
+real(r8) :: x_loc ! 1D
 integer  :: i
 integer :: iunit, io
 
@@ -566,9 +566,9 @@ subroutine get_grid_dims()
  allocate(latdata(ny,nx))
 
 ! read in data
- call nc_get_variable(ncid, 'lat', latdata, routine)
- call nc_get_variable(ncid, 'lon', londata, routine)
- call nc_get_variable(ncid, 'run', run, routine)
+! call nc_get_variable(ncid, 'lat', latdata)
+! call nc_get_variable(ncid, 'lon', londata)
+! call nc_get_variable(ncid, 'run', run)
 
  ! find how many cells are used in dvmdostem (0= no use, 1 = use)
  ngrid = 0
@@ -682,30 +682,118 @@ subroutine read_model_var(ncfile,varname,epochtime,outvar)
 end subroutine read_model_var
 
 
-subroutine epochtime_to_date(epochtime, run_type, year, month, day)
+
+
+function read_model_time(filename)
+! Function to read dvm-dos-tem file time
+! CCC: temperately read time from GPP monthly diagnosis files as trial
+!      
+! The ultimate goal is to update the "restart files"
+! will need to modify this subroutine to adapt to restart files.
+
+
+character(len=*), intent(in) :: filename
+type(time_type) :: read_model_time
+
+character(len=*), parameter :: routine = 'read_model_time'
+integer, allocatable :: time(:)
+integer :: ncid, nt, i, n
+integer :: datetime, YYYYMMDD
+integer :: year, month, day, hour, minute, second
+integer :: yyyy, mm, dd
+
+
+if ( .not. module_initialized ) call static_init_model
+
+if ( .not. file_exist(filename) ) then
+   write(string1,*) 'cannot open file ', trim(filename),' for reading.'
+   call error_handler(E_ERR,'read_model_time',string1,source)
+endif
+
+! Set hour, minute, second = 0 
+hour = 0
+minute = 0
+second = 0
+
+
+! open model GPP nc file
+ ncid = nc_open_file_readonly(trim(filename), routine)
+ nt = nc_get_dimension_size(ncid,'time',routine) !get dimension
+
+ ! allocate and read data
+ allocate(time(nt))
+ call nc_get_variable(ncid, 'time', time, routine)
+
+!============ For multiple time steps =============
+
+! The GPP monthly file has multiple epochtime time 
+n=0  
+do i =1, nt
+   call epochtime_to_date(time(i), 1, datetime, yyyy, mm, dd)
+   if(datetime == assimilation_date)then
+      YYYYMMDD = datetime
+      year = yyyy
+      month = mm
+      day = dd
+      n=1
+      exit
+   endif   
+enddo
+
+ ! check if the code correctly find assimilation time in file
+ if(n == 0)then
+   write(string1,*) '[read_model_time] NO avaiable time step in the given file'
+   return   
+ endif
+
+
+!=========  For single time step file ===========
+! after read-in "time" in nc file
+! call epochtime_to_date(time, 1, datetime, year, month, day)
+!
+! if(datetime /= assimilation_date)then
+!    write(string1,*) '[read_model_time] NO avaiable time step in the given file'
+!    return
+! endif
+
+call nc_close_file(ncid)
+
+! Return model time
+read_model_time=set_date(year, month, day, hour, minute, second)
+
+
+end function read_model_time
+
+
+
+subroutine epochtime_to_date(epochtime, run_type, YYYYMMDD, year, month, day)
 !==============================================
 ! convert dvmdostem  epoch time to date time
 !
 ! NOTE: Current dvm-dos-tem uses 365 days calendar for 1 year
 !       NO LEAPS YEAR!! 
+!
+! run_type = 1  'tr' data  
+!          = 2  'sc' data
 !----------------------------------------------
- integer, intent(in)           :: epochtime
- character(len=8),intent(in)   :: run_type   ! transient('tr') or scenario('sc')          
- integer, intent(out)          :: year, month, day
- 
+ integer, intent(in)             :: epochtime
+ integer, intent(in)             :: run_type   ! transient('tr') or scenario('sc')          
+ integer, intent(out)            :: YYYYMMDD
+ integer, intent(out)            :: year, month, day
 
- character(len=20) :: date_string
- integer :: base_year, days_remaining
- integer, dimension(12) :: days_in_month
+ character(len=20)               :: date_string
+ integer                         :: base_year, days_remaining
+ integer, dimension(12)          :: days_in_month  
+ logical :: debug = .false.
 
  ! Define days in months for a common year
   days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 
  ! Define the based date 
- if(trim(run_type) == 'tr')then
+ if( run_type == 1 )then
     base_year = 1901
- elseif (trim(run_type) == 'sc') then
+ elseif ( run_type == 2 ) then
     base_year = 2016
  else
     write(*,*) "[epochtime_to_date] Can't regonize the run_type!"     
@@ -729,8 +817,14 @@ subroutine epochtime_to_date(epochtime, run_type, year, month, day)
   enddo
   
   day = days_remaining + 1
-  
-  WRITE (date_string, '(I4.4,"-",I2.2,"-",I2.2)') year, month, day
+
+  ! convert date to YYYYMMDD
+  YYYYMMDD = year*10000 + month*100 + day
+
+  if (debug)then
+    WRITE (date_string, '(I4.4,"-",I2.2,"-",I2.2)') year, month, day
+    WRITE (*,*) YYYYMMDD
+  endif
 
 end subroutine epochtime_to_date
 

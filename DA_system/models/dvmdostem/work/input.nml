@@ -116,9 +116,8 @@
    /
 
 &obs_kind_nml
-   assimilate_these_obs_types = 'RAW_STATE_VARIABLE',
-                                'RAW_STATE_1D_INTEGRAL',
-                                'RAW_STATE_VAR_POWER'
+   assimilate_these_obs_types = 'RAW_STATE_VARIABLE'
+   evaluate_these_obs_types   = ''                               
    /
 
 # dvmdostem-DART variables
@@ -142,9 +141,7 @@
    assimilation_date           = 201000101	
    calendar                    = 'NOLEAP'	
    para_1d                     = .true.	
-   tem_variables               = 'GPP',     'QTY_STATE_VARIABLE',     '0.0',  'NA',  'UPDATE',
-				 'cmax1',   'QTY_PAR_DIRECT',         '0.0',  'NA',  'NO_COPY_BACK',
-                                 'cmax2',   'QTY_PAR_DIRECT',         '0.0',  'NA',  'NO_COPY_BACK'    
+   tem_variables               = 'GPP',     'QTY_STATE_VARIABLE',     '0.0',  'NA',  'UPDATE'    
    /
 
 &utilities_nml
@@ -199,7 +196,7 @@
    /
 
 &schedule_nml
-   calendar        = 'Gregorian',
+   calendar        = 'NOLEAP',
    first_bin_start =  1601,  1,  1,  0,  0,  0,
    first_bin_end   =  2999,  1,  1,  0,  0,  0,
    last_bin_end    =  2999,  1,  1,  0,  0,  0,
@@ -233,12 +230,12 @@
    /
 
 &model_mod_check_nml
-  input_state_files     = 'perfect_input.nc'
-  output_state_files    = 'mmc_output.nc'
+  input_state_files     = 'GPP_monthly_tr.nc'
+  output_state_files    = 'GPP_output.nc'
   num_ens               = 1
   single_file           = .false.
-  test1thru             = 0
-  run_tests             = 1,2,3,4,5,6,7
+  test1thru             = 3
+  run_tests             = -1
   x_ind                 = 2
   loc_of_interest       = 0.3
   quantity_of_interest  = 'QTY_STATE_VARIABLE'

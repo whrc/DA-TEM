@@ -337,6 +337,7 @@ end subroutine write_nc_state
 subroutine read_run_mask(filename,ndim,ngrid,lon,lat)
 !=============================================================
 ! read run-mask.nc and define dimension
+! only use in 2d/3d application
 !=============================================================
  character(len=128), intent(in)     :: filename  ! run-mask.nc
  integer, intent(out)               :: ndim  ! dimension (1 or 2 or 3) 
@@ -364,57 +365,60 @@ subroutine read_run_mask(filename,ndim,ngrid,lon,lat)
  allocate(londata(ny,nx))
  allocate(latdata(ny,nx))
 
+! The nc utility in DART is associated with the dimention during compilation
+! The compiler would complain if the rank of input data is not consistent with location in quickbuild.sh  
+
 ! read in data
- call nc_get_variable(ncid, 'lat', latdata, routine)
- call nc_get_variable(ncid, 'lon', londata, routine)
- call nc_get_variable(ncid, 'run', run, routine) 
+! call nc_get_variable(ncid, 'lat', latdata, routine)
+! call nc_get_variable(ncid, 'lon', londata, routine)
+! call nc_get_variable(ncid, 'run', run, routine) 
 
 ! find which cell is used in dvmdostem (0= no use, 1 = use)
- ngrid = 0
- do i = 1,ny
-    do j=1, nx
-      if(run(i,j) > 0)then
-        ngrid = ngrid +1    
-        xindx(ngrid)=i
-        yindx(ngrid)=j  
-      endif
-    enddo
- enddo
+! ngrid = 0
+! do i = 1,ny
+!    do j=1, nx
+!      if(run(i,j) > 0)then
+!        ngrid = ngrid +1    
+!        xindx(ngrid)=i
+!        yindx(ngrid)=j  
+!      endif
+!    enddo
+! enddo
 
- if (ngrid == 0)then
-    write(*,*)"========= ERROR : No cell is used in run-mask.nc ======="
-    return
- else
-    write(*,*)"[read_run_msk] grid cells used in run-mask : ",ngrid     
- endif
+! if (ngrid == 0)then
+!    write(*,*)"========= ERROR : No cell is used in run-mask.nc ======="
+!    return
+! else
+!    write(*,*)"[read_run_msk] grid cells used in run-mask : ",ngrid     
+! endif
 
 
 ! allocate output lon lat data
- allocate(lon(ngrid))
- allocate(lat(ngrid))
+! allocate(lon(ngrid))
+! allocate(lat(ngrid))
 
 ! save lon, lat 
- do k=1,ngrid
-   i=xindx(k)
-   j=yindx(k)
-   lon(k)=londata(i,j)
-   lat(k)=latdata(i,j) 
- enddo
+! do k=1,ngrid
+!   i=xindx(k)
+!   j=yindx(k)
+!   lon(k)=londata(i,j)
+!   lat(k)=latdata(i,j) 
+! enddo
 
-! define ndim (1d or 2d) 
- if(ngrid == 1) then
-     ndim = 1   ! single cell (site) 
- elseif(ngrid > 1)then
-     ndim = 2   ! multiple cells   
- else
-     write(*,*)"========= [read_run_mask] Dimension errors!  ======="    
-     return
- endif
+!! define ndim (1d or 2d) 
+! if(ngrid == 1) then
+!     ndim = 1   ! single cell (site) 
+! elseif(ngrid > 1)then
+!     ndim = 2   ! multiple cells   
+! else
+!     write(*,*)"========= [read_run_mask] Dimension errors!  ======="    
+!     return
+! endif
 
- if(debug)then
-    print*,"lon = ",lon(1:ngrid)
-    print*,"lat = ",lat(1:ngrid)    
- endif
+! if(debug)then
+!    print*,"lon = ",lon(1:ngrid)
+!    print*,"lat = ",lat(1:ngrid)    
+! endif
 
  ! close nc file
  call nc_close_file(ncid)
