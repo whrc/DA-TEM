@@ -101,9 +101,10 @@ character(len=512) :: string1, string2, string3
 
 ! static_init_model
 logical, save :: module_initialized = .false.
-integer     :: dom_id ! used to access the state structure
-integer(i8) :: model_size
-type(time_type) :: time_step
+
+integer            :: dom_id ! used to access the state structure
+integer(i8)        :: model_size
+type(time_type)    :: time_step
 
 ! Variable Table 
 integer :: nfields
@@ -126,38 +127,47 @@ integer            :: assimilation_period_days = 0
 integer            :: assimilation_period_seconds = 60
 integer            :: assimilation_date = 201000101     ! DA time YYYYMMDD
 logical            :: debug = .true.        ! true = print out debugging message    
-logical            :: para_1d = .true.      ! true = 1d parameter estimation
+logical            :: para_1d = .false.      ! true = 1d parameter estimation
 character(len=metadatalength) :: tem_variables(max_state_variables * num_state_table_columns ) = ' '
 
-namelist /model_nml/ model_input_filename, model_para_filename, model_grid_filename, & 
-                     assimilation_period_days, assimilation_period_seconds, assimilation_date, &
-                     calendar, para_1d, tem_variables
+namelist /model_nml/ model_input_filename,        &
+                     model_para_filename,         &
+                     model_grid_filename,         & 
+                     assimilation_period_days,    &
+                     assimilation_period_seconds, &
+                     assimilation_date,           &
+                     calendar,                    &
+                     tem_variables                &
 
-
+                     
 !--------------------------------------------------------------------------
-! Things from dvmdostem simulation file
+! Dimensions of dvmdostem restart file
+integer :: ngrid    = -1  ! number of grid cells 
+integer :: nx       = -1  ! X
+integer :: ny       = -1  ! Y
+integer :: npfts    = -1  ! number of pfts
+integer :: nlevsoi  = -1  ! Number of 'soil' layers
 
 
+!----------------------------------------------------------------------
+! dimensions defined from run-mask.nc
+integer :: nrun     = -1  ! number of activated grid cells (run = 1)
+integer :: nlon     = -1  ! number of longotude  
+integer :: nlat     = -1  ! number of latitude
 
+!------------------------------------------------------------------------
+! The lon and lat is at the center of each grid cells
+! lon(:) and lat(:) saves the lon and lat for those "ran" gridcells
 
-
-!-------------------------------------------------------------------------
-! For 2d/3d application
-!! Things from dvmdostem run_mask (grid) file
-integer :: ngrid    = -1 
-integer :: nlon     = -1
-integer :: nlat     = -1
-integer :: npfts    = -1
-integer :: nlevgrnd = -1 ! Number of 'ground' levels
-integer :: nlevsoi  = -1 ! Number of 'soil' levels
-
-real(r8), allocatable ::  lon(:) ! used grid longitude
-real(r8), allocatable ::  lat(:) ! used grid latitude
+real(r8), allocatable ::  lon(:)             ! used grid longitude
+real(r8), allocatable ::  lat(:)             ! used grid latitude
+real(r8), allocatable ::  level(:)
+integer,  allocatable ::  run(:) 
 integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
 
 
 ! For 1d site application
-type(location_type), allocatable :: state_loc(:)
+!type(location_type), allocatable :: state_loc(:)
 
 
 
@@ -174,31 +184,33 @@ contains
 
 subroutine static_init_model()
 !-----------------------------------------------------------------
-real(r8) :: x_loc ! 1D
-integer  :: i
-integer :: iunit, io
+!real(r8) :: x_loc ! 1D
 
-integer :: qty_list(max_state_variables)
-logical :: update_list(max_state_variables)
-
-integer :: nvars
+integer :: i, iunit, io, nvars
+! Variable tables
+integer                      :: qty_list(max_state_variables)
+logical                      :: update_list(max_state_variables)
 character(len=obstypelength) :: var_names(max_state_variables)
-real(r8) :: var_ranges(max_state_variables,2)
-logical  :: var_update(max_state_variables)
-integer  :: var_qtys(  max_state_variables)
+real(r8)                     :: var_ranges(max_state_variables,2)
+logical                      :: var_update(max_state_variables)
+integer                      :: var_qtys(  max_state_variables)
+
+! dimension variables
+integer                      :: dimlens(NF90_MAX_VAR_DIMS)
+character(len=obstypelength) :: dimnames(NF90_MAX_VAR_DIMS)
+
+character(len=*), parameter  :: routine = 'static_init_model'
 
 
-if ( module_initialized ) return ! only need to do this once.
-
+! Initialization Flag
+!--------------------------------------------------------
+if ( module_initialized ) return
 
 module_initialized = .true.
 
 
-! Read namelist information
-!----------------------------------------------
-!call register_module(source) !Print module information
-
 ! Read the namelist
+!--------------------------------------------------------
 call find_namelist_in_file("input.nml", "model_nml", iunit)
 read(iunit, nml = model_nml, iostat = io)
 call check_namelist_read(iunit, io, "model_nml")
@@ -209,23 +221,22 @@ if (do_nml_file()) write(nmlfileunit, nml=model_nml)
 if (do_nml_term()) write(     *     , nml=model_nml)
 
 
-! Define time step
-!-----------------------------------------------
-! TODO: read time step from transistion file??
-
-! This time is both the minimum time you can ask the model to advance
-! (for models that can be advanced by filter) and it sets the assimilation
-! window.  All observations within +/- 1/2 this interval from the current
-! model time will be assimilated. If this isn't settable at runtime
-! feel free to hardcode it and not add it to a namelist.
+! Set calendar and timesteps
+!-----------------------------------------------------------
 call set_calendar_type( calendar ) 
 
 time_step = set_time(assimilation_period_seconds, assimilation_period_days)
+! TODO: CLM uses get_time --> set_time assumes [0 86400] seconds
+!       check if dvm-dos-tem  
+
+! Define dimensions
+!----------------------------------------------------------
+
 
 
 ! Define & check the variable table
 !---------------------------------------------------
- call parse_variable_table(tem_variables, nfields, variable_table, qty_list, update_list) 
+call parse_variable_table(tem_variables, nfields, variable_table, qty_list, update_list) 
 
 ! Define domain index for model variables
 
@@ -246,6 +257,10 @@ if (para_1d)then
      state_loc(i) =  set_location(x_loc)
   end do
 endif
+
+
+allocate(level(model_size))
+level(:) = 0.0_r8 ! Initialize all levels to surface
 
 ! If 2d/3d application, we need to get lon,lat
 !call get_grid_dims() !TODO: for future 2d/3d application, additional subroutine is 
@@ -323,6 +338,8 @@ function get_model_size()
 
 integer(i8) :: get_model_size
 
+if ( .not. module_initialized ) call static_init_model
+
 get_model_size = model_size
 
 end function get_model_size
@@ -338,6 +355,8 @@ end function get_model_size
 function shortest_time_between_assimilations()
 
 type(time_type) :: shortest_time_between_assimilations
+
+if ( .not. module_initialized ) call static_init_model 
 
 shortest_time_between_assimilations = time_step
 
@@ -445,41 +464,48 @@ integer(i8),         intent(in)  :: indx
 type(location_type), intent(out) :: location
 integer,             intent(out), optional :: qty_type
 
-!real(r8) :: lat, lon
-integer :: lon_indx, lat_indx, level, local_qty
+! local variables
+integer :: ip, jp, kp, local_qty
+logical, parameter :: debug = .true.
 
 
 if ( .not. module_initialized ) call static_init_model
 
 
+
 ! For 2d/3d application
 ! from the dart index get the local variables indices
 !===========================================================
-!if (present(qty_type)) then
-!
-!   qty_type = MISSING_I
-!
-!   call get_model_variable_indices(indx, lon_indx, lat_indx, level, &
-!            var_id=var_id, dom_id=dom_id, kind_index=qty_type)
-!
-!   if( qty_type == MISSING_I ) then
-!      write(string1,*) '[get_state_meta_data] Cannot find DART QTY  for indx ', indx
-!      write(string2,*) 'variable "'//trim(get_variable_name(dom_id, var_id))//'"'
-!      call error_handler(E_ERR,'get_state_meta_data',string1, source, text2=string2)
-!   endif
-!endif
+if (present(qty_type)) then
+
+   qty_type = MISSING_I
+
+   call get_model_variable_indices(indx, ip, jp, kp, &
+            var_id=var_id, dom_id=dom_id, kind_index=qty_type)
+
+   if( qty_type == MISSING_I ) then
+      write(string1,*) '[get_state_meta_data] Cannot find DART QTY  for indx ', indx
+      write(string2,*) 'variable "'//trim(get_variable_name(dom_id, var_id))//'"'
+      call error_handler(E_ERR,'get_state_meta_data',string1, source, text2=string2)
+   endif
+endif
 ! set_location subroutine varies according to model dimension: "oned" "twod" "threed"
 !------------------------------------------------------------------------------------------
 
 ! 3d (future use)
-!location = set_location(lon(lon_indx), lat(lat_indx), real(level,r8), VERTISLEVEL)
+location = set_location(lon(ip), lat(jp), level(indx), VERTISLEVEL)
 
+if(debug)then
+        write(*,*) '[Debugging from get_state_meta_data]'
+        write(*,*) 'ip, jp, indx = ',ip, jp, indx  
+        write(*,*) 'lon, lat, level = ',lon(ip), lat(jp), level(indx)
+endif
 
 
 ! For 1d site application (testing only)
 !==============================
-location = state_loc(indx)
-if (present(qty_type)) qty_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
+!location = state_loc(indx)
+!if (present(qty_type)) qty_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
 
 end subroutine get_state_meta_data
 
@@ -538,8 +564,25 @@ call nc_synchronize_file(ncid)
 
 end subroutine nc_write_model_atts
 
+subroutine get_restart_dims(ncid, filename, nx, ny, npft, n)
+!============================================================
+! Read restart file dimensions
+!-===========================================================
+ integer,intent(inout)          :: ncid
+ character(len=*),intent(in)    :: filename ! restart file
+ integer,intent(out)            :: nx
+ integer,intent(out)            :: npft
 
-subroutine get_grid_dims()
+
+  
+ integer :: i, j, n, nx, ny
+
+
+
+end subroutine get_restart_dims
+
+
+subroutine get_grid_dims(ncid, filename, lon, lat, nrun, run)
 !=============================================================
 ! read run-mask.nc and define dimension
 ! CCC: only used in 2d/3d application
@@ -548,7 +591,7 @@ subroutine get_grid_dims()
  integer :: ncid, ndim
  integer(r8), allocatable :: run(:,:)
  real(r8), allocatable :: londata(:,:), latdata(:,:)
- character(len=*), parameter :: routine = 'read_run_mask'
+ character(len=*), parameter :: routine = 'get_grid_dims'
 
  logical, parameter :: debug = .true.
 
