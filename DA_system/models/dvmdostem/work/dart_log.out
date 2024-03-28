@@ -1,7 +1,7 @@
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 19 36 46
+                 2024  1 24  9 49  2
  Program preprocess
  --------------------------------------
 
@@ -20,14 +20,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 19 36 46
+                 2024  1 24  9 49  2
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 19 41 20
+                 2024  1 24 10 20 19
  Program preprocess
  --------------------------------------
 
@@ -46,14 +46,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 19 41 20
+                 2024  1 24 10 20 19
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 19 43 33
+                 2024  1 24 10 42  5
  Program preprocess
  --------------------------------------
 
@@ -72,14 +72,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 19 43 33
+                 2024  1 24 10 42  5
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 29 36
+                 2024  1 24 11 12  4
  Program preprocess
  --------------------------------------
 
@@ -98,14 +98,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 29 36
+                 2024  1 24 11 12  4
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 32 40
+                 2024  1 24 12 11 18
  Program preprocess
  --------------------------------------
 
@@ -124,14 +124,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 32 40
+                 2024  1 24 12 11 18
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 34 27
+                 2024  2  5 19 45 38
  Program preprocess
  --------------------------------------
 
@@ -150,14 +150,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 34 27
+                 2024  2  5 19 45 38
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 37 20
+                 2024  2  5 19 55 53
  Program preprocess
  --------------------------------------
 
@@ -176,14 +176,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 37 20
+                 2024  2  5 19 55 53
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 38 51
+                 2024  2  5 19 57 36
  Program preprocess
  --------------------------------------
 
@@ -202,14 +202,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 38 51
+                 2024  2  5 19 57 36
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 40 32
+                 2024  2  5 20  0 40
  Program preprocess
  --------------------------------------
 
@@ -228,14 +228,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 40 32
+                 2024  2  5 20  0 40
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 47  7
+                 2024  2  5 20 13  4
  Program preprocess
  --------------------------------------
 
@@ -254,14 +254,14 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 47  7
+                 2024  2  5 20 13  4
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 49 24
+                 2024  2  5 20 15 27
  Program preprocess
  --------------------------------------
 
@@ -280,27 +280,1348 @@
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 49 24
+                 2024  2  5 20 15 27
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 49 53
- Program tem_to_dart
+                 2024  2  5 20 21 17
+ Program preprocess
  --------------------------------------
 
   set_nml_output Echo NML values to log file only
- ERROR FROM:
-  source : utilities_mod.f90
-  routine: find_namelist_in_file
-  message:  Namelist entry &model_to_dart.nml must exist in file input.nml
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 21 17
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 22 48
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 22 48
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 28 56
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 28 56
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 30  9
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  5 20 30  9
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10  9 24
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10  9 24
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 11 42
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 11 42
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 15 49
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 15 49
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 16 23
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 16 23
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 21 40
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 21 40
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 25 20
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 25 20
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 32 56
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2  6 10 32 56
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  2 27 15 42 11
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  2 27 15 42 11
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 47 18
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 47 18
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 52 42
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 52 42
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 58 13
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 58 13
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 59 16
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 21 59 16
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 22  0  8
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 22  0  8
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 22  6 32
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3  4 22  6 32
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 12 21 18 45
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 12 21 18 45
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 14 53 48
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 14 53 48
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 15  9 20
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 15  9 20
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 15 11 18
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 15 11 18
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 13 54
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 13 54
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 27 45
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 27 45
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 28 13
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 28 13
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 47 37
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 47 37
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 55 14
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 16 55 14
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18  4 14
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18  4 14
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 15 34
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 15 34
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 22 48
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 22 48
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 28 41
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 28 41
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 29 32
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 29 32
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 33 32
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 33 32
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 36  6
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 36  6
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 38 25
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 18 38 25
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 21  8 42
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 13 21  8 42
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 19 45  8
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 19 45  8
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  0 14
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  0 14
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  1 39
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  1 39
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  4  1
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  4  1
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  6 43
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20  6 43
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 13 16
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 13 16
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 22 33
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 25 31
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 25 31
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 27 34
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 27 34
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 42 43
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 14 20 42 43
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 37 14
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 37 14
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 39 36
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 39 36
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 40 55
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 40 55
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 42 38
+ Program preprocess
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ Path names of default obs_def and obs_qty modules
+ ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
+ ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
+ Path names of output obs_def and obs_qty modules
+ ../../../observations/forward_operators/obs_def_mod.f90
+ ../../../assimilation_code/modules/observations/obs_kind_mod.f90
+ INPUT obs_def files:
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
+ INPUT quantity files:
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
+  preprocess Finished successfully.
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 19 42 38
+ Program preprocess
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 20  7 12
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
  
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 19 20  7 12
+ Program model_mod_check
+ --------------------------------------
+
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 51 50
+                 2024  3 22 14 31 41
  Program preprocess
  --------------------------------------
 
@@ -312,45 +1633,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 51 50
+                 2024  3 22 14 31 41
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  7 20 52 13
- Program tem_to_dart
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  8 13 56 44
- Program tem_to_dart
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9  8 14 19 18
- Program tem_to_dart
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 46 32
+                 2024  3 22 14 33 45
  Program preprocess
  --------------------------------------
 
@@ -362,21 +1660,190 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 46 32
+                 2024  3 22 14 33 45
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 49 31
+                 2024  3 22 14 35  9
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 14 35 10
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 14 50 25
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 14 50 25
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 15 55 32
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 15 55 32
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 16 11 31
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 16 11 31
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 16 22 57
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 16 22 57
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 19 31 12
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 19 31 12
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 19 33 57
  Program preprocess
  --------------------------------------
 
@@ -388,29 +1855,50 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 49 31
+                 2024  3 22 19 33 57
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 50 11
- Program tem_to_dart
+                 2024  3 22 19 35  5
+ Program model_mod_check
  --------------------------------------
 
   set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 19 35  5
+ Program model_mod_check
+ --------------------------------------
+
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 52 52
+                 2024  3 22 20 53  0
  Program preprocess
  --------------------------------------
 
@@ -422,21 +1910,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 52 52
+                 2024  3 22 20 53  0
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 55 16
+                 2024  3 22 20 55  6
  Program preprocess
  --------------------------------------
 
@@ -448,21 +1937,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 20 55 16
+                 2024  3 22 20 55  6
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 21 27 53
+                 2024  3 22 20 59 45
  Program preprocess
  --------------------------------------
 
@@ -474,21 +1964,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 21 27 53
+                 2024  3 22 20 59 45
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 21 41  6
+                 2024  3 22 21  2 41
  Program preprocess
  --------------------------------------
 
@@ -500,21 +1991,50 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 21 41  6
+                 2024  3 22 21  2 41
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 23 16 50
+                 2024  3 22 21  3 44
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 21  3 44
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 21 15 29
  Program preprocess
  --------------------------------------
 
@@ -526,21 +2046,50 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 23 16 50
+                 2024  3 22 21 15 29
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 23 19 26
+                 2024  3 22 21 19 57
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 21 19 57
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 21 23 27
  Program preprocess
  --------------------------------------
 
@@ -552,21 +2101,106 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 23 19 26
+                 2024  3 22 21 23 27
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 23 21 26
+                 2024  3 22 21 28 20
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 22 21 28 20
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 15  0 55
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 15  0 55
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 18 26 14
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 18 26 14
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 19 24 40
  Program preprocess
  --------------------------------------
 
@@ -578,21 +2212,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 14 23 21 26
+                 2024  3 25 19 24 40
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20  1  2
+                 2024  3 25 19 26 15
  Program preprocess
  --------------------------------------
 
@@ -604,21 +2239,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20  1  2
+                 2024  3 25 19 26 15
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20  6 23
+                 2024  3 25 19 28 23
  Program preprocess
  --------------------------------------
 
@@ -630,21 +2266,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20  6 23
+                 2024  3 25 19 28 23
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20 48 54
+                 2024  3 25 19 32  2
  Program preprocess
  --------------------------------------
 
@@ -656,21 +2293,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20 48 54
+                 2024  3 25 19 32  2
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20 51 18
+                 2024  3 25 19 45 39
  Program preprocess
  --------------------------------------
 
@@ -682,21 +2320,50 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 20 51 18
+                 2024  3 25 19 45 39
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 21 36
+                 2024  3 25 19 47  9
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 19 47 10
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 19 50 53
  Program preprocess
  --------------------------------------
 
@@ -708,21 +2375,50 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 21 36
+                 2024  3 25 19 50 53
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 27 52
+                 2024  3 25 19 52 42
+ Program model_mod_check
+ --------------------------------------
+
+  set_nml_output Echo NML values to log file only
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
+
+ --------------------------------------
+ Finished ... at YYYY MM DD HH MM SS = 
+                 2024  3 25 19 52 42
+ Program model_mod_check
+ --------------------------------------
+
+
+ --------------------------------------
+ Starting ... at YYYY MM DD HH MM SS = 
+                 2024  3 27 14 36 22
  Program preprocess
  --------------------------------------
 
@@ -734,21 +2430,22 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 27 52
+                 2024  3 27 14 36 22
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 40 53
+                 2024  3 27 14 38 37
  Program preprocess
  --------------------------------------
 
@@ -760,480 +2457,71 @@
  ../../../observations/forward_operators/obs_def_mod.f90
  ../../../assimilation_code/modules/observations/obs_kind_mod.f90
  INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+ ../../../observations/forward_operators/obs_def_land_mod.f90
+ ../../../observations/forward_operators/obs_def_tower_mod.f90
  INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
+ ../../../assimilation_code/modules/observations/land_quantities_mod.f90
   preprocess Finished successfully.
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 40 53
+                 2024  3 27 14 38 37
  Program preprocess
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 46 31
- Program preprocess
+                 2024  3 27 16 32  5
+ Program model_mod_check
  --------------------------------------
 
   set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 46 31
- Program preprocess
+                 2024  3 27 16 32  5
+ Program model_mod_check
  --------------------------------------
 
 
  --------------------------------------
  Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 49 12
- Program preprocess
+                 2024  3 27 18  3 15
+ Program model_mod_check
  --------------------------------------
 
   set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
+ PE 0: initialize_mpi_utilities:  Running with            1  MPI processes.
+ 
+ Assimilate_these_obs_types:
+    SOIL_TEMPERATURE
+    TOWER_NETC_ECO_EXCHANGE
+    MODIS_LEAF_AREA_INDEX
+ Evaluate_these_obs_types:
+    none
+ Use the precomputed Prior Forward Operators for these obs types:
+    none
+ 
+ PE 0: location_mod: using code with optimized cutoffs
+ PE 0: location_mod: Ignoring vertical separation when computing distances; horizontal distances only
 
  --------------------------------------
  Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 15 21 49 12
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 37  9
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 37  9
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 39 34
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 39 34
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 43 10
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 43 10
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 45 18
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 45 18
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 49 40
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 49 40
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 57 15
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 57 15
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 59 11
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 14 59 11
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 15  0 26
- Program tem_to_dart
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 16 10 45
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 16 10 45
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 12 42
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 12 42
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 13 52
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 13 52
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 14 33
- Program tem_to_dart
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 29 25
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 29 25
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 30 31
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 30 31
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023  9 18 18 30 58
- Program tem_to_dart
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023 12 26  6 37  3
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023 12 26  6 37  3
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023 12 26  6 44 30
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023 12 26  6 44 30
- Program preprocess
- --------------------------------------
-
-
- --------------------------------------
- Starting ... at YYYY MM DD HH MM SS = 
-                 2023 12 26  6 49 18
- Program preprocess
- --------------------------------------
-
-  set_nml_output Echo NML values to log file only
- Path names of default obs_def and obs_qty modules
- ../../../observations/forward_operators/DEFAULT_obs_def_mod.F90
- ../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90
- Path names of output obs_def and obs_qty modules
- ../../../observations/forward_operators/obs_def_mod.f90
- ../../../assimilation_code/modules/observations/obs_kind_mod.f90
- INPUT obs_def files:
- ../../../observations/forward_operators/obs_def_1d_state_mod.f90
- INPUT quantity files:
- ../../../assimilation_code/modules/observations/oned_quantities_mod.f90
-  preprocess Finished successfully.
-
- --------------------------------------
- Finished ... at YYYY MM DD HH MM SS = 
-                 2023 12 26  6 49 18
- Program preprocess
+                 2024  3 27 18  3 15
+ Program model_mod_check
  --------------------------------------
 

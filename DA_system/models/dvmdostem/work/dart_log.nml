@@ -108,85 +108,6 @@
  WRITE_NML="file                            ",
  /
  !Finished Program preprocess
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Starting Program preprocess
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program preprocess
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
- !Starting Program preprocess
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program preprocess
- !Starting Program preprocess
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program preprocess
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
  !Starting Program preprocess
 &UTILITIES_NML
  TERMLEVEL=1          ,
@@ -417,16 +338,6 @@
  WRITE_NML="file                            ",
  /
  !Finished Program preprocess
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
  !Starting Program preprocess
 &UTILITIES_NML
  TERMLEVEL=1          ,
@@ -457,46 +368,6 @@
  WRITE_NML="file                            ",
  /
  !Finished Program preprocess
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
- !Starting Program preprocess
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program preprocess
- !Starting Program preprocess
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program preprocess
- !Starting Program tem_to_dart
-&UTILITIES_NML
- TERMLEVEL=1          ,
- LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
- MODULE_DETAILS=F,
- NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
- PRINT_DEBUG=F,
- WRITE_NML="file                            ",
- /
- !Finished Program tem_to_dart
  !Starting Program preprocess
 &UTILITIES_NML
  TERMLEVEL=1          ,
@@ -527,3 +398,1519 @@
  WRITE_NML="file                            ",
  /
  !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+  45*"                                                                ",
+ /
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+  45*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+  45*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+  45*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+  45*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program preprocess
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !Finished Program preprocess
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check
+ !Starting Program model_mod_check
+&UTILITIES_NML
+ TERMLEVEL=1          ,
+ LOGFILENAME="dart_log.out                                                                                                                                                                                                                                                    ",
+ MODULE_DETAILS=F,
+ NMLFILENAME="dart_log.nml                                                                                                                                                                                                                                                    ",
+ PRINT_DEBUG=F,
+ WRITE_NML="file                            ",
+ /
+ !must edit assimilation_code/modules/utilities/mpi_utilities_mod.f90 to enable this namelist
+&MPI_UTILITIES_NML
+ REVERSE_TASK_LAYOUT=F,
+ ALL_TASKS_PRINT=F,
+ VERBOSE=F,
+ ASYNC2_VERBOSE=F,
+ ASYNC4_VERBOSE=F,
+ SHELL_NAME="                                                                                                                                ",
+ SEPARATE_NODE_SYNC=F,
+ CREATE_LOCAL_COMM=T,
+ MAKE_COPY_BEFORE_SENDRECV=F,
+ MAKE_COPY_BEFORE_BROADCAST=F,
+ /
+&OBS_SEQUENCE_NML
+ WRITE_BINARY_OBS_SEQUENCE=F,
+ READ_BINARY_FILE_FORMAT="native                          ",
+ /
+&STATE_VECTOR_IO_NML
+ BUFFER_STATE_IO=F,
+ SINGLE_PRECISION_OUTPUT=F,
+ /
+&MODEL_NML
+ MODEL_RESTART_FILE="restart-tr.nc                                                                                                                                                                                                                                                   ",
+ MODEL_PARA_FILE="cpara_bkgd.nc                                                                                                                                                                                                                                                   ",
+ MODEL_GRID_FILE="run-mask.nc                                                                                                                                                                                                                                                     ",
+ ASSIMILATION_PERIOD_DAYS=30         ,
+ ASSIMILATION_PERIOD_SECONDS=0          ,
+ ASSIMILATION_DATE=201000101  ,
+ CALENDAR="NOLEAP                          ",
+ TEM_VARIABLES="lai                                                             ","QTY_LEAF_AREA_INDEX                                             ","0.0                                                             ","NA                                                              ","UPDATE                                                          ",
+ "TSsoil                                                          ","QTY_SOIL_TEMPERATURE                                            ", 2*"NA                                                              ","UPDATE                                                          ", 40*"                                                                ",
+ /
+&ENSEMBLE_MANAGER_NML
+ COMMUNICATION_CONFIGURATION=1          ,
+ LAYOUT=1          ,
+ TASKS_PER_NODE=1          ,
+ DEBUG=F,
+ /
+&LOCATION_NML
+ HORIZ_DIST_ONLY=T,
+ VERT_NORMALIZATION_PRESSURE=  100000.00000000000     ,
+ VERT_NORMALIZATION_HEIGHT=  10000.000000000000     ,
+ VERT_NORMALIZATION_LEVEL=  20.000000000000000     ,
+ VERT_NORMALIZATION_SCALE_HEIGHT=  5.0000000000000000     ,
+ APPROXIMATE_DISTANCE=F,
+ NLON=71         ,
+ NLAT=36         ,
+ OUTPUT_BOX_INFO=T,
+ PRINT_BOX_LEVEL=0          ,
+ SPECIAL_VERT_NORMALIZATION_OBS_TYPES= 500*"null                           ",
+ SPECIAL_VERT_NORMALIZATION_PRESSURES= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_HEIGHTS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_LEVELS= 500*-888888.00000000000      ,
+ SPECIAL_VERT_NORMALIZATION_SCALE_HEIGHTS= 500*-888888.00000000000      ,
+ /
+ !Finished Program model_mod_check

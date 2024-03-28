@@ -11,15 +11,16 @@ module model_mod
 ! are not required for minimal implementation (see the discussion of each
 ! interface and look for NULL INTERFACE). 
 
-use types_mod,             only : r8, i8, i4, MISSING_R8, &
+use types_mod,             only : r8, i8, i4, MISSING_R8, MISSING_I,            &
                                   metadatalength, obstypelength
 
-use time_manager_mod,      only : time_type,set_date, set_time, set_calendar_type
+use time_manager_mod,      only : time_type,set_date, set_time,                 &
+                                  set_calendar_type, get_date
 
 use location_mod,          only : location_type, set_location, get_location,    &
                                   get_close_obs, get_close_state,               &
                                   convert_vertical_obs, convert_vertical_state, &
-                                  LocationDims
+                                  LocationDims, VERTISLEVEL, VERTISHEIGHT
 
 use utilities_mod,         only : error_handler,register_module, do_nml_file,   &
                                   do_nml_term, to_upper, file_exist,            &
@@ -27,25 +28,31 @@ use utilities_mod,         only : error_handler,register_module, do_nml_file,   
                                   check_namelist_read,                          &
                                   E_ERR, E_ALLMSG
 
-use location_io_mod,      only :  nc_write_location_atts, nc_write_location
-
-use netcdf_utilities_mod, only : nc_add_global_attribute, nc_synchronize_file,  &
-                                 nc_add_global_creation_time, nc_check,         &
-                                 nc_begin_define_mode, nc_end_define_mode,      &
-                                 nc_open_file_readonly, nc_close_file,          &
-                                 nc_get_dimension_size, nc_get_variable_size,   &
-                                 nc_get_variable, nc_put_variable,              &
-                                 nc_get_variable_dimension_names,               &
-                                 NF90_MAX_NAME
+!use location_io_mod,      only :  nc_write_location_atts, nc_write_location
+!use netcdf_utilities_mod, only : nc_add_global_attribute, nc_synchronize_file, &
+!                                 nc_check, nc_add_global_creation_time,        &
+!                                 nc_begin_define_mode, nc_end_define_mode,     &
+!                                 nc_open_file_readonly, nc_open_file_readwrite,&
+!                                 nc_close_file, nc_add_attribute_to_variable,  &
+!                                 nc_get_dimension_size, nc_get_variable_size,  &
+!                                 nc_get_variable,                              &
+!                                 nc_put_variable,                              &
+!                                 nc_get_variable_dimension_names,              &
+!                                 nc_define_dimension, nc_variable_exists,      &
+!                                 nc_define_integer_variable, &
+!                                 nc_define_real_variable, &
+!                                 nc_define_double_variable, &
+!                                 NF90_MAX_NAME, NF90_MAX_VAR_DIMS
+use netcdf_utilities_mod
 
 
 use         obs_kind_mod,  only : QTY_STATE_VARIABLE,             &
-!                                  QTY_SOIL_TEMPERATURE,           &
-!                                  QTY_SOIL_MOISTURE,              &
+                                  QTY_SOIL_TEMPERATURE,           &
+                                  QTY_SOIL_MOISTURE,              &
 !                                  QTY_PAR_DIRECT,                 &
 !                                  QTY_SOLAR_INDUCED_FLUORESCENCE, &
-!                                  QTY_LEAF_AREA_INDEX,            &
-!                                  QTY_GROSS_PRIMARY_PROD_FLUX,    &
+                                  QTY_LEAF_AREA_INDEX,            &
+                                  QTY_GROSS_PRIMARY_PROD_FLUX,    &
                                   get_index_for_quantity,         &
                                   get_name_for_quantity
 
@@ -57,11 +64,17 @@ use distributed_state_mod, only : get_state
 use state_structure_mod,   only : add_domain,  get_domain_size,       &
                                   get_index_start, get_index_end,     &
                                   get_num_domains, get_num_variables, &
+                                  get_num_dims, get_dim_name,         &
+                                  get_dim_length, get_domain_size,    &     
+                                  get_model_variable_indices,         &
                                   get_variable_name, get_varid_from_kind 
 
-use default_model_mod,     only : end_model, pert_model_copies, nc_write_model_vars
+use default_model_mod,     only : end_model, pert_model_copies, nc_write_model_vars  
 
-use dart_time_io_mod,      only : write_model_time  
+use typesizes
+
+use netcdf
+
 
 implicit none
 private
@@ -90,7 +103,7 @@ public :: pert_model_copies,      &
           end_model,              &
           convert_vertical_obs,   &
           convert_vertical_state, &
-          read_model_time, &
+          read_model_time,        &
           write_model_time
 
 ! version controlled file description for error handling, do not edit
@@ -102,9 +115,14 @@ character(len=512) :: string1, string2, string3
 ! static_init_model
 logical, save :: module_initialized = .false.
 
-integer            :: dom_id ! used to access the state structure
+!integer            :: dom_id ! used to access the state structure
 integer(i8)        :: model_size
 type(time_type)    :: time_step
+
+! Missing value in dvmdostem restart file
+real(r8), parameter    ::  MISSING_TEM_R8 = -9999.0_R8
+integer(i8), parameter ::  MISSING_TEM_I8 = -9999_I8
+
 
 ! Variable Table 
 integer :: nfields
@@ -120,33 +138,42 @@ integer, parameter :: VAR_UPDATE_INDEX = 3
 
 ! Things should be defined in the namelist "model_mod.nml"
 character(len=32)  :: calendar = 'NOLEAP'    !!dvmdostem uses 365-year calendar (no leap year)
-character(len=256) :: model_input_filename = 'model_bkgd.nc'
-character(len=256) :: model_para_filename  = 'cpara_bkgd.nc'
-character(len=256) :: model_grid_filename  = 'run-mask.nc'
+character(len=256) :: model_restart_file = 'model_bkgd.nc'
+character(len=256) :: model_para_file  = 'cpara_bkgd.nc'
+character(len=256) :: model_grid_file  = 'run-mask.nc'
 integer            :: assimilation_period_days = 0
 integer            :: assimilation_period_seconds = 60
 integer            :: assimilation_date = 201000101     ! DA time YYYYMMDD
-logical            :: debug = .true.        ! true = print out debugging message    
-logical            :: para_1d = .false.      ! true = 1d parameter estimation
+!logical            :: debug = .true.        ! true = print out debugging message    
+!logical            :: para_1d = .false.      ! true = 1d parameter estimation
 character(len=metadatalength) :: tem_variables(max_state_variables * num_state_table_columns ) = ' '
 
-namelist /model_nml/ model_input_filename,        &
-                     model_para_filename,         &
-                     model_grid_filename,         & 
+namelist /model_nml/ model_restart_file,          &
+                     model_para_file,             &
+                     model_grid_file,             & 
                      assimilation_period_days,    &
                      assimilation_period_seconds, &
                      assimilation_date,           &
                      calendar,                    &
-                     tem_variables                &
+                     tem_variables                
 
                      
 !--------------------------------------------------------------------------
 ! Dimensions of dvmdostem restart file
-integer :: ngrid    = -1  ! number of grid cells 
-integer :: nx       = -1  ! X
-integer :: ny       = -1  ! Y
-integer :: npfts    = -1  ! number of pfts
-integer :: nlevsoi  = -1  ! Number of 'soil' layers
+integer :: ngrid     = -1  ! number of grid cells 
+integer :: nx        = -1  ! X
+integer :: ny        = -1  ! Y
+integer :: npfts     = -1  ! number of pfts
+integer :: nlevsoi   = -1  ! Number of 'soil' layers
+
+! below are dimensions in restart file but currently we don't need
+integer :: pftpart   =  3 
+integer :: snowlayer =  6  ! snow layer
+integer :: rootlayer = 10  ! root layer
+integer :: rocklayer =  5 
+integer ::    fronts = 10  
+integer ::   prevten = 10 
+integer :: prevtwelve = 12
 
 
 !----------------------------------------------------------------------
@@ -159,16 +186,21 @@ integer :: nlat     = -1  ! number of latitude
 ! The lon and lat is at the center of each grid cells
 ! lon(:) and lat(:) saves the lon and lat for those "ran" gridcells
 
-real(r8), allocatable ::  lon(:)             ! used grid longitude
-real(r8), allocatable ::  lat(:)             ! used grid latitude
-real(r8), allocatable ::  level(:)
-integer,  allocatable ::  run(:) 
-integer,  allocatable ::  xindx(:), yindx(:) !grid indx for used cell   
+real(r8), allocatable ::  lon(:,:)             ! used grid longitude
+real(r8), allocatable ::  lat(:,:)             ! used grid latitude
+real(r8), allocatable ::  level(:)             ! depth distributed to 1D state vector
+real(r8), allocatable ::  lon1D(:)             ! longitude distributed to 1D state vector
+real(r8), allocatable ::  lat1D(:)             ! latitude distributed to 1D state vector   
+real(r8), allocatable ::  depth(:,:,:)         ! depth, additionally calculate from DZsoil
+integer,  allocatable ::  run(:,:) 
+integer,  allocatable ::  xindx(:), yindx(:)   ! indx for lon and lat
 
+real(r8), allocatable ::  areafrac_pft(:)      ! fraction/weights for each indx value 
+real(r8), allocatable ::  varwt_pft(:,:,:)     ! fraction/weights of different pfts/areas for each grid
 
-! For 1d site application
-!type(location_type), allocatable :: state_loc(:)
-
+!----------------------------------------------------------------------
+! Domain ID
+integer :: dom_restart = -1
 
 
 contains
@@ -184,9 +216,11 @@ contains
 
 subroutine static_init_model()
 !-----------------------------------------------------------------
-!real(r8) :: x_loc ! 1D
+integer     :: i, j, iunit, io, nvars
+integer     :: idom, ivar, rank
+integer(i8) :: indx
+integer     :: ncid, close_nc
 
-integer :: i, iunit, io, nvars
 ! Variable tables
 integer                      :: qty_list(max_state_variables)
 logical                      :: update_list(max_state_variables)
@@ -199,7 +233,9 @@ integer                      :: var_qtys(  max_state_variables)
 integer                      :: dimlens(NF90_MAX_VAR_DIMS)
 character(len=obstypelength) :: dimnames(NF90_MAX_VAR_DIMS)
 
+character(len=obstypelength) :: varname
 character(len=*), parameter  :: routine = 'static_init_model'
+logical                      :: debug = .true.
 
 
 ! Initialization Flag
@@ -231,7 +267,20 @@ time_step = set_time(assimilation_period_seconds, assimilation_period_days)
 
 ! Define dimensions
 !----------------------------------------------------------
+ call get_restart_dims(ncid, model_restart_file, nx, ny, npfts, nlevsoi)
 
+! Allocate matrix --> read run-mask.nc, save lon & lat
+!-----------------------------------------------------------
+ allocate(lon(nx,ny))
+ allocate(lat(nx,ny))
+ allocate(run(nx,ny))
+
+
+! Define dimension & location
+!---------------------------------------------------
+! here we read and save lon, lat, run, and calculate depth
+ call get_grid_dims(ncid, ngrid)
+ ncid = 0
 
 
 ! Define & check the variable table
@@ -240,94 +289,156 @@ call parse_variable_table(tem_variables, nfields, variable_table, qty_list, upda
 
 ! Define domain index for model variables
 
-dom_id = add_domain(model_input_filename, nfields, &
+dom_restart = add_domain(model_restart_file, nfields, &
                     var_names = variable_table(1:nfields, VAR_NAME_INDEX), &
                     kind_list = qty_list(1:nfields), &
                     update_list = update_list(1:nfields))
 
-model_size = get_domain_size(dom_id)
+model_size = get_domain_size(dom_restart)
+nvars = get_num_variables(dom_restart)
+idom = get_num_domains()
 
-! Define dimension & location
-!---------------------------------------------------
-! For 1d application
-allocate(state_loc(model_size))
-if (para_1d)then
-  do i = 1, model_size
-     x_loc = (i - 1.0_r8) / model_size
-     state_loc(i) =  set_location(x_loc)
-  end do
-endif
+allocate(level(model_size))        ! level for state vector
+allocate(xindx(model_size))        ! X indx
+allocate(yindx(model_size))        ! Y indx 
+allocate(lon1D(model_size))        ! lon for state vector
+allocate(lat1D(model_size))        ! lat for state vector
+allocate(areafrac_pft(model_size)) ! weighting for the variable within gridcell (pft only)
 
-
-allocate(level(model_size))
 level(:) = 0.0_r8 ! Initialize all levels to surface
 
-! If 2d/3d application, we need to get lon,lat
-!call get_grid_dims() !TODO: for future 2d/3d application, additional subroutine is 
-                      !      needed for reading lon/lat/depth from run_mask.nc
+write(*,*)" model_size    = ", model_size
+write(*,*)" num of var    = ", nvars
+write(*,*)" num of domain = ", idom
+write(*,*)" dom_restart   = ", dom_restart
 
-! Print out all the initialization info
+! Fill the array for different dimensions 
 !--------------------------------------------------
+ncid = 0
+! open the restart file to read-in variables that need to calculate fraction(weighting) 
+! for each grid cell
+ncid = nc_open_file_readonly(trim(model_restart_file), routine)
 
+do ivar = 1, get_num_variables(dom_restart)
+
+   varname = get_variable_name(idom,ivar)
+   indx    = get_index_start(idom,ivar)
+   rank    = get_num_dims(idom,ivar)
+
+   do j = 1,rank
+      dimnames(j) = get_dim_name(idom,ivar,j)
+      dimlens( j) = get_dim_length(idom,ivar,j)
+   enddo
+
+   
+   ! Get gridcell weighting (varwt_pft) for each variable with pft dimension 
+   if ( trim(dimnames(1)) == 'pft') then   
+        !! Here we assumes the variable with pft dimensions are all rank = 3
+        allocate(varwt_pft(dimlens(1), dimlens(2), dimlens(3)))   
+        varwt_pft(:,:,:) = 1 ! default value
+        ! calculate varwt_pft
+        call get_varwt_pft(ncid, varname, dimlens)
+   endif
+
+
+   ! Currently we only have rank=3 data in restart file 
+   call fill_rank3_metadata(varname, dimnames(1:3), dimlens(1:3), indx)
+
+   if(debug)then
+         write(*,*) "====== Testing for fill_ranks_metadata ======"  
+         write(*,*) "         varname = ", varname 
+         write(*,*) "            rank = ", rank
+         write(*,*) "            indx = ", indx
+         write(*,*) "    dimnames(1:3)= ", dimnames(1:3)  
+         write(*,*) "     dimlens(1:3)= ", dimlens(1:3)
+         write(*,*) "varwt_pft(:,1,2) = ", varwt_pft(1:dimlens(1),2,1)
+   endif
+
+enddo 
+
+call nc_close_file(ncid)
 
 end subroutine static_init_model
 
-!------------------------------------------------------------------
-! Does a single timestep advance of the model. The input value of
-! the vector x is the starting condition and x is updated to reflect
-! the changed state after a timestep. The time argument is intent
-! in and is used for models that need to know the date/time to 
-! compute a timestep, for instance for radiation computations.
-! This interface is only called if the namelist parameter
-! async is set to 0 in perfect_model_obs of filter or if the 
-! program integrate_model is to be used to advance the model
-! state as a separate executable. If one of these options
-! is not going to be used (the model will only be advanced as
-! a separate model-specific executable), this can be a 
-! NULL INTERFACE.
-
-subroutine adv_1step(x, time)
-
-real(r8),        intent(inout) :: x(:)
-type(time_type), intent(in)    :: time
-
-end subroutine adv_1step
 
 
-!------------------------------------------------------------------
-! Returns a model state vector, x, that is some sort of appropriate
-! initial condition for starting up a long integration of the model.
-! At present, this is only used if the namelist parameter 
-! start_from_restart is set to .false. in the program perfect_model_obs.
-! If this option is not to be used in perfect_model_obs, or if no 
-! synthetic data experiments using perfect_model_obs are planned, 
-! this can be a NULL INTERFACE.
+subroutine fill_rank3_metadata(varname, dim_name, dim_length, indx)
+!---------------------------------------------------------------
+! Fill the rank 3 metadata array
+!
+! Rank 3 VARIABLES in restart file:
+! lai   (Y, X, pft)
+! TSsoil(Y, X, soillayer)
+!
+!! lai(Y, X, pft) --> in ncdump
+!! lai(pft, X, Y) --> in fortran/DART
 
-subroutine init_conditions(x)
 
-real(r8), intent(out) :: x(:)
+character(len=*), intent(in)    :: varname
+character(len=*), intent(in)    :: dim_name(3)
+integer,          intent(in)    :: dim_length(3)
+integer(i8),      intent(inout) :: indx
 
-x = MISSING_R8
+integer                         :: i, j, k
+logical, parameter              :: debug = .true.
 
-end subroutine init_conditions
 
-!------------------------------------------------------------------
-! Companion interface to init_conditions. Returns a time that is somehow 
-! appropriate for starting up a long integration of the model.
-! At present, this is only used if the namelist parameter 
-! start_from_restart is set to .false. in the program perfect_model_obs.
-! If this option is not to be used in perfect_model_obs, or if no 
-! synthetic data experiments using perfect_model_obs are planned, 
-! this can be a NULL INTERFACE.
+if(debug)then
+   write(*,*)'===== debugging from [fill_rank3_metadata] ====='     
+   write(*,*)'variable name: ',trim(varname)
+   write(*,*)'dimension 1 (i) ',dim_name(1),dim_length(1)
+   write(*,*)'dimension 2 (j) ',dim_name(2),dim_length(2)
+   write(*,*)'dimension 3 (k) ',dim_name(3),dim_length(3)   
+   write(*,*)'          indx =',indx
+endif
 
-subroutine init_time(time)
 
-type(time_type), intent(out) :: time
+! here the input indx is the starting point of the variable in the state vector
+! so we don't need to initialize it from zero
+SELECT CASE ( trim(dim_name(1)) )
+   CASE ("pft")
+      write(*,*) " Dimension with PFTs"
+      ! For dimension of PFTs, calculate "areafrac_pft" 
+      do i = 1, dim_length(3) ! loop Y
+        do j = 1, dim_length(2) ! loop X
+           do k = 1, dim_length(1) !loop pft
+              level(indx) = 0.0  ! at surface
+              lon1D(indx) = lon(j, i)
+              lat1D(indx) = lat(j, i)
+              xindx(indx) = j
+              yindx(indx) = i
+              areafrac_pft(indx) = varwt_pft(k, j, i)
+              indx = indx + 1
+           enddo
+        enddo
+      enddo
+      
+   CASE ("soillayer")
+      write(*,*) " Dimension with vertical soil layer"
+      do i = 1, dim_length(3) ! loop Y
+         do j = 1, dim_length(2) ! loop X
+            do k = 1, dim_length(1) ! loop soillayer
+               level(indx) = depth(k, j, i) 
+               lon1D(indx) = lon(j, i)
+               lat1D(indx) = lat(j, i)
+               xindx(indx) = j
+               yindx(indx) = i
+               areafrac_pft(indx) = 1
+               indx = indx + 1
+           enddo
+        enddo
+      enddo
 
-! for now, just set to 0
-time = set_time(0,0)
 
-end subroutine init_time
+   CASE DEFAULT
+      write(*,*)'unsupported vertical dimension name "'//trim(dim_name(1))//'"'
+           
+END SELECT
+
+
+end subroutine fill_rank3_metadata        
+
+
 
 
 !------------------------------------------------------------------
@@ -392,14 +503,13 @@ integer,             intent(out) :: istatus(ens_size)
 ! The return code for successful return should be 0.
 ! Any positive number is an error.
 
-! istatus =  0 ... success
-! istatus =  1 ... No avaiable quantity
-! istatus =  3 ... quantity not in the DART vector
-
 ! Local variables
+real(r8)                     :: loc_array(LocationDims)
+real(r8)                     :: llon, llat, llev ! local lon, lat, lev(can be pft or depth)
 character(len=*), parameter  :: routine = 'model_interpolate'
-character(len=256) :: qty_string
-integer :: varid
+character(len=256)           :: qty_string
+integer                      :: varid
+logical, parameter           :: debug = .true. 
 
 
 if ( .not. module_initialized ) call static_init_model
@@ -408,8 +518,19 @@ if ( .not. module_initialized ) call static_init_model
 istatus(:) = 0
 expected_obs(:) = MISSING_R8
 
+! check location
+loc_array = get_location(location)
+llon      = loc_array(1)
+llat      = loc_array(2)
+llev      = loc_array(3)
+
+if(debug)then
+    write(*,*) '=============== Debugging from [model_interpolate] ==============='    
+    write(*,*) 'llon, llat, llev = ',llon, llat, llev    
+endif
+
 ! check quantity existence
-varid = get_varid_from_kind(dom_id, iqty)
+varid = get_varid_from_kind(dom_restart, iqty)
 
 if (varid < 1) then
    istatus = 1
@@ -419,19 +540,16 @@ endif
 
 ! select interpolation method for variables
 select case( iqty )
-
-    case( QTY_STATE_VARIABLE ) ! 1D testing case
-       call compute_grid_value(state_handle, ens_size, location, iqty, &
-                                    expected_obs, istatus)
      
-!    case( QTY_LEAF_AREA_INDEX, QTY_GROSS_PRIMARY_PROD_FLUX, &
-!          QTY_PAR_DIRECT) ! 2D on grid cell 
-   
-!        call compute_gridcell_value(state_handle, ens_size, location, iqty, &
-!                                    expected_obs, istatus) 
+    case( QTY_LEAF_AREA_INDEX, QTY_GROSS_PRIMARY_PROD_FLUX) ! 2D on grid cell 
+        write(*,*) '2D Grid cell interpolation'
+        call compute_gridcell_value(state_handle, ens_size, location, iqty, &
+                                    expected_obs, istatus) 
 
-!case( QTY_SOIL_MOISTURE, QTY_SOIL_TEMPERATURE) ! 3D variables
-             
+    case( QTY_SOIL_MOISTURE, QTY_SOIL_TEMPERATURE) ! 3D variables            
+        write(*,*) '3D interpolation'
+
+
     case default
 
       qty_string = get_name_for_quantity(iqty)
@@ -465,15 +583,15 @@ type(location_type), intent(out) :: location
 integer,             intent(out), optional :: qty_type
 
 ! local variables
-integer :: ip, jp, kp, local_qty
+real(r8) :: glon, glat 
+integer  :: var_id, dom_id
+integer  :: ip, jp, kp, local_qty
 logical, parameter :: debug = .true.
 
 
 if ( .not. module_initialized ) call static_init_model
 
 
-
-! For 2d/3d application
 ! from the dart index get the local variables indices
 !===========================================================
 if (present(qty_type)) then
@@ -491,14 +609,14 @@ if (present(qty_type)) then
 endif
 ! set_location subroutine varies according to model dimension: "oned" "twod" "threed"
 !------------------------------------------------------------------------------------------
-
-! 3d (future use)
-location = set_location(lon(ip), lat(jp), level(indx), VERTISLEVEL)
+glon = lon(ip, jp)
+glat = lat(ip, jp)
+location = set_location(glon, glat, level(indx), VERTISLEVEL)
 
 if(debug)then
         write(*,*) '[Debugging from get_state_meta_data]'
         write(*,*) 'ip, jp, indx = ',ip, jp, indx  
-        write(*,*) 'lon, lat, level = ',lon(ip), lat(jp), level(indx)
+        write(*,*) 'lon, lat, level = ',glon, glat, level(indx)
 endif
 
 
@@ -555,70 +673,134 @@ call nc_add_global_attribute(ncid, "model_source", source )
 
 call nc_add_global_attribute(ncid, "model", "template")
 
-call nc_write_location_atts(ncid, msize)
+!call nc_write_location_atts(ncid, msize)
 call nc_end_define_mode(ncid)
-call nc_write_location(ncid, state_loc, msize)
+!call nc_write_location(ncid, state_loc, msize)
 
 ! Flush the buffer and leave netCDF file open
 call nc_synchronize_file(ncid)
 
 end subroutine nc_write_model_atts
 
-subroutine get_restart_dims(ncid, filename, nx, ny, npft, n)
-!============================================================
-! Read restart file dimensions
-!-===========================================================
+
+subroutine get_restart_dims(ncid, filename, nx, ny, npfts, nlevsoi)
+!==================================================================
+! Read restart file dimensions and calculate depth for each level
+!-=================================================================
  integer,intent(inout)          :: ncid
  character(len=*),intent(in)    :: filename ! restart file
- integer,intent(out)            :: nx
- integer,intent(out)            :: npft
+ integer,intent(out)            :: nx, ny
+ integer,intent(out)            :: npfts
+ integer,intent(out)            :: nlevsoi
+ 
+ integer                        :: i,j,k
+ real(r8), allocatable          :: soil_thickness(:,:,:)
+ real(r8)                       :: nsc
 
 
-  
- integer :: i, j, n, nx, ny
+
+ character(len=*), parameter :: routine = 'get_restart_dims'
+ logical, parameter :: debug = .true.
+
+ ! read in dimension
+ ncid = nc_open_file_readonly(filename, routine)
+
+ ! get dimension names & lengths
+ nx = nc_get_dimension_size(ncid,'X',routine)
+ ny = nc_get_dimension_size(ncid,'Y',routine)
+ npfts = nc_get_dimension_size(ncid,'pft',routine)
+ nlevsoi = nc_get_dimension_size(ncid,'soillayer',routine)
 
 
+ allocate(soil_thickness(nlevsoi, nx, ny))
+ allocate(depth(nlevsoi, nx,ny))
+
+! read DZsoil (thickness of soil layer)
+ call nc_get_variable(ncid, 'DZsoil', soil_thickness, routine)
+
+! read TYPEsoil (the type of soil)
+! call nc_get_variable(ncid, 'TYPEsoil', var, routine)
+
+
+! calculate the depth of soil
+ do i = 1, nx
+    do j =1, ny
+       nsc = 0.0
+       do k = 1, nlevsoi
+          if(k == 1 )then
+             depth(k, i, j)= 0.0
+          else
+             nsc = nsc + soil_thickness(k-1, i, j)
+             depth(k, i, j) = nsc
+          endif
+
+          if(debug)then
+              if(depth (k, i, j) > 0)then
+                 write(*,*) " depth (k,i,j) = ", depth(k, i, j)
+              endif
+          endif
+       enddo
+    enddo
+ enddo
+
+ deallocate(soil_thickness)
+
+ if(debug)then
+     write(*,*)'[get_restart_dims] Dimension Outputs:'
+     write(*,*)'nx = ',nx
+     write(*,*)'ny = ',ny
+     write(*,*)'nlevsoi = ',nlevsoi
+     write(*,*)'npfts = ',npfts
+ endif
+
+ call nc_close_file(ncid, routine)
+ ncid = 0
 
 end subroutine get_restart_dims
 
 
-subroutine get_grid_dims(ncid, filename, lon, lat, nrun, run)
+subroutine get_grid_dims(ncid, ngrid)
 !=============================================================
 ! read run-mask.nc and define dimension
 ! CCC: only used in 2d/3d application
 !=============================================================
- integer :: i, j, n, nx, ny
- integer :: ncid, ndim
- integer(r8), allocatable :: run(:,:)
- real(r8), allocatable :: londata(:,:), latdata(:,:)
- character(len=*), parameter :: routine = 'get_grid_dims'
+ integer,intent(inout)       :: ncid
+ integer, intent(out)        :: ngrid
+ integer                     :: i, j, nxi, nyi
+! integer(i8), allocatable    :: run_int64(:,:)
+ integer, allocatable        :: ix(:), iy(:)
 
+ character(len=*), parameter :: routine = 'get_grid_dims'
  logical, parameter :: debug = .true.
 
 
 ! open run-mask nc file
- ncid = nc_open_file_readonly(model_grid_filename, routine)
+ ncid = nc_open_file_readonly(model_grid_file, routine)
 
 ! get dimension names & lengths
- nx = nc_get_dimension_size(ncid,'X',routine)
- ny = nc_get_dimension_size(ncid,'Y',routine)
+ nxi = nc_get_dimension_size(ncid,'X',routine)
+ nyi = nc_get_dimension_size(ncid,'Y',routine)
 
-! allocate data
- allocate(run(ny,nx))
- allocate(londata(ny,nx))
- allocate(latdata(ny,nx))
+ !allocate(run(nxi,nyi))
+ allocate(ix(nxi*nyi), iy(nxi*nyi))
 
 ! read in data
-! call nc_get_variable(ncid, 'lat', latdata)
-! call nc_get_variable(ncid, 'lon', londata)
-! call nc_get_variable(ncid, 'run', run)
+ call nc_get_variable(ncid, 'lat', lat, routine)
+ call nc_get_variable(ncid, 'lon', lon, routine)
+ call nc_get_variable(ncid, 'run', run, routine)
+! call nc_get_int_2d(ncid, 'run', run_int64)
 
- ! find how many cells are used in dvmdostem (0= no use, 1 = use)
+! DART uses longitude [0 360]
+ where (lon <   0.0_r8) lon = lon + 360.0_r8
+ where (lon > 360.0_r8) lon = lon - 360.0_r8
+
  ngrid = 0
- do i = 1,ny
-    do j=1, nx
+ do i = 1,nxi
+    do j=1, nyi
       if(run(i,j) > 0)then
         ngrid = ngrid +1
+        ix(ngrid) = i
+        iy(ngrid) = j
       endif
     enddo
  enddo
@@ -627,45 +809,80 @@ subroutine get_grid_dims(ncid, filename, lon, lat, nrun, run)
     write(*,*)"========= ERROR : No cell is used in run-mask.nc ======="
     return
  else
-    write(*,*)"[read_run_msk] grid cells used in run-mask : ",ngrid
+    write(*,*)"[get_grid_dims] grid cells used in run-mask : ",ngrid
+    if(debug)then
+       write(*,*)"lon = ",lon(ix(ngrid),iy(ngrid))
+       write(*,*)"lat = ",lat(ix(ngrid),iy(ngrid))
+    endif
  endif
-
-
-! allocate output lon lat data
- allocate(lon(ngrid))
- allocate(lat(ngrid))
- allocate(xindx(ngrid))
- allocate(yindx(ngrid))
-
-
-! save lon, lat, and grid index
-n=0
-do i = 1,ny
-   do j=1, nx
-      if(run(i,j) > 0)then
-         n=n+1      
-         xindx(n)=i
-         yindx(n)=j
-         lon(n)=londata(i,j)
-         lat(n)=latdata(i,j)
-      endif
-   enddo
-enddo
-
-! DART uses longitude [0 360]
-where (lon <   0.0_r8) lon = lon + 360.0_r8
-where (lon > 360.0_r8) lon = lon - 360.0_r8
-
-
-if(debug)then
-    print*,"lon = ",lon(1:ngrid)
-    print*,"lat = ",lat(1:ngrid)
-endif
 
  ! close nc file
  call nc_close_file(ncid)
+ ncid = 0
+! deallocate(run_int64)
+ deallocate(ix)
+ deallocate(iy)
 
 end subroutine get_grid_dims
+
+
+subroutine get_varwt_pft(ncid, varname, dimlens)
+! Calculate the variable weight of different PFTs within gridcell
+integer, intent(inout)          :: ncid
+integer, intent(in)             :: dimlens(3)
+character(len=*), intent(in)    :: varname
+
+! local variables
+real(r8), allocatable    :: var(:,:,:)
+real(r8), allocatable    :: total_var(:,:)
+integer                  :: i, j, k
+
+character(len=*), parameter :: routine = 'get_varwt_pft'
+
+! lai(Y, X, pft) ncdump = lai(pft, X, Y) in fortran
+
+
+ allocate(var(dimlens(1),dimlens(2),dimlens(3)))
+ allocate(total_var(dimlens(2),dimlens(3)))
+
+ call nc_get_variable(ncid, trim(varname), var, routine)
+ 
+ total_var(:,:) = 0
+
+ ! calculate variable weighting
+ do i = 1, dimlens(2)
+    do j = 1, dimlens(3)
+       do k =1, dimlens(1) !PFT loop
+            if (var(k,i,j) > -999)then ! skip unused pfts
+               total_var(i,j) = total_var(i,j) + var(k,i,j)
+            endif
+       enddo
+    enddo
+ enddo
+
+ write(*,*) 'total_var = ', total_var
+
+ ! default weighting
+ varwt_pft = 1.0
+
+ ! calculate variable weighting
+ do i = 1, dimlens(2)
+    do j = 1, dimlens(3)
+       do k =1, dimlens(1) !PFT loop
+            if (var(k,i,j) > -999)then ! skip unused pfts
+               varwt_pft(k,i,j)= var(k,i,j)/total_var(i,j)
+            endif  
+       enddo
+    enddo
+ enddo
+
+ write(*,*) 'varwt_pft(k,i,j) = ', varwt_pft
+
+ deallocate(var)
+ deallocate(total_var)
+  
+
+end subroutine get_varwt_pft
 
 
 subroutine read_model_var(ncfile,varname,epochtime,outvar)
@@ -726,7 +943,6 @@ end subroutine read_model_var
 
 
 
-
 function read_model_time(filename)
 ! Function to read dvm-dos-tem file time
 ! CCC: temperately read time from GPP monthly diagnosis files as trial
@@ -759,37 +975,47 @@ minute = 0
 second = 0
 
 
-! open model GPP nc file
- ncid = nc_open_file_readonly(trim(filename), routine)
- nt = nc_get_dimension_size(ncid,'time',routine) !get dimension
 
- ! allocate and read data
- allocate(time(nt))
- call nc_get_variable(ncid, 'time', time, routine)
+
+! For now, there's no time dimension in dvmdostem restart file
+! In order to preliminarily test our code, we temporarily set
+! time equal to 20100101
+year = 2010
+month = 01
+day = 01
+
+!! Below are the code for file that has "time" dimension in netcdf
+! open model nc file
+! ncid = nc_open_file_readonly(trim(filename), routine)
+! ! if we have timeseries
+! nt = nc_get_dimension_size(ncid,'time',routine) !get dimension
+
+! ! allocate and read data
+! allocate(time(nt))
+! call nc_get_variable(ncid, 'time', time, routine)
 
 !============ For multiple time steps =============
-
 ! The GPP monthly file has multiple epochtime time 
-n=0  
-do i =1, nt
-   call epochtime_to_date(time(i), 1, datetime, yyyy, mm, dd)
-   if(datetime == assimilation_date)then
-      YYYYMMDD = datetime
-      year = yyyy
-      month = mm
-      day = dd
-      n=1
-      exit
-   endif   
-enddo
-
- ! check if the code correctly find assimilation time in file
- if(n == 0)then
-   write(string1,*) '[read_model_time] NO avaiable time step in the given file'
-   return   
- endif
-
-
+!n=0  
+!do i =1, nt
+!   call epochtime_to_date(time(i), 1, datetime, yyyy, mm, dd)
+!   if(datetime == assimilation_date)then
+!      YYYYMMDD = datetime
+!      year = yyyy
+!      month = mm
+!      day = dd
+!      n=1
+!      exit
+!   endif   
+!enddo
+!
+! ! check if the code correctly find assimilation time in file
+! if(n == 0)then
+!   write(string1,*) '[read_model_time] NO avaiable time step in the given file'
+!   return   
+! endif
+!
+!
 !=========  For single time step file ===========
 ! after read-in "time" in nc file
 ! call epochtime_to_date(time, 1, datetime, year, month, day)
@@ -799,14 +1025,60 @@ enddo
 !    return
 ! endif
 
-call nc_close_file(ncid)
+!call nc_close_file(ncid)
 
 ! Return model time
 read_model_time=set_date(year, month, day, hour, minute, second)
 
-
 end function read_model_time
 
+
+! dvmdostem (current version) doesn't have time variable in its restart file
+! Besides, this write_model_time is not supported for NOLEAP calendar in DART
+! We need to build it by our own
+
+subroutine write_model_time(ncid, dart_time)
+! This subroutine write out DA time to output file from scratch
+
+integer,             intent(in) :: ncid
+type(time_type),     intent(in) :: dart_time
+
+character(len=*), parameter :: routine = 'write_model_time'
+
+integer :: year, month, day, hour, minute, second
+integer :: rst_time_yyyymmdd, rst_time_hhmmss
+integer :: ymdVarID, hmsVarID
+integer :: io, io1
+
+! currently we only output YYYYMMDD
+! we can add hourly information later
+
+
+call get_date(dart_time, year, month, day, hour, minute, second)
+
+rst_time_yyyymmdd = year*10000 + month*100 + day
+rst_time_hhmmss  = hour*3600 + minute*60  + second
+
+io1 = nf90_inq_varid(ncid, 'timemgr_rst_curr_ymd', ymdVarID)
+
+! Define time variable if it does not already exist
+if (.not. nc_variable_exists(ncid, 'rst_time_yyyymmdd')) then
+
+   call nc_begin_define_mode(ncid)
+   
+   io = nf90_def_var(ncid,'rst_time_yyyymmdd',NF90_INT,ymdVarID)
+   call nc_check(io, routine, 'defining rst_time_yyyymmdd')
+   call nc_add_attribute_to_variable(ncid,'rst_time_yyyymmdd','long_name','start date',routine)
+   call nc_add_attribute_to_variable(ncid,'rst_time_yyyymmdd','units','YYYYMMDD',routine)
+   
+   call nc_end_define_mode(ncid)
+
+endif
+
+io = nf90_put_var(ncid, ymdVarID, rst_time_yyyymmdd)
+call nc_check(io, routine, 'put_var rst_time_yyyymmdd')
+
+end subroutine write_model_time
 
 
 subroutine epochtime_to_date(epochtime, run_type, YYYYMMDD, year, month, day)
@@ -1030,105 +1302,66 @@ endif
 end subroutine parse_variable_table
 
 
-subroutine compute_grid_value(state_handle, ens_size, location, iqty,&
-                              interp_val, istatus)
-!----------------------------------------------------
-! For single grid point to do model_interpolation
-!----------------------------------------------------
-
-type(ensemble_type),  intent(in) :: state_handle
-integer,              intent(in) :: ens_size
-type(location_type),  intent(in) :: location  ! For 1d case, set in static_init_model
-integer,              intent(in) :: iqty
-real(r8),            intent(out) :: interp_val(ens_size)
-integer,             intent(out) :: istatus(ens_size)
-
-! local variables
-integer(i8) :: lower_index, upper_index
-real(r8) :: lctn, lctnfrac
-logical :: debug =.true.
-
-if ( .not. module_initialized ) call static_init_model
-
-! initialize flags
-interp_val = MISSING_R8  ! the DART bad value flag
-istatus    = 0
-
-! Convert location to real
-lctn = get_location(location)
-! Multiply by model size assuming domain is [0, 1] cyclic
-! In static_init_model, we set location = (1-i)/model_size
-lctn = model_size * lctn
-
-! Set lower & upper index window to include non-integer location setting
-lower_index = int(lctn) + 1
-upper_index = lower_index + 1
-if(lower_index > model_size) lower_index = lower_index - model_size
-if(upper_index > model_size) upper_index = upper_index - model_size
-
-
-lctnfrac = lctn - int(lctn) !In most of case of integer location, this term will be zero
-interp_val(:) = (1.0_r8 - lctnfrac) * get_state(lower_index, state_handle) + &
-                            lctnfrac  * get_state(upper_index, state_handle)
-
-if(debug)then
-    write(string1, *)'[compute_grid_value] Variable index = ',lower_index, upper_index
-    write(string2, *)'at grid location (lctn, lctnfrac) = (',lctn ,',',lctnfrac,')'
-    write(string3, *)'interp_val = ',interp_val   
-endif
-
-
-end subroutine compute_grid_value 
-
 
 !---------------------------------------------------------------------------------
 ! Stolen from DART-CLM... modified to dvm-dos-tem version
-! Jan 2024 Note: will be used in PFT patches, not for 1d single-point testing  
-!
-!> Each gridcell may contain values for several land units, each land unit may contain
-!> several columns, each column may contain several pft's.
-!> aggregates across multiple pft's. So, each gridcell value
-!> is an area-weighted value of an unknown number of column-based quantities.
+! Jan 2024 Note: will be used in PFT patches
 
 subroutine compute_gridcell_value(state_handle, ens_size, location, qty_index, &
                                   interp_val, istatus)
 
-! Purpose: model_interpolation for PFTs 1D/2D variables(no vertical interpolation)
+! Purpose: model_interpolation for PFTs variables(no vertical interpolation)
 
 ! Passed variables
-type(ensemble_type), intent(in)  :: state_handle
+type(ensemble_type), intent(in)  :: state_handle ! ensemble handler
 integer,             intent(in)  :: ens_size
 type(location_type), intent(in)  :: location     ! location somewhere in a grid cell
 integer,             intent(in)  :: qty_index    ! QTY in DART state needed for interpolation
 real(r8),            intent(out) :: interp_val(ens_size)   ! area-weighted result
 integer,             intent(out) :: istatus(ens_size)      ! error code (0 == good)
 
-character(len=*), parameter :: routine = 'compute_gridcell_value:'
+character(len=*), parameter :: routine = 'compute_gridcell_value'
 
 ! Local storage
-integer  :: varid, counter(ens_size)
+integer     :: varid, imem
 integer(i8) :: index1, indexi, indexN
-integer  :: gridloni,gridlatj
-real(r8) :: loc_lat, loc_lon
-real(r8) :: state(ens_size)
-real(r8) :: total(ens_size)
-real(r8) :: total_area(ens_size)
-real(r8), dimension(1) :: loninds,latinds
+integer     :: xi, yi
+real(r8)    :: loc_lat, loc_lon
+real(r8)    :: lon_dist, lat_dist
+real(r8)    :: state(ens_size)
+real(r8)    :: total(ens_size)
+real(r8)    :: total_frac(ens_size)
 real(r8), dimension(LocationDims) :: loc
-integer :: imem
 character(len=obstypelength) :: varname
+
+logical, parameter           :: debug = .true.
+
+!-------------------------------------------------------------------
+! error message 
+! istatus     = 0  Good
+! istatus     = 1  Can't find target variable
+! istatus     = 2  Errors in weighted-area calculation  
 
 if ( .not. module_initialized ) call static_init_model
 
 interp_val = MISSING_R8  ! the DART bad value flag
 istatus    = 0
 
+! This is the target location we want to interpolate to:
 loc        = get_location(location)  ! loc is in DEGREES
-! uncomment this when use 2d/3d dimension compile setting
-!loc_lon    = loc(1)
-!loc_lat    = loc(2)
+loc_lon    = loc(1)
+loc_lat    = loc(2)
 
-! No vertical component is considered here
+! Next, find the closest grid cell (lon, lat) to the target location
+! NOTE: For now, we don't have horizontal interpolation, so here we
+!       simply find the closet location
+!       while I don't think this is an ideal way to deal with it...
+
+latindx  = minloc(abs(lat1D - loc_lat))   ! these return 'arrays' ...
+lonindx  = minloc(abs(lon1D - loc_lon))   ! these return 'arrays' ...
+gridlatj = latinds(1)
+gridloni = loninds(1)
+
 
 
 !! Check if variables are in state
@@ -1136,69 +1369,104 @@ loc        = get_location(location)  ! loc is in DEGREES
 varname = "missing_varname"
 varid = -1
 
-varid = get_varid_from_kind(dom_id, qty_index)
+varid = get_varid_from_kind(dom_restart, qty_index)
 if (varid < 0) then
-   istatus = 11
+   istatus = 1
    return
 else
-   varname = get_variable_name(dom_id,varid)
+   varname = get_variable_name(dom_restart,varid)
+endif
+
+if(debug)then
+   write(*,*) '======= Debugging from [ compute_gridcell_value ] ===== '
+   write(*,*)'Working on "',trim(varname),'"'
+   write(*,*)'targetlon, lon, loc_lon is ',loc_lon
+   write(*,*)'targetlat, lat, loc_lat is ',loc_lat
 endif
 
 
-! TODO: below are from CLM, need to modify to TEM coordinate
+index1 = get_index_start(dom_restart, varid)
+indexN = get_index_end(dom_restart, varid)
 
-! determine the grid cell for the location
-!latinds  = minloc(abs(LAT - loc_lat))   ! these return 'arrays' ...
-!loninds  = minloc(abs(LON - loc_lon))   ! these return 'arrays' ...
-!gridlatj = latinds(1)
-!gridloni = loninds(1)
-
-!if (debug) then
-!   write(string1,*)'Working on "',trim(varname),'"'
-!   write(string2,*)'targetlon, lon, lon index is ',loc_lon,LON(gridloni),gridloni
-!   write(string3,*)'targetlat, lat, lat index is ',loc_lat,LAT(gridlatj),gridlatj
-!   call error_handler(E_ALLMSG,routine,string1,source,text2=string2,text3=string3)
-!endif
-
-
-index1 = get_index_start(dom_id, varid)
-indexN = get_index_end(  dom_id, varid)
-
-counter    = 0
 total      = 0.0_r8      ! temp storage for state vector
-total_area = 0.0_r8      ! temp storage for area
+total_frac = 0.0_r8      ! temp storage for area fraction
+
 ELEMENTS : do indexi = index1, indexN
 
-!   if (   lonixy(indexi) /=  gridloni ) cycle ELEMENTS
-!   if (   latjxy(indexi) /=  gridlatj ) cycle ELEMENTS
-!   if ( landarea(indexi) ==   0.0_r8  ) cycle ELEMENTS
+! check if it's in the same gridcell
+    xi = xindx(indexi)
+    yi = yindx(indexi) 
+    lon_dist = abs(lon(xi,yi) - loc_lon)
+    lat_dist = abs(lat(xi,yi) - loc_lat)
 
-!   state = get_state(indexi, state_handle)
+   if ( lon_dist > 0.05 ) cycle ELEMENTS
+   if ( lat_dist > 0.05 ) cycle ELEMENTS
+
+   if ( areafrac_pft(indexi) ==   0.0_r8  ) cycle ELEMENTS
+
+   state = get_state(indexi, state_handle)
 
    MEMBERS: do imem = 1, ens_size
 
-!      if(state(imem) == MISSING_R8) cycle MEMBERS
+      if(state(imem) == MISSING_R8) cycle MEMBERS
 
-      counter(imem)    = counter(imem)    + 1
-!      total(imem)      = total(imem)      + state(imem)*landarea(indexi)
-!      total_area(imem) = total_area(imem) +             landarea(indexi)
-
+      total(imem)      = total(imem)      + state(imem)*areafrac_pft(indexi)
+      total_frac(imem) = total_frac(imem) + areafrac_pft(indexi)
 
    enddo MEMBERS
+
 enddo ELEMENTS
 
-!do imem = 1,ens_size
-!   if (total_area(imem) > 0.0_r8 .and. istatus(imem) == 0) then
-!      interp_val(imem) = total(imem) / total_area(imem)
-!   else
-!      interp_val(imem) = MISSING_R8
-!      istatus(imem)    = 32
-!   endif
-!enddo
+do imem = 1,ens_size
+   if (total_frac(imem) > 0.0_r8 .and. istatus(imem) == 0) then
+      interp_val(imem) = total(imem)
+   else
+      interp_val(imem) = MISSING_R8
+      istatus(imem)    = 2
+   endif
+enddo
 
 end subroutine compute_gridcell_value
 
 
+subroutine Find_Closet_Indx(target_lon, target_lat, lon_indx, lat_indx)
+! subroutine to find the closet lon & lat indx 
+
+
+end subroutine Find_Closet_Indx
+
+
+
+
+
+!=================================================
+! Not neccessary for dvmdostem
+!=================================================
+subroutine adv_1step(x, time)
+
+real(r8),        intent(inout) :: x(:)
+type(time_type), intent(in)    :: time
+
+end subroutine adv_1step
+
+
+subroutine init_conditions(x)
+
+real(r8), intent(out) :: x(:)
+
+x = MISSING_R8
+
+end subroutine init_conditions
+
+
+subroutine init_time(time)
+
+type(time_type), intent(out) :: time
+
+! for now, just set to 0
+time = set_time(0,0)
+
+end subroutine init_time
 
 
 !===================================================================

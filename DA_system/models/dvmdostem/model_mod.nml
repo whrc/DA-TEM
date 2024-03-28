@@ -1,0 +1,13 @@
+&model_nml
+   model_input_filename        = 'GPP_monthly_tr.nc',
+   model_para_filename         = 'cpara_bkgd.nc',
+   model_grid_filename         = 'run-mask.nc',
+   assimilation_period_days    = 30,
+   assimilation_period_seconds = 0,
+   assimilation_date           = 201000101,
+   calendar                    = 'NOLEAP',
+   para_1d                     = .true.,
+   tem_variables               = 'GPP',     'QTY_STATE_VARIABLE',     '0.0',  'NA',  'UPDATE',
+                                 'cmax1',   'QTY_PAR_DIRECT',         '0.0',  'NA',  'NO_COPY_BACK',
+                                 'cmax2',   'QTY_PAR_DIRECT',         '0.0',  'NA',  'NO_COPY_BACK'	/
+

@@ -116,8 +116,10 @@
    /
 
 &obs_kind_nml
-   assimilate_these_obs_types = 'RAW_STATE_VARIABLE'
-   evaluate_these_obs_types   = ''                               
+   assimilate_these_obs_types = 'SOIL_TEMPERATURE',
+                                'TOWER_NETC_ECO_EXCHANGE',
+                                'MODIS_LEAF_AREA_INDEX'
+   evaluate_these_obs_types   = 'null'                               
    /
 
 # dvmdostem-DART variables
@@ -133,15 +135,26 @@
 #    only variables marked 'UPDATE' will be modified for dvmdostem restart file.
 
 &model_nml
-   model_input_filename        = 'GPP_monthly_tr.nc'	
-   model_para_filename         = 'cpara_bkgd.nc'	
-   model_grid_filename         = 'run-mask.nc'	
+   model_restart_file          = 'restart-tr.nc'	
+   model_para_file             = 'cpara_bkgd.nc'	
+   model_grid_file             = 'run-mask.nc'	
    assimilation_period_days    = 30	
    assimilation_period_seconds = 0	
    assimilation_date           = 201000101	
-   calendar                    = 'NOLEAP'	
-   para_1d                     = .true.	
-   tem_variables               = 'GPP',     'QTY_STATE_VARIABLE',     '0.0',  'NA',  'UPDATE'    
+   calendar                    = 'NOLEAP'		
+   tem_variables               = 'lai',   'QTY_LEAF_AREA_INDEX',     '0.0',  'NA',  'UPDATE',
+                                 'TSsoil','QTY_SOIL_TEMPERATURE',    'NA',   'NA',  'UPDATE'      
+   /
+
+&location_nml
+   horiz_dist_only             = .true.
+   vert_normalization_pressure = 100000.0
+   vert_normalization_height   = 10000.0
+   vert_normalization_level    = 20.0
+   approximate_distance        = .false.
+   nlon                        = 71
+   nlat                        = 36
+   output_box_info             = .true.
    /
 
 &utilities_nml
@@ -162,8 +175,9 @@
    output_obs_def_mod_file = '../../../observations/forward_operators/obs_def_mod.f90'
    input_obs_qty_mod_file  = '../../../assimilation_code/modules/observations/DEFAULT_obs_kind_mod.F90'
    output_obs_qty_mod_file = '../../../assimilation_code/modules/observations/obs_kind_mod.f90'
-   obs_type_files          = '../../../observations/forward_operators/obs_def_1d_state_mod.f90'
-   quantity_files          = '../../../assimilation_code/modules/observations/oned_quantities_mod.f90'
+   obs_type_files          = '../../../observations/forward_operators/obs_def_land_mod.f90',
+                             '../../../observations/forward_operators/obs_def_tower_mod.f90'
+   quantity_files          = '../../../assimilation_code/modules/observations/land_quantities_mod.f90'
    /
 
 &obs_sequence_tool_nml
@@ -230,16 +244,21 @@
    /
 
 &model_mod_check_nml
-  input_state_files     = 'GPP_monthly_tr.nc'
-  output_state_files    = 'GPP_output.nc'
-  num_ens               = 1
-  single_file           = .false.
-  test1thru             = 3
-  run_tests             = -1
-  x_ind                 = 2
-  loc_of_interest       = 0.3
-  quantity_of_interest  = 'QTY_STATE_VARIABLE'
-  interp_test_dx        = 0.02
-  interp_test_xrange    = 0.0, 1.0
-  verbose               = .true.
+   input_state_files     = 'restart-tr.nc'
+   output_state_files    = 'restart_da.nc'
+   num_ens               = 1
+   single_file           = .false.
+   test1thru             = 4
+   run_tests             = -1
+   x_ind                 = 2
+   loc_of_interest       = 210, 67.5, 0.0
+   quantity_of_interest  = 'QTY_LEAF_AREA_INDEX'
+   interp_test_vertcoord = 'VERTISHEIGHT'
+   interp_test_lonrange  = 320.0, 90.0
+   interp_test_dlon      = 1.0
+   interp_test_latrange  = 0.0, 75.0
+   interp_test_dlat      = 1.0
+   interp_test_vertrange = 1.0, 2.0
+   interp_test_dvert     = 1.0
+   verbose               = .true.
   /
