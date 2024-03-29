@@ -249,9 +249,9 @@
    num_ens               = 1
    single_file           = .false.
    test1thru             = 4
-   run_tests             = -1
+   run_tests             = 1, 2, 3, 4
    x_ind                 = 2
-   loc_of_interest       = 210, 67.5, 0.0
+   loc_of_interest       = 210.43, 68.62, 0.0
    quantity_of_interest  = 'QTY_LEAF_AREA_INDEX'
    interp_test_vertcoord = 'VERTISHEIGHT'
    interp_test_lonrange  = 320.0, 90.0

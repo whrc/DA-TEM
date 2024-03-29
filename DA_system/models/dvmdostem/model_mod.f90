@@ -189,10 +189,9 @@ integer :: nlat     = -1  ! number of latitude
 real(r8), allocatable ::  lon(:,:)             ! used grid longitude
 real(r8), allocatable ::  lat(:,:)             ! used grid latitude
 real(r8), allocatable ::  level(:)             ! depth distributed to 1D state vector
-real(r8), allocatable ::  lon1D(:)             ! longitude distributed to 1D state vector
-real(r8), allocatable ::  lat1D(:)             ! latitude distributed to 1D state vector   
 real(r8), allocatable ::  depth(:,:,:)         ! depth, additionally calculate from DZsoil
 integer,  allocatable ::  run(:,:) 
+integer,  allocatable ::  gridnlev(:,:)        ! nlev for each gridcell (X, Y) 
 integer,  allocatable ::  xindx(:), yindx(:)   ! indx for lon and lat
 
 real(r8), allocatable ::  areafrac_pft(:)      ! fraction/weights for each indx value 
@@ -267,6 +266,7 @@ time_step = set_time(assimilation_period_seconds, assimilation_period_days)
 
 ! Define dimensions
 !----------------------------------------------------------
+! All soil column related dimensions(depth, gridnlev) calculated here:
  call get_restart_dims(ncid, model_restart_file, nx, ny, npfts, nlevsoi)
 
 ! Allocate matrix --> read run-mask.nc, save lon & lat
@@ -275,10 +275,9 @@ time_step = set_time(assimilation_period_seconds, assimilation_period_days)
  allocate(lat(nx,ny))
  allocate(run(nx,ny))
 
-
 ! Define dimension & location
 !---------------------------------------------------
-! here we read and save lon, lat, run, and calculate depth
+! here we read and save lon, lat, run
  call get_grid_dims(ncid, ngrid)
  ncid = 0
 
@@ -301,8 +300,6 @@ idom = get_num_domains()
 allocate(level(model_size))        ! level for state vector
 allocate(xindx(model_size))        ! X indx
 allocate(yindx(model_size))        ! Y indx 
-allocate(lon1D(model_size))        ! lon for state vector
-allocate(lat1D(model_size))        ! lat for state vector
 allocate(areafrac_pft(model_size)) ! weighting for the variable within gridcell (pft only)
 
 level(:) = 0.0_r8 ! Initialize all levels to surface
@@ -403,8 +400,6 @@ SELECT CASE ( trim(dim_name(1)) )
         do j = 1, dim_length(2) ! loop X
            do k = 1, dim_length(1) !loop pft
               level(indx) = 0.0  ! at surface
-              lon1D(indx) = lon(j, i)
-              lat1D(indx) = lat(j, i)
               xindx(indx) = j
               yindx(indx) = i
               areafrac_pft(indx) = varwt_pft(k, j, i)
@@ -419,8 +414,6 @@ SELECT CASE ( trim(dim_name(1)) )
          do j = 1, dim_length(2) ! loop X
             do k = 1, dim_length(1) ! loop soillayer
                level(indx) = depth(k, j, i) 
-               lon1D(indx) = lon(j, i)
-               lat1D(indx) = lat(j, i)
                xindx(indx) = j
                yindx(indx) = i
                areafrac_pft(indx) = 1
@@ -714,6 +707,7 @@ subroutine get_restart_dims(ncid, filename, nx, ny, npfts, nlevsoi)
 
  allocate(soil_thickness(nlevsoi, nx, ny))
  allocate(depth(nlevsoi, nx,ny))
+ allocate(gridnlev(nx, ny))
 
 ! read DZsoil (thickness of soil layer)
  call nc_get_variable(ncid, 'DZsoil', soil_thickness, routine)
@@ -721,24 +715,32 @@ subroutine get_restart_dims(ncid, filename, nx, ny, npfts, nlevsoi)
 ! read TYPEsoil (the type of soil)
 ! call nc_get_variable(ncid, 'TYPEsoil', var, routine)
 
+gridnlev=0
 
 ! calculate the depth of soil
  do i = 1, nx
     do j =1, ny
-       nsc = 0.0
-       do k = 1, nlevsoi
-          if(k == 1 )then
-             depth(k, i, j)= 0.0
-          else
-             nsc = nsc + soil_thickness(k-1, i, j)
-             depth(k, i, j) = nsc
-          endif
-
-          if(debug)then
-              if(depth (k, i, j) > 0)then
-                 write(*,*) " depth (k,i,j) = ", depth(k, i, j)
+       if(soil_thickness(1,i,j) == MISSING_R8)then
+         ! unused column 
+         depth(:, i, j) = MISSING_R8
+         gridnlev(i, j) = 0
+       else        
+          nsc = 0.0       
+          do k = 1, nlevsoi             
+             if(k == 1 )then
+                 depth(k, i, j)= 0.0
+             else
+                 nsc = nsc + soil_thickness(k-1, i, j)
+                 depth(k, i, j) = nsc
               endif
-          endif
+              ! record number of used levels for each grid cell
+              if(depth (k, i, j) >= 0)then
+                 gridnlev(i, j) = gridnlev(i, j) + 1      
+              endif
+
+             if(debug)then              
+                write(*,*) " depth (k,i,j) = ", depth(k, i, j)             
+             endif
        enddo
     enddo
  enddo
@@ -747,10 +749,11 @@ subroutine get_restart_dims(ncid, filename, nx, ny, npfts, nlevsoi)
 
  if(debug)then
      write(*,*)'[get_restart_dims] Dimension Outputs:'
-     write(*,*)'nx = ',nx
-     write(*,*)'ny = ',ny
-     write(*,*)'nlevsoi = ',nlevsoi
-     write(*,*)'npfts = ',npfts
+     write(*,*)'nx       = ',nx
+     write(*,*)'ny       = ',ny
+     write(*,*)'nlevsoi  = ',nlevsoi
+     write(*,*)'gridnlev = ',gridnlev(2,:)
+     write(*,*)'npfts    = ',npfts
  endif
 
  call nc_close_file(ncid, routine)
@@ -860,7 +863,7 @@ character(len=*), parameter :: routine = 'get_varwt_pft'
     enddo
  enddo
 
- write(*,*) 'total_var = ', total_var
+! write(*,*) 'total_var = ', total_var
 
  ! default weighting
  varwt_pft = 1.0
@@ -876,7 +879,7 @@ character(len=*), parameter :: routine = 'get_varwt_pft'
     enddo
  enddo
 
- write(*,*) 'varwt_pft(k,i,j) = ', varwt_pft
+ !write(*,*) 'varwt_pft(k,i,j) = ', varwt_pft
 
  deallocate(var)
  deallocate(total_var)
@@ -1302,6 +1305,132 @@ endif
 end subroutine parse_variable_table
 
 
+subroutine compute_vertical_value(state_handle, ens_size, location, qty_index, interp_val, istatus)
+! Purpose: model_interpolation for vertical variables(no horizontal interpolation)
+
+type(ensemble_type), intent(in)  :: state_handle ! state vector
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location     ! location somewhere in a grid cell
+integer,             intent(in)  :: qty_index    ! QTY in DART state needed for interpolation
+real(r8),            intent(out) :: interp_val(ens_size)   ! area-weighted result
+integer,             intent(out) :: istatus(ens_size)      ! error code (0 == good)
+
+! Local variables
+integer     :: varid, imem
+integer(i8) :: index1, indexi, indexN
+integer     :: xi, yi
+real(r8)    :: loc_lat, loc_lon, loc_lev
+real(r8)    :: state(ens_size)
+real(r8)    :: depthbelow, depthabove
+integer     :: levabove, levbelow
+real(r8)    :: total(ens_size)
+real(r8)    :: total_frac(ens_size)
+real(r8), dimension(LocationDims) :: loc
+character(len=obstypelength) :: varname
+
+character(len=*), parameter :: routine = 'compute_vertical_value'
+logical, parameter          :: debug = .true.
+
+
+
+interp_val = MISSING_R8  ! the DART bad value flag
+istatus    = 0          
+
+! Get varname
+varid = get_varid_from_kind(dom_restart, qty_index)
+if (varid < 0) then
+   istatus = 1
+   return
+else
+   varname = get_variable_name(dom_restart,varid)
+endif
+
+! Get target location
+loc        = get_location(location)  ! loc is in DEGREES
+loc_lon    = loc(1)
+loc_lat    = loc(2)
+loc_lev    = loc(3)
+
+call Find_Closet_Indx(loc_lon, loc_lat, xi, yi)
+
+
+! get index slot
+index1 = get_index_start(dom_restart, varname)
+indexN = get_index_end(dom_restart, varname)
+
+
+! Define where the target level located in the vertical column:
+call Find_above_below_lev(loc_lev, xi, yi, levabove, levbelow, depthabove, depthbelow)
+
+
+
+
+
+
+
+
+
+end subroutine compute_vertical_value
+
+
+subroutine Find_above_below_lev(loc_lev, xi, yi, levabove, levbelow, depthabove, depthbelow)
+real(r8), intent(in)     :: loc_lev
+integer,  intent(in)     :: xi, yi                 ! gridcell indx
+real(r8), intent(out)    :: depthbelow, depthabove ! depth in meter
+integer, intent(out)     :: levabove, levbelow     ! level indx
+
+! local variables
+integer                  :: k, nllev
+        
+! Define where the target level located in the vertical column:
+!
+!  _______________________________________________________ surface = 0
+!            ++++++++++++++                |   |
+!                                          |   |
+! model lev  ++++++++++++++ levbove (indx) |   |depthabove(m)
+!                                          |
+!                X --------> loc_lev       |
+!                                          |
+!            ++++++++++++++ levbelow       |depthbelow (m)
+!            ++++++++++++++
+! 
+! Assumptions:
+! 1) If loc_lev(obs lev) fail above surface, interpolate to the surface
+! 2) If loc_lev(obs lev) fail below deepest layer, interpolate to the deepest layer
+!
+! I made these assumptions for simplicity, can modify it if neccessary
+
+
+! nlev for target grid cell (xi, yi)
+nllev = gridnlev(xi,yi)
+
+
+if (loc_lev  <= 0.0 ) then  ! In TEM, we assumes surface = 0 (top layer)
+   depthabove = 0.0
+   depthbelow = 0.0
+   levabove = 1
+   levbelow = 1
+elseif (loc_lev >= depth(nllev,xi,yi)) then  ! assume at deepest level
+   depthabove    = depth(nllev,xi,yi)         
+   depthbelow    = depth(nllev,xi,yi)     
+   levabove    = nllev
+   levbelow    = nllev
+else
+   LAYERS : do k = 2, nllev
+      if (loc_lev   < depth(k,xi,yi)) then
+         levabove = k - 1
+         levbelow = k
+         depthabove = depth(k-1,xi,yi)
+         depthbelow = depth(k,xi,yi)
+         exit LAYERS
+      endif
+   enddo LAYERS
+endif
+
+
+end subroutine 
+
+
 
 !---------------------------------------------------------------------------------
 ! Stolen from DART-CLM... modified to dvm-dos-tem version
@@ -1327,7 +1456,6 @@ integer     :: varid, imem
 integer(i8) :: index1, indexi, indexN
 integer     :: xi, yi
 real(r8)    :: loc_lat, loc_lon
-real(r8)    :: lon_dist, lat_dist
 real(r8)    :: state(ens_size)
 real(r8)    :: total(ens_size)
 real(r8)    :: total_frac(ens_size)
@@ -1357,11 +1485,7 @@ loc_lat    = loc(2)
 !       simply find the closet location
 !       while I don't think this is an ideal way to deal with it...
 
-latindx  = minloc(abs(lat1D - loc_lat))   ! these return 'arrays' ...
-lonindx  = minloc(abs(lon1D - loc_lon))   ! these return 'arrays' ...
-gridlatj = latinds(1)
-gridloni = loninds(1)
-
+call Find_Closet_Indx(loc_lon, loc_lat, xi, yi)
 
 
 !! Check if variables are in state
@@ -1391,29 +1515,43 @@ indexN = get_index_end(dom_restart, varid)
 total      = 0.0_r8      ! temp storage for state vector
 total_frac = 0.0_r8      ! temp storage for area fraction
 
+
 ELEMENTS : do indexi = index1, indexN
 
-! check if it's in the same gridcell
-    xi = xindx(indexi)
-    yi = yindx(indexi) 
-    lon_dist = abs(lon(xi,yi) - loc_lon)
-    lat_dist = abs(lat(xi,yi) - loc_lat)
-
-   if ( lon_dist > 0.05 ) cycle ELEMENTS
-   if ( lat_dist > 0.05 ) cycle ELEMENTS
-
+   ! check if it's in the same gridcell
+   if ( xindx(indexi) /= xi  ) cycle ELEMENTS
+   if ( yindx(indexi) /= yi  ) cycle ELEMENTS
    if ( areafrac_pft(indexi) ==   0.0_r8  ) cycle ELEMENTS
 
    state = get_state(indexi, state_handle)
+!   write(*,*)'Working on index           : ',indexi
+!   write(*,*)'state(:) is             : ',state(:)
+
 
    MEMBERS: do imem = 1, ens_size
 
       if(state(imem) == MISSING_R8) cycle MEMBERS
-
+     
       total(imem)      = total(imem)      + state(imem)*areafrac_pft(indexi)
       total_frac(imem) = total_frac(imem) + areafrac_pft(indexi)
 
+      if(debug)then
+         write(*,*) '======= Debugging from MEMBERS loops in [ compute_gridcell_value ] ===== '
+         write(*,*)'Working on ensemble (imem) : ',imem
+         write(*,*)'Working on index           : ',indexi
+         write(*,*)'state(imem) is             : ',state(imem)
+         write(*,*)'areafrac_pft (indexi)      : ',areafrac_pft(indexi)
+      endif
+
    enddo MEMBERS
+
+!   if(debug)then
+!         write(*,*) '======= Debugging from ELEMENTS loops in [ compute_gridcell_value ] ===== '
+!         write(*,*)'Working on index           : ',indexi
+!         write(*,*)'total_frac(:) is           : ',total_frac(:)
+          write(*,*)'total(:)                   : ',total(:)
+!    endif
+
 
 enddo ELEMENTS
 
@@ -1429,13 +1567,32 @@ enddo
 end subroutine compute_gridcell_value
 
 
-subroutine Find_Closet_Indx(target_lon, target_lat, lon_indx, lat_indx)
+subroutine Find_Closet_Indx(target_lon, target_lat, closest_x, closest_y)
 ! subroutine to find the closet lon & lat indx 
+ real(r8), intent(in)    :: target_lon, target_lat
+ integer,  intent(out)   :: closest_x, closest_y ! index for closest point
+ integer                 :: i, j
+ real(r8)                :: dist, min_dist
 
+
+min_dist = 1.0E30  ! Initialize with a large number 
+! Loop through each point in the arrays
+  do i = 1, nx
+    do j = 1, ny
+
+      ! Calculate the Euclidean distance to the target location
+      dist = sqrt((lon(i, j) - target_lon)**2 + (lat(i, j) - target_lat)**2)
+
+      ! Check if this is the smallest distance so far
+      if (dist < min_dist) then
+        min_dist = dist
+        closest_x = i
+        closest_y = j
+      end if
+    end do
+  end do
 
 end subroutine Find_Closet_Indx
-
-
 
 
 

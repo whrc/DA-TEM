@@ -108,11 +108,23 @@ real(kind=r8), parameter :: PI = 3.14159265358979323846_r8
 real(kind=r8), parameter :: DEG2RAD = PI / 180.0_r8
 real(kind=r8), parameter :: RAD2DEG = 180.0_r8 / PI
 
-integer,          parameter ::  MISSING_I    = -888888
-integer(kind=i8), parameter ::  MISSING_I8   = -888888_I8
-integer,          parameter ::  MISSING_DATA = -88
-real(kind=r4),    parameter ::  MISSING_R4   = -888888.0_r4
-real(kind=r8),    parameter ::  MISSING_R8   = -888888.0_r8
+!integer,          parameter ::  MISSING_I    = -888888
+!integer(kind=i8), parameter ::  MISSING_I8   = -888888_I8
+!integer,          parameter ::  MISSING_DATA = -88
+!real(kind=r4),    parameter ::  MISSING_R4   = -888888.0_r4
+!real(kind=r8),    parameter ::  MISSING_R8   = -888888.0_r8
+
+
+!! For TEM the missing value (_FillValue) = -9999
+!! Modified for DART-TEM by CCC
+integer,          parameter ::  MISSING_I    = -9999
+integer(kind=i8), parameter ::  MISSING_I8   = -9999_I8
+integer,          parameter ::  MISSING_DATA = -99
+real(kind=r4),    parameter ::  MISSING_R4   = -9999.0_r4
+real(kind=r8),    parameter ::  MISSING_R8   = -9999.0_r8
+
+
+
 
 real(r8), parameter :: t_kelvin       = 273.15_r8
 real(r8), parameter :: es_alpha       = 611.2_r8
