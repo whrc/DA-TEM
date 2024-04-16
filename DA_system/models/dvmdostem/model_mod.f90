@@ -18,7 +18,8 @@ use time_manager_mod,      only : time_type,set_date, set_time,                 
                                   set_calendar_type, get_date
 
 use location_mod,          only : location_type, set_location, get_location,    &
-                                  get_close_obs, get_close_state,               &
+                                  loc_get_close_obs => get_close_obs,           &
+                                  loc_get_close_state => get_close_state,       &
                                   convert_vertical_obs, convert_vertical_state, &
                                   LocationDims, VERTISLEVEL, VERTISHEIGHT
 
@@ -69,7 +70,7 @@ use state_structure_mod,   only : add_domain,  get_domain_size,       &
                                   get_model_variable_indices,         &
                                   get_variable_name, get_varid_from_kind 
 
-use default_model_mod,     only : end_model, pert_model_copies, nc_write_model_vars  
+use default_model_mod,     only : pert_model_copies, nc_write_model_vars  
 
 use typesizes
 
@@ -201,6 +202,10 @@ real(r8), allocatable ::  varwt_pft(:,:,:)     ! fraction/weights of different p
 ! Domain ID
 integer :: dom_restart = -1
 
+!----------------------------------------------------------------------
+! Logical variables
+logical               :: pft_dim = .false.  ! If we have PFT variables or not
+
 
 contains
 
@@ -284,18 +289,20 @@ time_step = set_time(assimilation_period_seconds, assimilation_period_days)
 
 ! Define & check the variable table
 !---------------------------------------------------
-call parse_variable_table(tem_variables, nfields, variable_table, qty_list, update_list) 
+call parse_variable_table(tem_variables, nfields, variable_table, var_ranges, qty_list, update_list) 
 
 ! Define domain index for model variables
 
 dom_restart = add_domain(model_restart_file, nfields, &
                     var_names = variable_table(1:nfields, VAR_NAME_INDEX), &
                     kind_list = qty_list(1:nfields), &
+                    clamp_vals  = var_ranges(1:nfields,:), &
                     update_list = update_list(1:nfields))
 
 model_size = get_domain_size(dom_restart)
 nvars = get_num_variables(dom_restart)
 idom = get_num_domains()
+
 
 allocate(level(model_size))        ! level for state vector
 allocate(xindx(model_size))        ! X indx
@@ -335,6 +342,7 @@ do ivar = 1, get_num_variables(dom_restart)
         varwt_pft(:,:,:) = 1 ! default value
         ! calculate varwt_pft
         call get_varwt_pft(ncid, varname, dimlens)
+        pft_dim = .true.
    endif
 
 
@@ -348,7 +356,6 @@ do ivar = 1, get_num_variables(dom_restart)
          write(*,*) "            indx = ", indx
          write(*,*) "    dimnames(1:3)= ", dimnames(1:3)  
          write(*,*) "     dimlens(1:3)= ", dimlens(1:3)
-         write(*,*) "varwt_pft(:,1,2) = ", varwt_pft(1:dimlens(1),2,1)
    endif
 
 enddo 
@@ -501,7 +508,7 @@ real(r8)                     :: loc_array(LocationDims)
 real(r8)                     :: llon, llat, llev ! local lon, lat, lev(can be pft or depth)
 character(len=*), parameter  :: routine = 'model_interpolate'
 character(len=256)           :: qty_string
-integer                      :: varid
+integer                      :: varid, i
 logical, parameter           :: debug = .true. 
 
 
@@ -541,7 +548,8 @@ select case( iqty )
 
     case( QTY_SOIL_MOISTURE, QTY_SOIL_TEMPERATURE) ! 3D variables            
         write(*,*) '3D interpolation'
-
+        call compute_vertical_value(state_handle, ens_size, location, iqty, &
+                                    expected_obs, istatus)
 
     case default
 
@@ -555,6 +563,11 @@ select case( iqty )
 
 end select
 
+if (debug) then
+   do i = 1,ens_size
+      write(*,*)'ensemble member ',i,'; expected_obs value =',expected_obs(i)
+   enddo
+endif
 
 
 end subroutine model_interpolate
@@ -619,6 +632,60 @@ endif
 !if (present(qty_type)) qty_type = QTY_STATE_VARIABLE    ! default variable quantity (quick test)
 
 end subroutine get_state_meta_data
+
+
+! Calculate the specific model distance. We use the default subroutine in DART here
+subroutine get_close_obs(gc, base_loc, base_type, locs, loc_qtys, loc_types, &
+                         num_close, close_ind, dist, ens_handle)
+
+type(get_close_type),          intent(in)    :: gc            ! handle to a get_close structure
+type(location_type),           intent(inout) :: base_loc      ! location of interest
+integer,                       intent(in)    :: base_type     ! obs type
+type(location_type),           intent(inout) :: locs(:)       ! obs locations
+integer,                       intent(in)    :: loc_qtys(:)   ! QTYS for obs
+integer,                       intent(in)    :: loc_types(:)  ! TYPES for obs
+integer,                       intent(out)   :: num_close     ! how many are close
+integer,                       intent(out)   :: close_ind(:)  ! incidies into the locs array
+real(r8),            optional, intent(out)   :: dist(:)       ! distances in radians
+type(ensemble_type), optional, intent(in)    :: ens_handle
+
+character(len=*), parameter :: routine = 'get_close_obs'
+
+call loc_get_close_obs(gc, base_loc, base_type, locs, loc_qtys, loc_types, &
+                          num_close, close_ind, dist, ens_handle)
+
+end subroutine get_close_obs
+
+
+! This is the subroutine where we can make a prior-assumption to the correlation between
+! state and observation. By manually setting the distance to a very huge number (far away),
+! they will not be updated in DA
+! Right now, we don't have any specific assumption, but it could be set in the future
+subroutine get_close_state(gc, base_loc, base_type, locs, loc_qtys, loc_indx, &
+                           num_close, close_ind, dist, ens_handle)
+
+type(get_close_type),          intent(in)    :: gc           ! handle to a get_close structure
+type(location_type),           intent(inout) :: base_loc     ! location of interest
+integer,                       intent(in)    :: base_type    ! obs type
+type(location_type),           intent(inout) :: locs(:)      ! state locations
+integer,                       intent(in)    :: loc_qtys(:)  ! QTYs for state
+integer(i8),                   intent(in)    :: loc_indx(:)  ! indices into DART state vector
+integer,                       intent(out)   :: num_close    ! how many are close
+integer,                       intent(out)   :: close_ind(:) ! indices into the locs array
+real(r8),            optional, intent(out)   :: dist(:)      ! distances in radians
+type(ensemble_type), optional, intent(in)    :: ens_handle
+
+character(len=*), parameter :: routine = 'get_close_state'
+
+
+
+call loc_get_close_state(gc, base_loc, base_type, locs, loc_qtys, loc_indx, &
+                            num_close, close_ind, dist, ens_handle)
+
+! If you want to add specific assumptions, add them here:
+
+
+end subroutine get_close_state
 
 
 !------------------------------------------------------------------
@@ -730,18 +797,23 @@ gridnlev=0
              if(k == 1 )then
                  depth(k, i, j)= 0.0
              else
-                 nsc = nsc + soil_thickness(k-1, i, j)
-                 depth(k, i, j) = nsc
-              endif
-              ! record number of used levels for each grid cell
-              if(depth (k, i, j) >= 0)then
-                 gridnlev(i, j) = gridnlev(i, j) + 1      
-              endif
+                 if (soil_thickness(k-1, i, j) /= MISSING_R8)then    
+                    nsc = nsc + soil_thickness(k-1, i, j)
+                    depth(k, i, j) = nsc
+                 else                   
+                    depth(k, i, j) = MISSING_R8   
+                 endif                    
+             endif
 
+             if(depth (k, i, j) >= 0)then
+                gridnlev(i, j) = gridnlev(i, j) + 1
+             endif             
+ 
              if(debug)then              
                 write(*,*) " depth (k,i,j) = ", depth(k, i, j)             
              endif
-       enddo
+          enddo
+       endif  
     enddo
  enddo
 
@@ -1196,7 +1268,7 @@ subroutine date_to_epochtime(year, month, day, run_type, epochtime)
 end subroutine date_to_epochtime
 
 
-subroutine parse_variable_table(state_variables, ngood, table, qty_list, update_var)
+subroutine parse_variable_table(state_variables, ngood, table, var_ranges, qty_list, update_var)
 ! ===================================================================================
 ! Checks if the namelist was filled in correctly, and the user input against the variables available in the
 ! input netcdf file to see if it is possible to construct the DART state vector
@@ -1224,16 +1296,19 @@ character(len=*),  intent(inout) :: state_variables(:)
 integer,           intent(out) :: ngood
 character(len=*),  intent(out) :: table(:,:)
 integer,           intent(out) :: qty_list(:)   ! kind number
+real(r8),          intent(out) :: var_ranges(:,:)
 logical,           intent(out) :: update_var(:) ! logical update
 
 character(len=*), parameter :: routine = 'parse_variable_table'
 
-integer :: nrows, ncols, i
+integer :: nrows, ncols, i, ios
 character(len=NF90_MAX_NAME) :: varname       ! column 1
 character(len=NF90_MAX_NAME) :: dartstr       ! column 2
 character(len=NF90_MAX_NAME) :: minvalstring  ! column 3
 character(len=NF90_MAX_NAME) :: maxvalstring  ! column 4
-character(len=NF90_MAX_NAME) :: update       ! column 5
+character(len=NF90_MAX_NAME) :: update        ! column 5
+real(r8) :: minvalue, maxvalue
+
 
 !character(len=*) :: string1, string2, string3
 
@@ -1273,6 +1348,17 @@ varLoop : do i = 1, nrows
       string3 = '['//trim(table(i,1))//'] ... (without the [], naturally)'
       call error_handler(E_ERR,routine,string1,source,text2=string2,text3=string3)
    endif
+
+   ! Define variable range
+   var_ranges(i,1) = MISSING_R8 ! min value
+   var_ranges(i,2) = MISSING_R8 ! max value
+
+   read(table(i,3),*,iostat=ios) minvalue
+   if (ios == 0) var_ranges(i,1) = minvalue
+
+   read(table(i,4),*,iostat=ios) maxvalue
+   if (ios == 0) var_ranges(i,2) = maxvalue
+
 
   ! Make sure DART qty is valid
    qty_list(i) = get_index_for_quantity(dartstr)
@@ -1316,17 +1402,19 @@ real(r8),            intent(out) :: interp_val(ens_size)   ! area-weighted resul
 integer,             intent(out) :: istatus(ens_size)      ! error code (0 == good)
 
 ! Local variables
-integer     :: varid, imem
+integer     :: varid, imem, counter
 integer(i8) :: index1, indexi, indexN
 integer     :: xi, yi
 real(r8)    :: loc_lat, loc_lon, loc_lev
 real(r8)    :: state(ens_size)
 real(r8)    :: depthbelow, depthabove
 integer     :: levabove, levbelow
-real(r8)    :: total(ens_size)
-real(r8)    :: total_frac(ens_size)
+real(r8)    :: upper_value(ens_size), lower_value(ens_size)
+real(r8)    :: upperwt, lowerwt
 real(r8), dimension(LocationDims) :: loc
 character(len=obstypelength) :: varname
+
+
 
 character(len=*), parameter :: routine = 'compute_vertical_value'
 logical, parameter          :: debug = .true.
@@ -1345,6 +1433,15 @@ else
    varname = get_variable_name(dom_restart,varid)
 endif
 
+if(debug)then
+   write(*,*) '======= Debugging from [ compute_vertical_value ] ===== '
+   write(*,*)'Working on "',trim(varname),'"'
+   write(*,*)'target lon, loc_lon is ',loc_lon
+   write(*,*)'target lat, loc_lat is ',loc_lat
+   write(*,*)'target lev, loc_lev is ',loc_lev
+endif
+
+
 ! Get target location
 loc        = get_location(location)  ! loc is in DEGREES
 loc_lon    = loc(1)
@@ -1359,18 +1456,67 @@ index1 = get_index_start(dom_restart, varname)
 indexN = get_index_end(dom_restart, varname)
 
 
-! Define where the target level located in the vertical column:
+! Define where the target level located in the closest vertical column:
+! Here we assumes that all ensembles have the same vertical depth/level coordinate
 call Find_above_below_lev(loc_lev, xi, yi, levabove, levbelow, depthabove, depthbelow)
 
 
+upper_value = MISSING_R8
+lower_value = MISSING_R8
+counter     = 0
+
+GRIDCELL:do indexi = index1, indexN
+
+    ! check if it's in the same gridcell
+    if ( xindx(indexi) /= xi  ) cycle GRIDCELL
+    if ( yindx(indexi) /= yi  ) cycle GRIDCELL
+     
+    counter = counter + 1
+
+    ! Get ensemble state for index i
+    state = get_state(indexi, state_handle)
+
+    MEMBERS : do imem = 1, ens_size
+       
+      if (state(imem) < -9000) cycle MEMBERS
+     
+      ! Find the upper and lower state  
+      if (level(indexi) == depthabove) then
+         upper_value(imem) = state(imem)
+      endif
+
+      if(level(indexi) == depthbelow) then
+         lower_value(imem) = state(imem)
+      endif
+
+    enddo MEMBERS
+
+enddo GRIDCELL
 
 
+! Calculate the interpolation weighting
+if (depthbelow == depthabove) then
+   upperwt = 1.0_r8
+   lowerwt = 0.0_r8
+else
+   upperwt = (depthbelow - loc_lev) / (depthbelow - depthabove)
+   lowerwt = (loc_lev - depthabove) / (depthbelow - depthabove)
+endif
 
-
-
-
+! Simple linear interpolation for vertical column
+do imem = 1, ens_size
+   if (istatus(imem)     == 0          .and. &
+       upper_value(imem) /= MISSING_R8 .and. lower_value(imem) /= MISSING_R8) then
+       ! interpolation based on depth distance
+       interp_val(imem) = upper_value(imem)*upperwt + lower_value(imem)*lowerwt
+   else
+       istatus(imem) = 23
+       interp_val(imem) = MISSING_R8
+   endif
+enddo
 
 end subroutine compute_vertical_value
+
 
 
 subroutine Find_above_below_lev(loc_lev, xi, yi, levabove, levbelow, depthabove, depthbelow)
@@ -1428,12 +1574,12 @@ else
 endif
 
 
-end subroutine 
+end subroutine Find_above_below_lev
 
 
 
 !---------------------------------------------------------------------------------
-! Stolen from DART-CLM... modified to dvm-dos-tem version
+! This part is very similar to DART-CLM...I modify it to dvm-dos-tem version
 ! Jan 2024 Note: will be used in PFT patches
 
 subroutine compute_gridcell_value(state_handle, ens_size, location, qty_index, &
@@ -1442,10 +1588,10 @@ subroutine compute_gridcell_value(state_handle, ens_size, location, qty_index, &
 ! Purpose: model_interpolation for PFTs variables(no vertical interpolation)
 
 ! Passed variables
-type(ensemble_type), intent(in)  :: state_handle ! ensemble handler
+type(ensemble_type), intent(in)  :: state_handle           ! ensemble handler
 integer,             intent(in)  :: ens_size
-type(location_type), intent(in)  :: location     ! location somewhere in a grid cell
-integer,             intent(in)  :: qty_index    ! QTY in DART state needed for interpolation
+type(location_type), intent(in)  :: location               ! location somewhere in a grid cell
+integer,             intent(in)  :: qty_index              ! QTY in DART state needed for interpolation
 real(r8),            intent(out) :: interp_val(ens_size)   ! area-weighted result
 integer,             intent(out) :: istatus(ens_size)      ! error code (0 == good)
 
@@ -1530,9 +1676,12 @@ ELEMENTS : do indexi = index1, indexN
 
    MEMBERS: do imem = 1, ens_size
 
-      if(state(imem) == MISSING_R8) cycle MEMBERS
+      if(state(imem) < -9000) cycle MEMBERS
      
-      total(imem)      = total(imem)      + state(imem)*areafrac_pft(indexi)
+      !total(imem)      = total(imem)      + state(imem)*areafrac_pft(indexi) 
+      ! when we treat every PFTs as individual variable, we don't need to contribute HX with its ratio
+      ! This is a large difference from CLM-DART
+      total(imem)      = total(imem)      + state(imem)
       total_frac(imem) = total_frac(imem) + areafrac_pft(indexi)
 
       if(debug)then
@@ -1593,6 +1742,21 @@ min_dist = 1.0E30  ! Initialize with a large number
   end do
 
 end subroutine Find_Closet_Indx
+
+
+subroutine end_model()
+
+deallocate(lon, lat)
+deallocate(level, xindx, yindx, areafrac_pft)
+deallocate(gridnlev, run)
+deallocate(depth)
+
+if(pft_dim)then
+  deallocate(varwt_pft)
+endif
+
+end subroutine end_model
+
 
 
 
