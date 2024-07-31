@@ -24,615 +24,1437 @@
 !----------------------------------------------------------------------
 
 !---------------------------------------------------------------------------  
-! Start of code inserted from ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+! Start of code inserted from ../../../observations/forward_operators/obs_def_land_mod.f90
 !---------------------------------------------------------------------------  
                                                                               
-module obs_def_1d_state_mod
 
-! This code currently does not require a namelist, but to add one search for
-! the string 'NML' and comment in the code lines in the 4 marked sections.
+module obs_def_land_mod
 
-use        types_mod, only : r8, missing_r8
-use    utilities_mod, only : register_module, error_handler,               &
-                             E_ERR, E_MSG, ascii_file_format !,            &
-                             ! find_namelist_in_file, check_namelist_read, &
-                             ! nmlfileunit, do_nml_file, do_nml_term
-                             !! Routines only needed for namelist support. NML1
-use     location_mod, only : location_type, set_location, get_location
-use     obs_kind_mod, only : QTY_STATE_VARIABLE
-use  assim_model_mod, only : interpolate
-use   cov_cutoff_mod, only : comp_cov_factor
+! This is the basic module for the forward (observation) operators commonly
+! used with land models.
+
+use            types_mod, only : r8, MISSING_R8
+
+use         location_mod, only : location_type, &
+                                 write_location
+
+use        utilities_mod, only : error_handler, &
+                                 E_ERR, E_MSG, &
+                                 do_output, ascii_file_format
+
+use      assim_model_mod, only : interpolate
+
 use ensemble_manager_mod, only : ensemble_type
-use obs_def_utilities_mod, only : track_status
+
+use         obs_kind_mod, only : QTY_RADIATION_VISIBLE_DOWN, &
+                                 QTY_RADIATION_NEAR_IR_DOWN, &
+                                 QTY_RADIATION_VISIBLE_UP, &
+                                 QTY_RADIATION_NEAR_IR_UP, &
+                                 QTY_LIVE_STEM_CARBON, &
+                                 QTY_DEAD_STEM_CARBON, &
+                                 QTY_LEAF_CARBON, &
+                                 QTY_FRACTION_ABSORBED_PAR, &
+                                 QTY_PAR_DIRECT, &
+                                 QTY_PAR_DIFFUSE, &
+                                 QTY_ABSORBED_PAR, &
+                                 QTY_SOLAR_INDUCED_FLUORESCENCE,&
+                                 QTY_STEM_CARBON
 
 implicit none
+private
 
-! These are the required interfaces for an obs_def module.
-public :: write_1d_integral, read_1d_integral, &
-          interactive_1d_integral, get_expected_1d_integral, &
-          set_1d_integral, &
-          write_power, read_power, interactive_power, get_expected_power, set_power
+public :: calculate_albedo, &
+          calculate_biomass, &
+          calculate_biomass_tem, &
+          calculate_fpar, &
+          calculate_sif, &
+          set_SIF_wavelength, &
+          read_SIF_wavelength, &
+          write_SIF_wavelength, &
+          interactive_SIF_wavelength
 
-! Storage for the special information required for observations of this type
-integer               :: num_1d_integral_obs = 0       ! current count of obs
-integer               :: max_1d_integral_obs = 100000  ! allocation size limit
-real(r8), allocatable :: half_width(:)                 ! metadata storage
-integer,  allocatable :: num_points(:)                 ! ditto
-integer,  allocatable :: localization_type(:)          ! ditto
+character(len=*), parameter :: source = 'obs_def_land_mod.f90'
 
-! Storage for the power forward operator
-integer               :: num_power_obs = 0           ! current count of obs
-integer               :: max_power_obs = 100000      ! allocation size limit
-real(r8), allocatable :: power(:)                    ! metadata storage
+logical :: module_initialized = .false.
 
+character(len=512) :: string1, string2, string3
 
-! Set to .true. to get debugging output
+! This might be useful, but not enough to warrant a namelist ... yet
 logical :: debug = .false.
 
+! Bits and bobs for the solar-induced fluorescence metadata
+integer :: max_num_sif_obs = 200000
+integer :: sifkey = 0
+integer, allocatable :: sif_wavelength(:)
+character(len=*), parameter :: SIF_STRING = 'lambda'
+
+!===============================================================================
+contains
+!===============================================================================
+
+
+subroutine initialize_module()
+
+if (module_initialized) return
+
+module_initialized = .true.
+
+allocate(sif_wavelength(max_num_sif_obs))
+
+end subroutine initialize_module
+
+
+!===============================================================================
+
+
+subroutine calculate_albedo(state_handle, ens_size, location, obs_val, istatus)
+
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location
+real(r8),            intent(out) :: obs_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+real(r8) ::  visible_in(ens_size)
+real(r8) :: visible_out(ens_size)
+real(r8) ::      nir_in(ens_size)
+real(r8) ::     nir_out(ens_size)
+real(r8) ::       numer(ens_size)
+real(r8) ::       denom(ens_size)
+
+integer :: stat(ens_size,4)
+integer :: imem
+
+istatus = 1           ! 0 == success, anything else is a failure
+obs_val = MISSING_R8
+
+call error_handler(E_ERR,'calculate_albedo','routine untested - stopping.', source )
+
+if ( .not. module_initialized ) call initialize_module()
+
+! Intentionally try to compute all required components before failing.
+! The desire is to inform about ALL failed components instead of failing
+! one-by-one.
+
+call interpolate(state_handle, ens_size, location, QTY_RADIATION_VISIBLE_DOWN, &
+        visible_in,  stat(:,1))
+call interpolate(state_handle, ens_size, location, QTY_RADIATION_NEAR_IR_DOWN, &
+        nir_in,      stat(:,2))
+call interpolate(state_handle, ens_size, location, QTY_RADIATION_VISIBLE_UP, &
+        visible_out, stat(:,3))
+call interpolate(state_handle, ens_size, location, QTY_RADIATION_NEAR_IR_UP, &
+        nir_out,     stat(:,4))
+
+if (any(stat /= 0)) then
+   istatus = stat(:,1)*1000 + stat(:,2)*100 + stat(:,3)*10 + stat(:,4)
+   return
+endif
+
+numer = visible_out + nir_out
+denom = visible_in  + nir_in
+
+if (any(denom <= tiny(0.0_r8))) then
+   call write_location(42,location,fform='FORMATTED',charstring=string1)
+   call error_handler(E_MSG,'calculate_albedo','no incoming radiation',text2=string1)
+   return
+endif
+
+obs_val = numer / denom
+
+istatus = 0   ! success
+
+if (debug .and. do_output()) then
+   do imem = 1,ens_size
+      write(string1,*)'incoming (visible nir sum status) ', &
+         visible_in(imem), nir_in(imem), denom(imem), stat(imem,1)*1000 + stat(imem,2)*100
+      write(string2,*)'outgoing (visible nir sum status) ', &
+         visible_out(imem), nir_out(imem), numer(imem), stat(imem,3)*10 + stat(imem,4)
+      write(string3,*)'albedo ', obs_val(imem)
+      call error_handler(E_MSG,'calculate_albedo:',string1,text2=string2,text3=string3)
+   enddo
+endif
+
+end subroutine calculate_albedo
+
+
+!===============================================================================
+
+
+subroutine calculate_biomass(state_handle, ens_size, location, obs_val, istatus)
+
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location
+real(r8),            intent(out) :: obs_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+real(r8) ::      leaf_carbon(ens_size)
+real(r8) :: live_stem_carbon(ens_size)
+real(r8) :: dead_stem_carbon(ens_size)
+integer  :: stat(ens_size,3)
+integer  :: imem
+
+istatus = 1           ! 0 == success, anything else is a failure
+obs_val = MISSING_R8
+
+if ( .not. module_initialized ) call initialize_module()
+
+! Intentionally try to compute all required components before failing.
+! The desire is to inform about ALL failed components instead of failing
+! one-by-one.
+
+call interpolate(state_handle, ens_size, location, QTY_LEAF_CARBON, &
+                 leaf_carbon,      stat(:,1))
+call interpolate(state_handle, ens_size, location, QTY_LIVE_STEM_CARBON, &
+                 live_stem_carbon, stat(:,2))
+call interpolate(state_handle, ens_size, location, QTY_DEAD_STEM_CARBON, &
+                 dead_stem_carbon, stat(:,3))
+
+if (any(stat /= 0)) then
+   istatus = stat(:,1)*100 + stat(:,2)*10 + stat(:,3)
+   return
+endif
+
+obs_val = leaf_carbon + live_stem_carbon + dead_stem_carbon
+
+istatus = 0   ! success
+
+if (debug .and. do_output()) then
+   do imem = 1,ens_size
+      write(string1,*)'biomass for ensemble member ', imem
+      write(string2,*)'carbon: leaf,live_stem,dead_stem', &
+         leaf_carbon(imem), live_stem_carbon(imem), dead_stem_carbon(imem)
+      write(string3,*)'status: leaf,live_stem,dead_stem', stat(imem,:)
+      call error_handler(E_MSG,'calculate_biomass:',string1,text2=string2,text3=string3)
+   enddo
+endif
+
+end subroutine calculate_biomass
+
+
+subroutine calculate_biomass_tem(state_handle, ens_size, location, obs_val, istatus)
+!================================================================================
+! This is a revised version for TEM model since the biomass definition
+! is a little different from CLM
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location
+real(r8),            intent(out) :: obs_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+real(r8) ::      leaf_carbon(ens_size)
+real(r8) ::      stem_carbon(ens_size)
+integer  :: stat(ens_size,2)
+integer  :: imem
+
+istatus = 1           ! 0 == success, anything else is a failure
+obs_val = MISSING_R8
+
+if ( .not. module_initialized ) call initialize_module()
+
+! Intentionally try to compute all required components before failing.
+! The desire is to inform about ALL failed components instead of failing
+! one-by-one.
+
+call interpolate(state_handle, ens_size, location, QTY_LEAF_CARBON, &
+                 leaf_carbon,      stat(:,1))
+call interpolate(state_handle, ens_size, location, QTY_STEM_CARBON, &
+                 stem_carbon, stat(:,2))
+
+if (any(stat /= 0)) then
+   istatus = stat(:,1)*100 + stat(:,2)*10
+   return
+endif
+
+obs_val = leaf_carbon + stem_carbon  ! aboveground biomass
+
+istatus = 0   ! success
+
+if (debug .and. do_output()) then
+   do imem = 1,ens_size
+      write(string1,*)'biomass for ensemble member ', imem
+      write(string2,*)'carbon: leaf, stem', leaf_carbon(imem), stem_carbon(imem)
+      write(string3,*)'status: leaf,stem', stat(imem,:)
+      call error_handler(E_MSG,'calculate_biomass_tem:',string1,text2=string2,text3=string3)
+   enddo
+endif
+
+end subroutine calculate_biomass_tem
+
+
+!===============================================================================
+!> calculate the fraction of photosynthetically available radiation
+!> The MODIS website https://modis.gsfc.nasa.gov/data/dataprod/mod15.php
+!> states: 'FPAR is the fraction of photosynthetically active radiation
+!>          (400-700 nm) absorbed by green vegetation.'
+
+
+subroutine calculate_fpar(state_handle, ens_size, location, obs_val, istatus)
+
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location
+real(r8),            intent(out) :: obs_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+real(r8) :: diffuse(ens_size)
+real(r8) :: active(ens_size)
+real(r8) :: absorbed(ens_size)
+integer  :: stat(ens_size,3)
+integer  :: imem
+real(r8) :: denom
+
+istatus = 1           ! 0 == success, anything else is a failure
+obs_val = MISSING_R8
+
+if ( .not. module_initialized ) call initialize_module()
+
+! If the model state has it directly, this is simple.
+! If it does not, we try to calculate it from what is available and what is absorbed
+
+call interpolate(state_handle, ens_size, location, QTY_FRACTION_ABSORBED_PAR, &
+                 obs_val, istatus)
+
+if (all(istatus == 0)) return
+
+! Intentionally try to compute all required components before failing.
+! This is the part that needs scientific direction ...
+
+call interpolate(state_handle, ens_size, location, QTY_PAR_DIRECT,   &
+                 active,   stat(:,1))
+call interpolate(state_handle, ens_size, location, QTY_PAR_DIFFUSE,   &
+                 diffuse,  stat(:,2))
+call interpolate(state_handle, ens_size, location, QTY_ABSORBED_PAR, &
+                 absorbed, stat(:,3))
+
+if (any(stat /= 0)) then
+   istatus = stat(:,1)*1000 + stat(:,2)*100 + stat(:,3)
+   return
+endif
+
+do imem = 1,ens_size
+
+   ! If any of them are missing it is cause for failure and an early return
+   if (absorbed(imem) == MISSING_R8 .or.  &
+         active(imem) == MISSING_R8 .or.  &
+        diffuse(imem) == MISSING_R8 ) then
+      write(string1,*)'member',imem,'absorbed',absorbed(imem),'status',istatus(imem)
+      write(string2,*)'values: active, absorbed',active(imem),diffuse(imem)
+      call error_handler(E_MSG,'calculate_fpar:MISSING',string1,text2=string2)
+      istatus(imem) = imem
+      return
+   endif
+
+   denom = active(imem) + diffuse(imem)
+
+   if (absorbed(imem) < tiny(denom)) then
+      obs_val(imem) = 0.0_r8
+      istatus(imem) = 0
+   elseif (denom <= tiny(denom)) then ! avoid dividing by zeroish
+      write(string1,*)'member ',imem,' denom ',denom
+      write(string2,*)'values: active, diffuse ',active(imem),diffuse(imem)
+      call error_handler(E_MSG,'calculate_fpar:ZERO',string1,text2=string2)
+      istatus(imem) = imem
+   else
+      obs_val(imem) = min(absorbed(imem) / denom, 1.0_r8)
+      istatus(imem) = 0
+   endif
+
+enddo
+
+if (debug .and. do_output()) then
+   do imem = 1,ens_size
+      write(string1,*)'member ',imem,' fpar ',obs_val(imem),' status ',istatus(imem)
+      write(string2,*)'values: active, diffuse, absorbed ', &
+                      active(imem), diffuse(imem), absorbed(imem)
+      write(string3,*)'status: active, diffuse, absorbed ',stat(imem,:)
+      call error_handler(E_MSG,'calculate_fpar:',string1,text2=string2,text3=string3)
+   enddo
+endif
+
+end subroutine calculate_fpar
+
+
+!-------------------------------------------------------------------------------
+
+
+subroutine calculate_sif(state_handle, ens_size, location, obs_val, istatus)
+
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location
+real(r8),            intent(out) :: obs_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+if ( .not. module_initialized ) call initialize_module()
+
+! If the model state has it directly, this is simple.
+! If it does not ... nothing else to try at the moment
+
+call interpolate(state_handle, ens_size, location, &
+                 QTY_SOLAR_INDUCED_FLUORESCENCE, obs_val, istatus)
+
+end subroutine calculate_sif
+
+
+!-------------------------------------------------------------------------------
+!> stuff the value into the local metadata array
+
+function set_SIF_wavelength(lambda) result(key)
+
+integer, intent(in) :: lambda
+integer :: key
+
+if ( .not. module_initialized ) call initialize_module
+
+! update the index into the module array
+sifkey = sifkey + 1
+
+! check that it fits
+if (sifkey > max_num_sif_obs) call double_metadata()
+
+sif_wavelength(sifkey) = lambda
+key = sifkey
+
+end function set_SIF_wavelength
+
+
+!-------------------------------------------------------------------------------
+!> writes the metadata for SIF observations.
+
+subroutine read_SIF_wavelength(key, obsID, ifile, fform)
+
+integer,           intent(out)          :: key
+integer,           intent(in)           :: obsID
+integer,           intent(in)           :: ifile
+character(len=*),  intent(in), optional :: fform
+
+character(len=*), parameter :: routine = 'read_SIF_wavelength'
+
+logical  :: is_asciifile
+integer  :: lambda
+character(len=6) :: header
+integer :: ierr
+character(len=512) :: msgstring
+
+if ( .not. module_initialized ) call initialize_module
+
+! create string for error reporting
+write(msgstring,*)'observation # ',obsID
+
+! given the index into the local metadata arrays - retrieve
+! the metadata for this particular observation.
+
+is_asciifile = ascii_file_format(fform)
+
+if (is_asciifile) then
+   read(ifile, *, iostat=ierr) header
+   call check_iostat(ierr,routine,'header',msgstring)
+   read(ifile, *, iostat=ierr) lambda
+   call check_iostat(ierr,routine,'lambda',msgstring)
+   read(ifile, *, iostat=ierr) key
+   call check_iostat(ierr,routine,'key',msgstring)
+else
+   read(ifile   , iostat=ierr) header
+   call check_iostat(ierr,routine,'header',msgstring)
+   read(ifile   , iostat=ierr) lambda
+   call check_iostat(ierr,routine,'lambda',msgstring)
+   read(ifile   , iostat=ierr) key
+   call check_iostat(ierr,routine,'key',msgstring)
+endif
+
+sifkey = sifkey + 1
+
+! check that it fits
+if (sifkey > max_num_sif_obs) call double_metadata()
+
+sif_wavelength(sifkey) = lambda
+key = sifkey
+
+end subroutine read_SIF_wavelength
+
+!-------------------------------------------------------------------------------
+!> writes the metadata for SIF observations.
+
+subroutine write_SIF_wavelength(key, ifile, fform)
+
+integer,           intent(in)           :: key
+integer,           intent(in)           :: ifile
+character(len=*),  intent(in), optional :: fform
+
+logical  :: is_asciifile
+integer  :: lambda
+
+if ( .not. module_initialized ) call initialize_module
+
+! given the index into the local metadata arrays - retrieve
+! the metadata for this particular observation.
+
+lambda = sif_wavelength(key)
+
+is_asciifile = ascii_file_format(fform)
+
+if (is_asciifile) then
+   write(ifile, *) trim(SIF_STRING)
+   write(ifile, *) lambda
+   write(ifile, *) key
+else
+   write(ifile   ) trim(SIF_STRING)
+   write(ifile   ) lambda
+   write(ifile   ) key
+endif
+
+end subroutine write_SIF_wavelength
+
+
+!-------------------------------------------------------------------------------
+!> interactively queries for metadata required for SIF observations.
+
+subroutine interactive_SIF_wavelength(key)
+
+integer, intent(out) :: key
+
+character(len=*), parameter :: routine = 'interactive_SIF_wavelength'
+integer  :: lambda
+
+if ( .not. module_initialized ) call initialize_module
+
+write(*,*) 'Input wavelength of SIF (nm)'
+read(*,*)lambda
+
+key = set_SIF_wavelength(lambda)
+
+end subroutine interactive_SIF_wavelength
+
+
+!-------------------------------------------------------------------------------
+!> creates enough space for more SIF metadata
+
+subroutine double_metadata()
+
+integer, allocatable :: temp_array(:)
+integer :: existing_length
+integer :: new_length
+
+existing_length = size(sif_wavelength)
+new_length      = 2 * existing_length
+
+write(string1,*)'increasing metadata length from ',existing_length, &
+                ' to ',new_length
+call error_handler(E_MSG,'double_metadata',string1,source)
+
+allocate(temp_array(existing_length))
+
+temp_array = sif_wavelength
+
+deallocate(sif_wavelength)
+allocate(  sif_wavelength(new_length))
+
+sif_wavelength(1:existing_length) = temp_array
+
+deallocate(temp_array)
+
+max_num_sif_obs = new_length
+
+end subroutine double_metadata
+
+
+!-------------------------------------------------------------------------------
+!> simple error handling routine
+
+subroutine check_iostat(istat, routine, context, msgstring)
+
+integer,          intent(in) :: istat
+character(len=*), intent(in) :: routine
+character(len=*), intent(in) :: context
+character(len=*), intent(in) :: msgstring
+
+if ( istat /= 0 ) then
+   write(string1,*)'istat should be 0 but is ',istat,' for '//context
+   call error_handler(E_ERR, routine, string1, source, text2=msgstring)
+end if
+
+end subroutine check_iostat
+
+
+
+end module obs_def_land_mod
+
+                                                                              
+!---------------------------------------------------------------------------  
+! End of code inserted from ../../../observations/forward_operators/obs_def_land_mod.f90
+!---------------------------------------------------------------------------  
+!---------------------------------------------------------------------------  
+! Start of code inserted from ../../../observations/forward_operators/obs_def_tower_mod.f90
+!---------------------------------------------------------------------------  
+                                                                              
+
+module obs_def_tower_mod
+
+! This is the forward observation operator code for CLM for flux tower observations.
+! The DART model state for CLM generally does not have all the pieces necessary
+! to apply the forward observation operator directly, so this code gets what it
+! needs from a CLM history file. These history files have become complicated now
+! that CLM is trying to support unstructured grids. Sometimes the variables of
+! interest are shaped NEP(time, lat, lon), sometimes NEP(time, lndgrid).
+! 'single column' runs may appear as either lat=lon=1 or lndgrid=1
+!
+use        types_mod, only : r4, r8, digits12, MISSING_R8, PI
+
+use     location_mod, only : location_type, get_location, get_dist, &
+                             set_location, write_location, VERTISUNDEF
+
+use time_manager_mod, only : time_type, get_date, set_date, print_date, print_time, &
+                             get_time, set_time, operator(-), operator(/=)
+
+use    utilities_mod, only : register_module, E_ERR, E_MSG, error_handler, &
+                             check_namelist_read, find_namelist_in_file,   &
+                             nmlfileunit, do_output, do_nml_file, do_nml_term, &
+                             file_exist, is_longitude_between
+
+use netcdf_utilities_mod, only : nc_check
+
+use      assim_model_mod, only : interpolate
+
+use ensemble_manager_mod, only : ensemble_type
+
+use typesizes
+use netcdf
+
+implicit none
+private
+
+public :: get_scalar_from_history
 
 ! version controlled file description for error handling, do not edit
-character(len=256), parameter :: source   = &
-   "$URL$"
-character(len=32 ), parameter :: revision = "$Revision$"
-character(len=128), parameter :: revdate  = "$Date$"
+character(len=*), parameter :: source   = 'obs_def_tower_mod.f90'
+character(len=*), parameter :: revision = ''
+character(len=*), parameter :: revdate  = ''
 
-logical, save :: module_initialized = .false.
+logical            :: module_initialized = .false.
+logical            :: unstructured = .false.
+character(len=512) :: string1, string2, string3
+integer            :: nlon, nlat, ntime, ens_size
+type(time_type)    :: initialization_time
 
-!! To enable the namelist, comment this in.  NML2
-!namelist /one_d_integral_nml/  debug, max_1d_integral_obs, max_power_obs
+character(len=256), allocatable, dimension(:) :: fname
+integer,            allocatable, dimension(:) :: ncid
+real(r8),           allocatable, dimension(:) :: lon, lat, area
+real(digits12),     allocatable, dimension(:) :: rtime
+
+real(r8), parameter :: RAD2KM = 40030.0_r8/(2.0_r8 * PI) ! (mean radius of earth ~6371km)
+
+! namelist items
+character(len=256) :: casename = 'clm_dart'
+logical            :: debug = .false.
+integer            :: hist_nhtfrq = -24
+! CLM variable hist_nhtfrq ... controls how often to write out the history files.
+! Negative value means the output frequency is the absolute value (in hours).
+
+namelist /obs_def_tower_nml/ casename, debug, hist_nhtfrq
 
 contains
 
 !----------------------------------------------------------------------
+!----------------------------------------------------------------------
+! Start of executable routines
+!----------------------------------------------------------------------
+!----------------------------------------------------------------------
 
-subroutine initialize_module
+subroutine initialize_module(model_time)
+type(time_type), intent(in) :: model_time
 
-! Anything in this routine is executed exactly once.  It could be used
-! to read in a namelist, precompute values needed later, etc.
-! Currently this routine logs the version information and allocates
-! space for the metadata arrays.
+! Called once to set values and allocate space, open all the CLM files
+! that have the observations, etc.
 
-!! Only needed if you've commented in the namelist code.  NML3
-!integer :: iunit, io
+integer :: iunit, io, i
+integer :: varid
+integer :: year, month, day, hour, minute, second, leftover
+integer, allocatable, dimension(:) :: yyyymmdd,sssss
+type(time_type) :: tower_time
 
-! Execute the code here just once
-if (module_initialized) return
-
-! Logs version information to file.
-call register_module(source, revision, revdate)
-
-! To enable a namelist (e.g to set max number of obs, or to turn
-! on the debug messages at run time, or whatever) search for 'NML'
-! and comment in the 4 code sections marked with that string.  NML4
-!
-!! Read the namelist input
-!call find_namelist_in_file("input.nml", "one_d_integral_nml", iunit)
-!read(iunit, nml = one_d_integral_nml, iostat = io)
-!call check_namelist_read(iunit, io, "one_d_integral_nml")
-!
-!! Record the namelist values used for the run
-!if (do_nml_file()) write(nmlfileunit, nml=one_d_integral_nml)
-!if (do_nml_term()) write(     *     , nml=one_d_integral_nml)
-
-! Allocate space for the metadata for the integral observation
-allocate(half_width(max_1d_integral_obs),  &
-         num_points(max_1d_integral_obs),  &
-         localization_type(max_1d_integral_obs))
-! Allocate space for metadata for the power observation
-allocate(power(max_power_obs))
+! Prevent multiple calls from executing this code more than once.
+if (module_initialized) then
+   if (initialization_time /= model_time) then
+      string1 = 'model time does not match initialization time'
+      string2 = 'model time does not match initialization time'
+      string3 = 'model time does not match initialization time'
+      call error_handler(E_ERR, 'obs_def_tower.initialize_routine', string1, &
+                     source, revision, revdate, text2=string2,text3=string3)
+   endif
+   return
+else
+   initialization_time = model_time
+endif
 
 module_initialized = .true.
-if(debug) print*, 'module initialized'
 
-end subroutine initialize_module
+! Log the version of this source file.
+call register_module(source, revision, revdate)
 
-!----------------------------------------------------------------------------
+! Read the namelist entry.
+call find_namelist_in_file("input.nml", "obs_def_tower_nml", iunit)
+read(iunit, nml = obs_def_tower_nml, iostat = io)
+call check_namelist_read(iunit, io, "obs_def_tower_nml")
 
-subroutine write_1d_integral(igrkey, ifile, fform)
- integer,          intent(in)           :: igrkey, ifile
- character(len=*), intent(in), optional :: fform
+! Record the namelist values used for the run ...
+if (do_nml_file()) write(nmlfileunit, nml=obs_def_tower_nml)
+if (do_nml_term()) write(     *     , nml=obs_def_tower_nml)
 
-! Write out the additional data associated with this observation.
-! The obs is identified by the incoming 'key' argument.
+! Need to know what day we are trying to assimilate.
+! The CLM h1 files contain everything STARTING with the time in their filename.
+! all output intervals from that run are simply appended to that file.
+! Consequently, we need to know the filename from the START of the model advance
+! that resulted in the current model state. To construct the filename, we need
+! to know one of the namelist variables from CLM. We are mandating that this
+! value gets passed to DART via the obs_def_tower_nml instead of reading
+! the CESM namelist .... hist_nhtfrq must be a negative number in a DART
+! application of CLM ... and the STOP_OPTION must be "HOURS".
+!
+!  | start of the model advance ... *.h1.* file starts getting written
+!  |
+!  X==X==X==X==X==X==X==X==X==X==X==[O] (CLM model advance)
+!  |<------- hist_nhtfrq ------->|   |
+!                                |   | END of the model advance
+!                                |
+!                                | END of the data in the *.h1.* file
 
-logical :: is_ascii
+second = abs(hist_nhtfrq)*60*60
+tower_time = model_time - set_time(second,0)
 
-if ( .not. module_initialized ) call initialize_module
+call get_date(tower_time, year, month, day, hour, minute, second)
+second = second + minute*60 + hour*3600
 
-! Make sure key value is within valid range -- it will be used as an index below.
-call check_valid_key(igrkey, 'GIVEN', 'write_1d_integral')
+! Figure out how many files (i.e. ensemble size) and construct their names.
+! The CLM h0 files are constructed such that the midnight that starts the
+! day is IN the file. The last time in the file is 23:30 ...
 
-is_ascii = ascii_file_format(fform)
-if(debug) print*, 'write_1d_integral: ascii format = ', is_ascii
+! In a perfect model scenario (i.e. 1 instance) CESM constructs filenames
+! without the instance counter in them. We check for that first. If it
+! exists we know the filename and ensemble size.
 
-! Write out the half_width, num_points, and localization_type for each
-! observation embedded in the observation.  The old key is written out
-! for tracking/debug use if needed.
+100 format (A,'.clm2_',I4.4,'.h1.',I4.4,'-',I2.2,'-',I2.2,'-',I5.5,'.nc')
+110 format (A,'.clm2'      ,'.h1.',I4.4,'-',I2.2,'-',I2.2,'-',I5.5,'.nc')
 
-if (is_ascii) then
-   write(ifile, *) half_width(igrkey), num_points(igrkey), localization_type(igrkey)
-   write(ifile, *) igrkey
-else
-   write(ifile)    half_width(igrkey), num_points(igrkey), localization_type(igrkey)
-   write(ifile)    igrkey
+write(string1,110) trim(casename),year,month,day,second
+
+if( file_exist(string1) ) then
+   ! We know we are in a perfect model scenario
+   ens_size = 1
+   if (debug .and. do_output()) write(*,*)'Ensemble size is believed to be ',ens_size
+   goto 200
 endif
-if(debug) print*, 'writing out metadata for 1D integral obs ', igrkey
-if(debug) print*, 'metadata values are: ', half_width(igrkey), num_points(igrkey), localization_type(igrkey)
 
-end subroutine write_1d_integral
-!----------------------------------------------------------------------------
+ens_size = 0
+ENSEMBLESIZE : do i = 1,200
 
-subroutine write_power(powkey, ifile, fform)
- integer,          intent(in)           :: powkey, ifile
- character(len=*), intent(in), optional :: fform
+   write(string1,100) trim(casename),i,year,month,day,second
 
-! Write out the additional data associated with this observation.
-! The obs is identified by the incoming 'key' argument.
+   if( file_exist(string1) ) then
+      if(debug .and. do_output()) &
+            write(*,*)'observation file "',trim(string1),'" exists.'
+      ens_size = ens_size + 1
+   else
+      if(debug .and. do_output()) &
+            write(*,*)'WARNING observation file "',trim(string1),'" does not exist.'
+      exit ENSEMBLESIZE
+   endif
 
-logical :: is_ascii
+enddo ENSEMBLESIZE
 
-if ( .not. module_initialized ) call initialize_module
+if (ens_size < 2) then
 
-! Make sure key value is within valid range -- it will be used as an index below.
-call check_valid_key_power(powkey, 'GIVEN', 'write_power')
+   write(string1,110) trim(casename),year,month,day,second
+   write(string2,*)'cannot find files to use for observation operator.'
+   write(string3,*)'trying files with names like "',trim(string1),'"'
+   call error_handler(E_ERR, 'obs_def_tower.initialize_routine', string2, &
+                  source, revision, revdate, text2=string3)
 
-is_ascii = ascii_file_format(fform)
-if(debug) print*, 'write_power: ascii format = ', is_ascii
+elseif (ens_size >= 200) then
 
-! Write out the power for each observation embedded in the observation.  The old key is written out
-! for tracking/debug use if needed.
+   write(string2,*)'ensemble size (',ens_size,') is unnaturally large.'
+   write(string3,*)'trying files with names like "',trim(string1),'"'
+   call error_handler(E_ERR, 'obs_def_tower.initialize_routine', string2, &
+                  source, revision, revdate, text2=string3)
 
-if (is_ascii) then
-   write(ifile, *) power(powkey)
-   write(ifile, *) powkey
 else
-   write(ifile)    power(powkey)
-   write(ifile)    powkey
+
+   if (debug .and. do_output()) then
+      write(string1,*)'Ensemble size is believed to be ',ens_size
+      call error_handler(E_MSG, 'obs_def_tower.initialize_routine', string1, &
+                  source, revision, revdate )
+   endif
+
 endif
-if(debug) print*, 'writing out metadata for power obs ', powkey
-if(debug) print*, 'metadata value is: ', power(powkey)
 
-end subroutine write_power
+200 continue
 
-!----------------------------------------------------------------------
+allocate(fname(ens_size),ncid(ens_size))
+ncid = 0
 
-subroutine read_1d_integral(igrkey, ifile, fform)
- integer,          intent(out)          :: igrkey
- integer,          intent(in)           :: ifile
- character(len=*), intent(in), optional :: fform
+ENSEMBLE : do i = 1,ens_size
+   if (ens_size == 1) then
+      write(fname(i),110) trim(casename),year,month,day,second
+      call nc_check(nf90_open(trim(fname(i)), nf90_nowrite, ncid(i)), &
+          'obs_def_tower.initialize_routine','open '//trim(fname(i)))
+      exit ENSEMBLE
+   else
+      write(fname(i),100) trim(casename),i,year,month,day,second
+      call nc_check(nf90_open(trim(fname(i)), nf90_nowrite, ncid(i)), &
+          'obs_def_tower.initialize_routine','open '//trim(fname(i)))
+   endif
+enddo ENSEMBLE
 
-! Read in the additional data associated with this observation.
-! The key value in the file will be read and then discarded, and a new key
-! will be generated based on the next available index in the metadata arrays.
-! Notice that key is intent(out) here, not (in) as in some other routines.
+i = 1
 
-logical            :: is_ascii
-integer            :: ignored_igrkey
+! FIXME All other files will be opened to make sure they have the same dimensions.
 
-if ( .not. module_initialized ) call initialize_module
+call GetDimensions(ncid(i), fname(i))  ! determines values for nlon, nlat, ntime
 
-! Increment the counter so all key values are unique
-num_1d_integral_obs = num_1d_integral_obs + 1
+allocate(lon(nlon), lat(nlat), rtime(ntime), yyyymmdd(ntime), sssss(ntime))
 
-! Set the return value for the key, and use it as the index below
-igrkey = num_1d_integral_obs
+call nc_check(nf90_inq_varid(ncid(i), 'lon',    varid), &
+              'obs_def_tower.initialize_routine','inq_varid lon '//trim(fname(i)))
+call nc_check(nf90_get_var(  ncid(i), varid,      lon), &
+              'obs_def_tower.initialize_routine','get_var lon'//trim(fname(i)))
 
-! Make sure key is within valid range
-call check_valid_key(igrkey, 'GENERATED', 'read_1d_integral')
+call nc_check(nf90_inq_varid(ncid(i), 'lat',    varid), &
+              'obs_def_tower.initialize_routine','inq_varid lat '//trim(fname(i)))
+call nc_check(nf90_get_var(  ncid(i), varid,      lat), &
+              'obs_def_tower.initialize_routine','get_var lat'//trim(fname(i)))
 
-is_ascii = ascii_file_format(fform)
-if(debug) print*, 'read_1d_integral: ascii format = ', is_ascii
+call nc_check(nf90_inq_varid(ncid(i), 'mcdate', varid), &
+              'obs_def_tower.initialize_routine','inq_varid mcdate '//trim(fname(i)))
+call nc_check(nf90_get_var(  ncid(i), varid, yyyymmdd), &
+              'obs_def_tower.initialize_routine','get_var yyyymmdd'//trim(fname(i)))
 
-! Read in the additional metadata for this observation, and discard the old key.
-if (is_ascii) then
-   read(ifile, *) half_width(igrkey), num_points(igrkey), localization_type(igrkey)
-   read(ifile, *) ignored_igrkey
-else
-   read(ifile)    half_width(igrkey), num_points(igrkey), localization_type(igrkey)
-   read(ifile)    ignored_igrkey
+call nc_check(nf90_inq_varid(ncid(i), 'mcsec',  varid), &
+              'obs_def_tower.initialize_routine','inq_varid mcsec '//trim(fname(i)))
+call nc_check(nf90_get_var(  ncid(i), varid,    sssss), &
+              'obs_def_tower.initialize_routine','get_var sssss'//trim(fname(i)))
+
+if ( (nlon == 1) .and. (nlat ==1) ) then
+   allocate(area(nlon))
+   call nc_check(nf90_inq_varid(ncid(i), 'area', varid), &
+        'obs_def_tower.initialize_routine','inq_varid area '//trim(fname(i)))
+   call nc_check(nf90_get_var(ncid(i), varid, area), &
+        'obs_def_tower.initialize_routine', 'get_var area'//trim(fname(i)))
+   if (debug .and. do_output()) write(*,*)'obs_def_tower      area',area(nlon)
 endif
-if(debug) print*, 'read in metadata for 1D integral obs ', igrkey
-if(debug) print*, 'metadata values are: ', half_width(igrkey), num_points(igrkey), localization_type(igrkey)
 
-if(debug) print *, 'ignoring old key', ignored_igrkey
-if(debug) print *, 'return key set to ', igrkey
+! Convert time in file to a time compatible with the observation sequence file.
+do i = 1,ntime
 
-end subroutine read_1d_integral
-!----------------------------------------------------------------------
+   year     = yyyymmdd(i)/10000
+   leftover = yyyymmdd(i) - year*10000
+   month    = leftover/100
+   day      = leftover - month*100
 
-subroutine read_power(powkey, ifile, fform)
- integer,          intent(out)          :: powkey
- integer,          intent(in)           :: ifile
- character(len=*), intent(in), optional :: fform
+   hour     = sssss(i)/3600
+   leftover = sssss(i) - hour*3600
+   minute   = leftover/60
+   second   = leftover - minute*60
 
-! Read in the additional data associated with this observation.
-! The key value in the file will be read and then discarded, and a new key
-! will be generated based on the next available index in the metadata arrays.
-! Notice that key is intent(out) here, not (in) as in some other routines.
+   tower_time = set_date(year, month, day, hour, minute, second)
+   call get_time(tower_time, second, day)
 
-logical            :: is_ascii
-integer            :: ignored_powkey
+   rtime(i) = real(day,digits12) + real(second,digits12)/86400.0_digits12
 
-if ( .not. module_initialized ) call initialize_module
-
-! Increment the counter so all key values are unique
-num_power_obs = num_power_obs + 1
-
-! Set the return value for the key, and use it as the index below
-powkey = num_power_obs
-
-! Make sure key is within valid range
-call check_valid_key_power(powkey, 'GENERATED', 'read_power')
-
-is_ascii = ascii_file_format(fform)
-if(debug) print*, 'read_power: ascii format = ', is_ascii
-
-! Read in the additional metadata for this observation, and discard the old key.
-if (is_ascii) then
-   read(ifile, *) power(powkey)
-   read(ifile, *) ignored_powkey
-else
-   read(ifile)    power(powkey)
-   read(ifile)    ignored_powkey
-endif
-if(debug) print*, 'read in metadata for power obs ', powkey
-if(debug) print*, 'metadata value is: ', power(powkey)
-
-if(debug) print *, 'ignoring old key', ignored_powkey
-if(debug) print *, 'return key set to ', powkey
-
-end subroutine read_power
-
-!----------------------------------------------------------------------
-
-subroutine interactive_1d_integral(igrkey)
- integer, intent(out) :: igrkey
-
-! Initializes the specialized part of a 1d_integral observation.
-! A new key will be generated based on the next available index
-! in the metadata arrays.
-
-
-if ( .not. module_initialized ) call initialize_module
-
-! Increment the counter so all key values are unique
-num_1d_integral_obs = num_1d_integral_obs + 1
-
-! Set the return value for the key, and use it as the index below
-igrkey = num_1d_integral_obs
-
-! Make sure key is within valid range
-call check_valid_key(igrkey, 'GENERATED', 'interactive_1d_integral')
-
-! Prompt for input for the three required metadata items
-write(*, *) 'Creating an interactive_1d_integral observation'
-
-write(*, *) 'Input half width of integral '
- read(*, *) half_width(igrkey)
-
-write(*, *) 'Input the number of evaluation points (5-20 recommended) '
- read(*, *) num_points(igrkey)
-
-write(*, *) 'Input localization type: 1=Gaspari-Cohn; 2=Boxcar; 3=Ramped Boxcar'
- read(*, *) localization_type(igrkey)
-
-if(debug) print *, 'return key set to ', igrkey
-
-end subroutine interactive_1d_integral
-!----------------------------------------------------------------------
-
-subroutine interactive_power(powkey)
- integer, intent(out) :: powkey
-
-! Initializes the specialized part of a power observation.
-! A new key will be generated based on the next available index
-! in the metadata arrays.
-
-
-if ( .not. module_initialized ) call initialize_module
-
-! Increment the counter so all key values are unique
-num_power_obs = num_power_obs + 1
-
-! Set the return value for the key, and use it as the index below
-powkey = num_power_obs
-
-! Make sure key is within valid range
-call check_valid_key_power(powkey, 'GENERATED', 'interactive_power')
-
-! Prompt for input for the metadata item
-write(*, *) 'Creating an interactive_power observation'
-
-write(*, *) 'Input power '
- read(*, *) power(powkey)
-
-if(debug) print *, 'return key set to ', powkey
-
-end subroutine interactive_power
-
-!----------------------------------------------------------------------
-
-subroutine get_expected_1d_integral(state_handle, ens_size, location, igrkey, val, istatus)
-
-type(ensemble_type), intent(in)  :: state_handle
-integer,             intent(in)  :: ens_size
-type(location_type), intent(in)  :: location
-integer,             intent(in)  :: igrkey
-real(r8),            intent(out) :: val(ens_size)
-integer,             intent(out) :: istatus(ens_size)
-
-! The forward operator interface for this type of observation.  It is
-! called with a state vector, a location, and a key to identify which
-! observation is being processed.  The return 'val' is the expected
-! observation value, and istatus is the return code.  0 is ok,
-! > 0 signals an error, and < 0 values are reserved for system use.
-! The call to 'interpolate()' below calls the forward operator in
-! whatever model this code has been compiled with.
-
-type(location_type)   :: location2
-integer               :: i
-real(r8)              :: range, loc, bottom, dx, x
-integer               :: j !< loop variable
-integer               :: point_istatus(ens_size)
-logical               :: return_now ! used to return early if an interpoaltion fails
-real(r8), dimension(ens_size) :: sum, dist, weight, weight_sum
-
-if ( .not. module_initialized ) call initialize_module
-
-! Make sure key is within valid range
-call check_valid_key(igrkey, 'GIVEN', 'get_expected_1d_integral')
-
-! Figure out the total range of the integrated funtion (1 is max)
-range = 4.0_r8 * half_width(igrkey)
-if(range > 1.0_r8) range = 1.0_r8
-if(debug) print*, 'range is ', range
-
-! Get the location value
-loc = get_location(location)
-if(debug) print*, 'loc base is ', loc
-
-! Compute the bottom and top of the range
-bottom = loc - range / 2.0_r8
-if(bottom < 0.0_r8) bottom = bottom + 1.0_r8
-if(debug) print*, 'bottom is ', bottom
-
-! Next figure out where to put all the points
-dx = range / (num_points(igrkey) - 1)
-if(debug) print*, 'dx is ', dx
-
-! Loop to compute the value at each point, then multiply by localization
-! to get weighted integral
-sum = 0.0_r8
-weight_sum = 0.0_r8
-istatus(:) = 0 ! so you can track istatus from 1 to num_points
-
-do i = 1, num_points(igrkey)
-   x = bottom + (i - 1) * dx
-   if(x > 1.0_r8) x = x - 1.0_r8
-   location2 = set_location(x)
-   call interpolate(state_handle, ens_size, location2, QTY_STATE_VARIABLE, val, point_istatus)
-   call track_status(ens_size, point_istatus, val, istatus, return_now)
-   do j = 1, ens_size
-      if (istatus(j) == 0) then
-         dist(j) = abs(loc - x)
-         if(dist(j) > 0.5_r8) dist(j) = 1.0_r8 - dist(j)
-         weight(j) = comp_cov_factor(dist(j), half_width(igrkey), &
-            localization_override = localization_type(igrkey))
-         sum(j) = sum(j) + weight(j) * val(j)
-         weight_sum(j) = weight_sum(j) + weight(j)
-      endif
-   enddo
+   if (debug .and. do_output()) then
+      write(*,*)'timestep yyyymmdd sssss',i,yyyymmdd(i),sssss(i)
+      call print_date(tower_time,'tower_mod date')
+      call print_time(tower_time,'tower_mod time')
+      write(*,*)'tower_mod time as a real ',rtime(i)
+   endif
 
 enddo
 
-where (istatus == 0) val = sum / weight_sum
+if (debug .and. do_output()) write(*,*)'obs_def_tower      lon',lon
+if (debug .and. do_output()) write(*,*)'obs_def_tower      lat',lat
 
-if(debug) print*, 'get_expected_1d_integral key is ', igrkey
-if(debug) print*, 'metadata values are: ', half_width(igrkey), num_points(igrkey), localization_type(igrkey)
-if(debug) print*, 'return value for forward operator is ', val
-if(debug) print*, 'return status (0 good; >0 error; <0 reserved for system use) is ', istatus
+!>@todo FIXME check all other ensemble member history files to make sure metadata is the same.
 
-end subroutine get_expected_1d_integral
-!----------------------------------------------------------------------
+deallocate(yyyymmdd, sssss)
 
-subroutine get_expected_power(state_handle, ens_size, location, powkey, val, istatus)
+end subroutine initialize_module
 
+
+!======================================================================
+
+
+subroutine GetDimensions(ncid, fname)
+
+! Harvest information from the first observation file.
+! The SingleColumMode files have
+!        float lat(lndgrid) ;
+!        float lon(lndgrid) ;
+!        float area(lndgrid) ;
+! while the 2D files have
+!        float lat(lat) ;
+!        float lon(lon) ;
+!        float area(lat, lon) ;
+
+integer,          intent(in) :: ncid
+character(len=*), intent(in) :: fname
+
+! integer, intent(out) :: nlon, nlat, ntime ... module variables
+
+integer, dimension(NF90_MAX_VAR_DIMS) :: londimids, latdimids
+integer :: lonvarid, lonndims
+integer :: latvarid, latndims
+integer :: dimid
+
+call nc_check(nf90_inq_varid(ncid,  'lon', lonvarid), &
+              'obs_def_tower.GetDimensions','inq_varid lon '//trim(fname))
+call nc_check(nf90_inq_varid(ncid,  'lat', latvarid), &
+              'obs_def_tower.GetDimensions','inq_varid lat '//trim(fname))
+
+call nc_check(nf90_inquire_variable(ncid, lonvarid, ndims=lonndims, dimids=londimids),&
+              'obs_def_tower.GetDimensions','inquire lon '//trim(fname))
+call nc_check(nf90_inquire_variable(ncid, latvarid, ndims=latndims, dimids=latdimids),&
+              'obs_def_tower.GetDimensions','inquire lat '//trim(fname))
+
+if ( (lonndims /= 1) .or. (latndims /= 1) ) then
+   write(string1,*) 'Require "lon" and "lat" variables to be 1D. They are ', &
+                     lonndims, latndims
+   call error_handler(E_ERR,'obs_def_tower.GetDimensions',string1,source,revision,revdate)
+endif
+
+call nc_check(nf90_inquire_dimension(ncid, londimids(1), len=nlon), &
+              'obs_def_tower.GetDimensions','inquire_dimension lon '//trim(fname))
+call nc_check(nf90_inquire_dimension(ncid, latdimids(1), len=nlat), &
+              'obs_def_tower.GetDimensions','inquire_dimension lat '//trim(fname))
+
+call nc_check(nf90_inq_dimid(ncid, 'time', dimid), &
+              'obs_def_tower.GetDimensions','inq_dimid time '//trim(fname))
+call nc_check(nf90_inquire_dimension(ncid, dimid, len=ntime), &
+              'obs_def_tower.GetDimensions','inquire_dimension time '//trim(fname))
+
+if ( nf90_inq_dimid(ncid, 'lndgrid', dimid) == NF90_NOERR) then
+   unstructured = .true.
+   if ((nlon /= 1) .or. (nlat /= 1)) then
+      string1 = 'unstructured grids with more than a single gridcell are not supported.'
+      call error_handler(E_ERR,'obs_def_tower.GetDimensions',string1,source,revision,revdate)
+   endif
+endif
+
+end subroutine GetDimensions
+
+
+!======================================================================
+
+subroutine get_scalar_from_history(varstring, state_handle, ens_size, copy_indices, location, &
+                                   obs_time, obs_val, istatus)
+
+character(len=*),    intent(in)  :: varstring
 type(ensemble_type), intent(in)  :: state_handle
 integer,             intent(in)  :: ens_size
+integer,             intent(in)  :: copy_indices(ens_size) ! global ens_indicies
 type(location_type), intent(in)  :: location
-integer,             intent(in)  :: powkey
-real(r8),            intent(out) :: val(ens_size)
+type(time_type),     intent(in)  :: obs_time
+real(r8),            intent(out) :: obs_val(ens_size)
 integer,             intent(out) :: istatus(ens_size)
 
-! The forward operator interface for this type of observation.  It is
-! called with a state vector, a location, and a key to identify which
-! observation is being processed.  The return 'val' is the expected
-! observation value, and istatus is the return code.  0 is ok,
-! > 0 signals an error, and < 0 values are reserved for system use.
-! The call to 'interpolate()' below calls the forward operator in
-! whatever model this code has been compiled with.
+integer :: imem
 
-if ( .not. module_initialized ) call initialize_module
+! This initialize_module call is going to open all files on all tasks
+! when doing a distributed forward operator.
+if ( .not. module_initialized ) call initialize_module(state_handle%current_time)
 
-! Make sure key is within valid range
-call check_valid_key_power(powkey, 'GIVEN', 'get_expected_power')
-
-! Interpolate the raw state to the location for each ensemble member
-call interpolate(state_handle, ens_size, location, QTY_STATE_VARIABLE, val, istatus)
-
-! Raise the interpolated state values to the power for this observation
-val = val ** power(powkey)
-
-if(debug) print*, 'get_expected_power key is ', powkey
-if(debug) print*, 'metadata value is: ', power(powkey)
-if(debug) print*, 'return value for forward operator is ', val
-if(debug) print*, 'return status (0 good; >0 error; <0 reserved for system use) is ', istatus
-
-end subroutine get_expected_power
-
-!----------------------------------------------------------------------
-
-subroutine set_1d_integral(integral_half_width, num_eval_pts, localize_type, igrkey, istatus)
-
-! inputs are: half width of integral
-!             the number of evaluation points (5-20 recommended)
-!             localization type: 1=Gaspari-Cohn; 2=Boxcar; 3=Ramped Boxcar
-
- real(r8), intent(in)  :: integral_half_width
- integer,  intent(in)  :: num_eval_pts
- integer,  intent(in)  :: localize_type
- integer,  intent(out) :: igrkey
- integer,  intent(out) :: istatus
-
-! Available to be called by a program creating these types of observations.
-! Notice that igrkey is intent(out) here, not (in) as in some other routines.
-! Sets the additional metadata for this obs, increments the key, and returns
-! the new value.  This key value should be set in the obs_def derived type by
-! calling set_obs_def_key().   Notice that this is different from the main
-! observation key, which all observation entries have.  This key is specific
-! to this observation type and is used to index into the metadata for only
-! this type of obs.
-
-if ( .not. module_initialized ) call initialize_module
-
-! Increment the counter so all key values are unique
-num_1d_integral_obs = num_1d_integral_obs + 1
-
-! Set the return value for the key, and use it as the index below
-igrkey = num_1d_integral_obs
-
-! Make sure key is within valid range
-call check_valid_key(igrkey, 'GENERATED', 'set_1d_integral')
-
-! Set the corresponding values in the module global arrays
-half_width(igrkey) = integral_half_width
-num_points(igrkey) = num_eval_pts
-localization_type(igrkey) = localize_type
-
-istatus = 0
-
-if(debug) print*, 'setting metadata for 1D integral obs ', igrkey
-if(debug) print*, 'metadata values are: ', half_width(igrkey), num_points(igrkey), localization_type(igrkey)
-
-if(debug) print*, 'return key set to ', igrkey
-if(debug) print*, 'return status (0 good; >0 error; <0 reserved for system use) is ', istatus
-
-end subroutine set_1d_integral
-!----------------------------------------------------------------------
-
-subroutine set_power(power_in, powkey, istatus)
-
-! input is:  the power to which the state variable interpolation should be raised
-
- real(r8), intent(in)  :: power_in
- integer,  intent(out) :: powkey
- integer,  intent(out) :: istatus
-
-! Available to be called by a program creating these types of observations.
-! Notice that powkey is intent(out) here, not (in) as in some other routines.
-! Sets the additional metadata for this obs, increments the key, and returns
-! the new value.  This key value should be set in the obs_def derived type by
-! calling set_obs_def_key().   Notice that this is different from the main
-! observation key, which all observation entries have.  This key is specific
-! to this observation type and is used to index into the metadata for only
-! this type of obs.
-
-if ( .not. module_initialized ) call initialize_module
-
-! Increment the counter so all key values are unique
-num_power_obs = num_power_obs + 1
-
-! Set the return value for the key, and use it as the index below
-powkey = num_power_obs
-
-! Make sure key is within valid range
-call check_valid_key_power(powkey, 'GENERATED', 'set_power')
-
-! Set the corresponding values in the module global arrays
-power(powkey) = power_in
-
-istatus = 0
-
-if(debug) print*, 'setting metadata for power obs ', powkey
-if(debug) print*, 'metadata value is: ', power(powkey)
-
-if(debug) print*, 'return key set to ', powkey
-if(debug) print*, 'return status (0 good; >0 error; <0 reserved for system use) is ', istatus
-
-end subroutine set_power
-
-!----------------------------------------------------------------------
-
-subroutine check_valid_key(igrkey, what, fromwhere)
- integer, intent(in)          :: igrkey
- character(len=*), intent(in) :: what, fromwhere
-
-! Internal subroutine that verifies that we haven't incremented the key value
-! past the size of the allocated space, or that a routine hasn't been called
-! with a out-of-range key (which would indicate an internal error of some kind).
-! If an error is found, a fatal message is printed and this routine doesn't return.
-! The 'what' argument is either 'GIVEN' for a key value that's passed in from
-! another routine; or 'GENERATED' for one we have just made and are planning to
-! return to the caller.  The 'fromwhere' argument is the name of the calling
-! subroutine so the error message can report where it was called from.
-
-character(len=128) :: msgstring
-
-if (igrkey <= 0 .or. igrkey > max_1d_integral_obs) then
-   if (what == 'GENERATED' .and. igrkey > max_1d_integral_obs) then
-      ! generating a new key and ran out of space
-      write(msgstring, *)'Out of space, max_1d_integral_obs limit ',max_1d_integral_obs
-      call error_handler(E_ERR,trim(fromwhere),msgstring,source,revision,revdate, &
-                         text2='Increase value of max_1d_integral_obs in obs_def_1d_state_mod')
-   else
-      ! called with a bad key or a negative key generated somehow. "shouldn't happen".
-      write(msgstring, *)'Key is ',igrkey,' must be between 1 and ',max_1d_integral_obs
-      call error_handler(E_ERR,trim(fromwhere),msgstring,source,revision,revdate, &
-                         text2='Internal error: Invalid key value in RAW_STATE_1D_INTEGRAL obs')
-   endif
+if ( unstructured ) then
+   do imem = 1, ens_size
+      call get_scalar_from_2Dhistory(varstring, copy_indices(imem), location, obs_time, obs_val(imem), istatus(imem))
+   enddo
+else
+   do imem = 1, ens_size
+      call get_scalar_from_3Dhistory(varstring, copy_indices(imem), location, obs_time,obs_val(imem), istatus(imem))
+   enddo
 endif
 
-end subroutine check_valid_key
+end subroutine get_scalar_from_history
+
+
+!======================================================================
+
+
+subroutine get_scalar_from_3Dhistory(varstring, ens_index, location, obs_time, &
+                                     obs_val, istatus)
+! the routine must return values for:
+! obs_val -- the computed forward operator value
+! istatus -- return code: 0=ok, > 0 is error, < 0 reserved for system use
+!
+! The requirement is that the history file variable is a 3D variable shaped similarly:
+!
+! float NEP(time, lat, lon) ;
+!          NEP:long_name = "net ecosystem production, blah, blah, blah" ;
+!          NEP:units = "gC/m^2/s" ;
+!          NEP:cell_methods = "time: mean" ;
+!          NEP:_FillValue = 1.e+36f ;
+!          NEP:missing_value = 1.e+36f ;
+
+character(len=*),    intent(in)  :: varstring
+integer,             intent(in)  :: ens_index
+type(location_type), intent(in)  :: location
+type(time_type),     intent(in)  :: obs_time
+real(r8),            intent(out) :: obs_val
+integer,             intent(out) :: istatus
+
+integer,  dimension(NF90_MAX_VAR_DIMS) :: dimids
+real(r8), dimension(3) :: loc
+integer,  dimension(3) :: ncstart, nccount
+integer,  dimension(1) :: loninds, latinds, timeinds
+integer                :: gridloni, gridlatj, timei
+integer                :: varid, xtype, ndims, natts, dimlen
+integer                :: io1, io2, second, day
+real(r8)               :: loc_lon, loc_lat, radius, distance
+real(r4), dimension(1) :: hyperslab
+real(r4)               :: spvalR4
+real(r8)               :: scale_factor, add_offset
+real(digits12)         :: otime
+character(len=NF90_MAX_NAME+20)      :: strshort
+
+type(location_type) :: gridloc
+
+obs_val = MISSING_R8
+istatus = 1
+
 !----------------------------------------------------------------------
+! if observation is outside region encompassed in the history file - fail
+loc      = get_location(location) ! loc is in DEGREES
+loc_lon  = loc(1)
+loc_lat  = loc(2)
 
-subroutine check_valid_key_power(powkey, what, fromwhere)
- integer, intent(in)          :: powkey
- character(len=*), intent(in) :: what, fromwhere
+if ( (nlon==1) .and. (nlat==1) ) then
 
-! Internal subroutine that verifies that we haven't incremented the key value
-! past the size of the allocated space, or that a routine hasn't been called
-! with a out-of-range key (which would indicate an internal error of some kind).
-! If an error is found, a fatal message is printed and this routine doesn't return.
-! The 'what' argument is either 'GIVEN' for a key value that's passed in from
-! another routine; or 'GENERATED' for one we have just made and are planning to
-! return to the caller.  The 'fromwhere' argument is the name of the calling
-! subroutine so the error message can report where it was called from.
+   ! Defining the region if running in an unstructured grid is tricky.
+   ! Have lat, lon, and the area of the gridcell which we assume to be basically square.
+   ! The square root of the area defines the length of the edge of the gridcell.
+   ! Half the hypotenuse defines the radius of a circle. Any ob within
+   ! that radius is close enough.
 
-character(len=128) :: msgstring
+   gridloc   = set_location(lon(1),lat(1), 0.0_r8, VERTISUNDEF)
+   distance  = get_dist(gridloc, location, no_vert = .TRUE.) * RAD2KM ! planet earth
+   radius    = sqrt(2.0_r8 * area(1))/2.0_r8
 
-if (powkey <= 0 .or. powkey > max_power_obs) then
-   if (what == 'GENERATED' .and. powkey > max_power_obs) then
-      ! generating a new key and ran out of space
-      write(msgstring, *)'Out of space, max_power_obs limit ',max_power_obs
-      call error_handler(E_ERR,trim(fromwhere),msgstring,source,revision,revdate, &
-                         text2='Increase value of max_power_obs in obs_def_1d_state_mod')
-   else
-      ! called with a bad key or a negative key generated somehow. "shouldn't happen".
-      write(msgstring, *)'Key is ',powkey,' must be between 1 and ',max_power_obs
-      call error_handler(E_ERR,trim(fromwhere),msgstring,source,revision,revdate, &
-                         text2='Internal error: Invalid key value in RAW_STATE_VAR_POWER obs')
+   if (debug .and. do_output()) then
+      write(string1,*)'    observation lon, lat is ',loc_lon, loc_lat
+      write(string2,*)'gridcell    lon, lat is ',lon(1),lat(1)
+      write(string3,*)'area,radius is ',area(1),radius,' distance ',distance
+      call error_handler(E_MSG, 'obs_def_tower.get_scalar_from_3Dhistory', &
+                 string1, source, revision, revdate, text2=string2, text3=string3)
    endif
+
+   if ( distance > radius ) return
+
+else
+   if ( .not. is_longitude_between(loc_lon, lon(1), lon(nlon), doradians=.FALSE.)) return
+   if ((loc_lat < lat(1)) .or. (loc_lat > lat(nlat))) return
 endif
 
-end subroutine check_valid_key_power
+!----------------------------------------------------------------------
+! Now that we know the observation operator is possible, continue ...
+
+write(strshort,'(''ens_index '',i4,1x,A)')ens_index,trim(varstring)
+
+if (ens_index > ens_size) then
+   write(string1,*)'Known to have ',ens_size,'ensemble members for observation operator.'
+   write(string2,*)'asking to use operator for ensemble member ',ens_index
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_3Dhistory', &
+              string1, source, revision, revdate, text2=string2)
+endif
 
 !----------------------------------------------------------------------
+! bombproofing ... make sure the netcdf file is open.
 
-end module obs_def_1d_state_mod
+call nc_check(nf90_inquire(ncid(ens_index)), &
+              'obs_def_tower.get_scalar_from_3Dhistory', 'inquire '//trim(strshort))
+
+! bombproofing ... make sure the variable is the shape and size we expect
+
+call nc_check(nf90_inq_varid(ncid(ens_index), trim(varstring), varid), &
+        'obs_def_tower.get_scalar_from_3Dhistory', 'inq_varid '//trim(strshort))
+call nc_check(nf90_inquire_variable(ncid(ens_index), varid, xtype=xtype, ndims=ndims, &
+        dimids=dimids, natts=natts), &
+        'obs_def_tower.get_scalar_from_3Dhistory','inquire variable '//trim(strshort))
+
+if (ndims /= 3) then
+   write(string1,*)trim(varstring),' is supposed to have 3 dimensions, it has',ndims
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_3Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! If the variable is not a NF90_FLOAT, then the assumptions for processing
+! the missing_value, _FillValue, etc., may not be correct.
+if (xtype /= NF90_FLOAT) then
+   write(string1,*)trim(varstring),' is supposed to be a 32 bit real. xtype = ', &
+                   NF90_FLOAT,' it is ',xtype
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_3Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! Dimension 1 is longitude
+call nc_check(nf90_inquire_dimension(ncid(ens_index), dimids(1), len=dimlen), &
+        'obs_def_tower.get_scalar_from_3Dhistory', 'inquire_dimension 1 '//trim(strshort))
+if (dimlen /= nlon) then
+   write(string1,*)'LON has length',nlon,trim(varstring),' has ',dimlen,'longitudes.'
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_3Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! Dimension 2 is latitude
+call nc_check(nf90_inquire_dimension(ncid(ens_index), dimids(2), len=dimlen), &
+        'obs_def_tower.get_scalar_from_3Dhistory', 'inquire_dimension 2 '//trim(strshort))
+if (dimlen /= nlat) then
+   write(string1,*)'LAT has length',nlat,trim(varstring),' has ',dimlen,'latitudes.'
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_3Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! Dimension 3 is time
+call nc_check(nf90_inquire_dimension(ncid(ens_index), dimids(3), len=dimlen), &
+        'obs_def_tower.get_scalar_from_3Dhistory', 'inquire_dimension 3'//trim(strshort))
+if (dimlen /= ntime) then
+   write(string1,*)'TIME has length',ntime,trim(varstring),' has ',dimlen,'times.'
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_3Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+!----------------------------------------------------------------------
+! Find the grid cell and timestep of interest
+! FIXME ... since the history file contents are for the previous 30m,
+! perhaps the closest time is not the best approximation.
+! Get the individual locations values
+
+call get_time(obs_time, second, day)
+otime    = real(day,digits12) + real(second,digits12)/86400.0_digits12
+
+latinds  = minloc(abs(lat - loc_lat))   ! these return 'arrays' ...
+loninds  = minloc(abs(lon - loc_lon))   ! these return 'arrays' ...
+timeinds = minloc(abs(rtime - otime))   ! these return 'arrays' ...
+
+gridlatj = latinds(1)
+gridloni = loninds(1)
+timei    = timeinds(1)
+
+if (debug .and. do_output()) then
+   write(*,*)'obs_def_tower.get_scalar_from_3Dhistory:targetlon, lon, lon index is ', &
+                                           loc_lon,lon(gridloni),gridloni
+   write(*,*)'obs_def_tower.get_scalar_from_3Dhistory:targetlat, lat, lat index is ', &
+                                           loc_lat,lat(gridlatj),gridlatj
+   write(*,*)'obs_def_tower.get_scalar_from_3Dhistory:  targetT,   T,   T index is ', &
+                                           otime,rtime(timei),timei
+endif
+
+if ( abs(otime - rtime(timei)) > 30*60 ) then
+   if (debug .and. do_output()) then
+      write(*,*)'obs_def_tower.get_scalar_from_3Dhistory: no close time ... skipping observation'
+      call print_time(obs_time,'obs_def_tower.get_scalar_from_3Dhistory:observation time')
+      call print_date(obs_time,'obs_def_tower.get_scalar_from_3Dhistory:observation date')
+   endif
+   istatus = 2
+   return
+endif
+
+!----------------------------------------------------------------------
+! Grab exactly the scalar we want.
+
+ncstart = (/ gridloni, gridlatj, timei /)
+nccount = (/        1,        1,     1 /)
+
+call nc_check(nf90_get_var(ncid(ens_index),varid,hyperslab,start=ncstart,count=nccount), &
+     'obs_def_tower.get_scalar_from_3Dhistory', 'get_var')
+
+obs_val = hyperslab(1)
+
+!----------------------------------------------------------------------
+! Apply any netCDF attributes ...
+
+io1 = nf90_get_att(ncid(ens_index), varid, '_FillValue' , spvalR4)
+if ((io1 == NF90_NOERR) .and. (hyperslab(1) == spvalR4)) obs_val = MISSING_R8
+
+io2 = nf90_get_att(ncid(ens_index), varid, 'missing_value' , spvalR4)
+if ((io2 == NF90_NOERR) .and. (hyperslab(1) == spvalR4)) obs_val = MISSING_R8
+
+io1 = nf90_get_att(ncid(ens_index), varid, 'scale_factor', scale_factor)
+io2 = nf90_get_att(ncid(ens_index), varid, 'add_offset'  , add_offset)
+
+if ( (io1 == NF90_NOERR) .and. (io2 == NF90_NOERR) ) then
+   if (obs_val /= MISSING_R8) obs_val = obs_val * scale_factor + add_offset
+elseif (io1 == NF90_NOERR) then
+   if (obs_val /= MISSING_R8) obs_val = obs_val * scale_factor
+elseif (io2 == NF90_NOERR) then
+   if (obs_val /= MISSING_R8) obs_val = obs_val + add_offset
+endif
+
+if (obs_val /= MISSING_R8) istatus = 0
+
+end subroutine get_scalar_from_3Dhistory
+
+
+!======================================================================
+
+
+subroutine get_scalar_from_2Dhistory(varstring, ens_index, location, obs_time, &
+                                     obs_val, istatus)
+! the routine must return values for:
+! obs_val -- the computed forward operator value
+! istatus -- return code: 0=ok, > 0 is error, < 0 reserved for system use
+!
+! The requirement is that the history file variable is a 2D variable shaped similarly:
+!
+! float NEP(time, lndgrid) ;
+!          NEP:long_name = "net ecosystem production, blah, blah, blah" ;
+!          NEP:units = "gC/m^2/s" ;
+!          NEP:cell_methods = "time: mean" ;
+!          NEP:_FillValue = 1.e+36f ;
+!          NEP:missing_value = 1.e+36f ;
+!
+! Just because it is 2D does not mean it is a single column,
+! although single columns are all that is really supported right now.
+
+character(len=*),    intent(in)  :: varstring
+integer,             intent(in)  :: ens_index
+type(location_type), intent(in)  :: location
+type(time_type),     intent(in)  :: obs_time
+real(r8),            intent(out) :: obs_val
+integer,             intent(out) :: istatus
+
+integer,  dimension(NF90_MAX_VAR_DIMS) :: dimids
+real(r8), dimension(3) :: loc
+integer,  dimension(2) :: ncstart, nccount
+integer,  dimension(1) :: timeinds
+integer                :: gridij, timei
+integer                :: varid, xtype, ndims, natts, dimlen
+integer                :: io1, io2, second, day
+real(r8)               :: loc_lon, loc_lat, radius, distance
+real(r4), dimension(1) :: hyperslab
+real(r4)               :: spvalR4
+real(r8)               :: scale_factor, add_offset
+real(digits12)         :: otime
+character(len=NF90_MAX_NAME+20)      :: strshort
+
+type(location_type) :: gridloc
+
+obs_val = MISSING_R8
+istatus = 1
+
+!----------------------------------------------------------------------
+! if observation is outside region encompassed in the history file - fail
+loc      = get_location(location) ! loc is in DEGREES
+loc_lon  = loc(1)
+loc_lat  = loc(2)
+
+! Defining the region if running in an unstructured grid is tricky.
+! We have lat, lon, and the area of the gridcell which we assume to be basically square.
+! The square root of the area defines the length of the edge of the gridcell.
+! Half the hypotenuse defines the radius of a circle. Any ob within
+! that radius is close enough.
+
+! TJH FIXME This does not work with unstructured grid.
+! latinds  = minloc(abs(lat - loc_lat))   ! these return 'arrays' ...
+! loninds  = minloc(abs(lon - loc_lon))   ! these return 'arrays' ...
+! gridij = the closest location
+
+! The "1" in the following reflect the fact that only a single gridcell
+! is currently supported in the unstructured grid configuration.
+! (see GetDimensions())
+
+gridij   = 1
+gridloc  = set_location(lon(gridij),lat(gridij), 0.0_r8, VERTISUNDEF)
+distance = get_dist(gridloc, location, no_vert = .TRUE.) * RAD2KM
+radius   = sqrt(2.0_r8 * area(gridij))/2.0_r8
+
+if (debug .and. do_output()) then
+   write(string1,*)'    observation lon, lat is ',loc_lon, loc_lat
+   write(string2,*)'gridcell    lon, lat is ',lon(gridij),lat(gridij)
+   write(string3,*)'area,radius is ',area(gridij),radius,' distance ',distance
+   call error_handler(E_MSG, 'obs_def_tower.get_scalar_from_2Dhistory', &
+              string1, source, revision, revdate, text2=string2, text3=string3)
+endif
+
+if ( distance > radius ) return
+
+!----------------------------------------------------------------------
+! Now that we know the observation operator is possible, continue ...
+
+write(strshort,'(''ens_index '',i4,1x,A)')ens_index,trim(varstring)
+
+if (ens_index > ens_size) then
+   write(string1,*)'believed to have ',ens_size,'ensemble members for observation operator.'
+   write(string2,*)'asking to use operator for ensemble member ',ens_index
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_2Dhistory', &
+              string1, source, revision, revdate, text2=string2)
+endif
+
+!----------------------------------------------------------------------
+! bombproofing ... make sure the netcdf file is open.
+
+call nc_check(nf90_inquire(ncid(ens_index)), &
+              'obs_def_tower.get_scalar_from_2Dhistory', 'inquire '//trim(strshort))
+
+! bombproofing ... make sure the variable is the shape and size we expect
+
+call nc_check(nf90_inq_varid(ncid(ens_index), trim(varstring), varid), &
+        'obs_def_tower.get_scalar_from_2Dhistory', 'inq_varid '//trim(strshort))
+call nc_check(nf90_inquire_variable(ncid(ens_index), varid, xtype=xtype, ndims=ndims, &
+        dimids=dimids, natts=natts), &
+        'obs_def_tower.get_scalar_from_2Dhistory','inquire variable '//trim(strshort))
+
+if (ndims /= 2) then
+   write(string1,*)trim(varstring),' is supposed to have 2 dimensions, it has',ndims
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_2Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! If the variable is not a NF90_FLOAT, then the assumptions for processing
+! the missing_value, _FillValue, etc., may not be correct.
+if (xtype /= NF90_FLOAT) then
+   write(string1,*)trim(varstring),' is supposed to be a 32 bit real. xtype = ', &
+                   NF90_FLOAT,' it is ',xtype
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_2Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! Dimension 1 is spatial
+call nc_check(nf90_inquire_dimension(ncid(ens_index), dimids(1), len=dimlen), &
+        'obs_def_tower.get_scalar_from_2Dhistory', 'inquire_dimension 1 '//trim(strshort))
+if (dimlen /= nlon) then
+   write(string1,*)'LON has length',nlon,trim(varstring),' has ',dimlen,'longitudes.'
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_2Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+! Dimension 2 is time
+call nc_check(nf90_inquire_dimension(ncid(ens_index), dimids(2), len=dimlen), &
+        'obs_def_tower.get_scalar_from_2Dhistory', 'inquire_dimension 2 '//trim(strshort))
+if (dimlen /= ntime) then
+   write(string1,*)'TIME has length',ntime,trim(varstring),' has ',dimlen,'times.'
+   call error_handler(E_ERR, 'obs_def_tower.get_scalar_from_2Dhistory', &
+              string1, source, revision, revdate)
+endif
+
+!----------------------------------------------------------------------
+! Find the timestep of interest
+! FIXME ... since the history file contents are for the previous 30m,
+! perhaps the closest time is not the best approximation.
+
+call get_time(obs_time, second, day)
+otime    = real(day,digits12) + real(second,digits12)/86400.0_digits12
+timeinds = minloc(abs(rtime - otime))   ! these return 'arrays' ...
+timei    = timeinds(1)
+
+if (debug .and. do_output()) then
+   write(*,*)'obs_def_tower.get_scalar_from_2Dhistory:  targetT,   T,   T index is ', &
+                                           otime,rtime(timei),timei
+endif
+
+if ( abs(otime - rtime(timei)) > 30*60 ) then
+   if (debug .and. do_output()) then
+      write(*,*)'obs_def_tower.get_scalar_from_2Dhistory: no close time ... skipping observation'
+      call print_time(obs_time,'obs_def_tower.get_scalar_from_2Dhistory:observation time')
+      call print_date(obs_time,'obs_def_tower.get_scalar_from_2Dhistory:observation date')
+   endif
+   istatus = 2
+   return
+endif
+
+!----------------------------------------------------------------------
+! Grab exactly the scalar we want.
+
+ncstart = (/ gridij, timei /)
+nccount = (/      1,     1 /)
+
+call nc_check(nf90_get_var(ncid(ens_index),varid,hyperslab,start=ncstart,count=nccount), &
+     'obs_def_tower.get_scalar_from_2Dhistory', 'get_var')
+
+obs_val = hyperslab(1)
+
+!----------------------------------------------------------------------
+! Apply any netCDF attributes ...
+
+io1 = nf90_get_att(ncid(ens_index), varid, '_FillValue' , spvalR4)
+if ((io1 == NF90_NOERR) .and. (hyperslab(1) == spvalR4)) obs_val = MISSING_R8
+
+io2 = nf90_get_att(ncid(ens_index), varid, 'missing_value' , spvalR4)
+if ((io2 == NF90_NOERR) .and. (hyperslab(1) == spvalR4)) obs_val = MISSING_R8
+
+io1 = nf90_get_att(ncid(ens_index), varid, 'scale_factor', scale_factor)
+io2 = nf90_get_att(ncid(ens_index), varid, 'add_offset'  , add_offset)
+
+if ( (io1 == NF90_NOERR) .and. (io2 == NF90_NOERR) ) then
+   if (obs_val /= MISSING_R8) obs_val = obs_val * scale_factor + add_offset
+elseif (io1 == NF90_NOERR) then
+   if (obs_val /= MISSING_R8) obs_val = obs_val * scale_factor
+elseif (io2 == NF90_NOERR) then
+   if (obs_val /= MISSING_R8) obs_val = obs_val + add_offset
+endif
+
+if (obs_val /= MISSING_R8) istatus = 0
+
+end subroutine get_scalar_from_2Dhistory
+
+
+!======================================================================
+
+
+subroutine test_block
+! Defining the region if running in a single column is tricky.
+! We have lat, lon, and the area of the gridcell which we assume to be basically square.
+! The square root of the area defines the length of the edge of the gridcell which
+! can then be interpreted as the diameter of a circle. Any observation within this
+! distance is close enough.
+
+real(r8) :: x1, x2, y1, y2, d1, d2, d3, d4, radius, distance
+type(location_type) :: gridloc, testloc
+
+gridloc  = set_location(0.0_r8, 0.0_r8, 0.0_r8, VERTISUNDEF)
+testloc  = set_location(1.0_r8, 0.0_r8, 0.0_r8, VERTISUNDEF)
+distance = get_dist(gridloc, testloc, no_vert = .TRUE.) * RAD2KM
+write(*,*)'TJH DEBUG: 1 degree at the equator has distance ',distance,' km.'
+
+x1 = 286.8750               ! gridcell longitude is 287.50
+x2 = 288.1250
+y1 = 42.40837669372559      ! gridcell latitude is 42.8795814514160
+y2 = 43.35078620910645
+
+! compute the distance along the top of the grid cell
+gridloc = set_location(x1, y1, 0.0_r8, VERTISUNDEF)
+testloc = set_location(x2, y1, 0.0_r8, VERTISUNDEF)
+d1      = get_dist(gridloc, testloc, no_vert = .TRUE.) * RAD2KM
+gridloc = set_location(x2, y2, 0.0_r8, VERTISUNDEF)
+d2      = get_dist(gridloc, testloc, no_vert = .TRUE.) * RAD2KM
+testloc = set_location(x1, y2, 0.0_r8, VERTISUNDEF)
+d3      = get_dist(gridloc, testloc, no_vert = .TRUE.) * RAD2KM
+gridloc = set_location(x1, y1, 0.0_r8, VERTISUNDEF)
+d4      = get_dist(gridloc, testloc, no_vert = .TRUE.) * RAD2KM
+
+write(*,*)
+write(*,*)'lengths         are ',d1,d2,d3,d4
+write(*,*)'rectangular area is ',((d1+d3)/2.0_r8)*((d2+d4)/2.0_r8)
+
+d1 = sqrt(area(1))
+d2 = sqrt(2.0_r8 * d1**2)
+d3 = d2 / 2.0_r8
+radius = sqrt(2.0_r8 * area(1))/2.0_r8
+write(*,*)'length of one side of a square is x = sqrt(area) = ',d1
+write(*,*)'diagonal is                sqrt(x**2 + x**2)     = ',d2
+write(*,*)'radius   is                sqrt(x**2 + x**2)/2.0 = ',d3
+write(*,*)'-or-                       sqrt(area + area)/2.0 = ',radius
+
+write(*,*)'TJH DEBUG: Radius,area is ',distance,PI*distance**2, &
+          ' gridcell area is ',area(1)
+
+end subroutine test_block
+
+
+!======================================================================
+
+
+end module obs_def_tower_mod
 
                                                                               
 !---------------------------------------------------------------------------  
-! End of code inserted from ../../../observations/forward_operators/obs_def_1d_state_mod.f90
+! End of code inserted from ../../../observations/forward_operators/obs_def_tower_mod.f90
 !---------------------------------------------------------------------------  
 
 !----------------------------------------------------------------------
@@ -687,22 +1509,156 @@ use obs_def_utilities_mod, only : track_status, set_debug_fwd_op
 
 !---------------------------------------------------------------------------  
                                                                               
-use obs_kind_mod, only : RAW_STATE_VARIABLE
-use obs_kind_mod, only : RAW_TRACER_CONCENTRATION
-use obs_kind_mod, only : RAW_TRACER_SOURCE
-use obs_kind_mod, only : RAW_STATE_1D_INTEGRAL
-use obs_kind_mod, only : RAW_STATE_VAR_POWER
-use obs_kind_mod, only : LARGE_SCALE_STATE
-use obs_kind_mod, only : SMALL_SCALE_STATE
+use obs_kind_mod, only : SOIL_TEMPERATURE
+use obs_kind_mod, only : LPRM_SOIL_MOISTURE
+use obs_kind_mod, only : SMOS_A_SOIL_MOISTURE
+use obs_kind_mod, only : SMOS_D_SOIL_MOISTURE
+use obs_kind_mod, only : SMAP_A_SOIL_MOISTURE
+use obs_kind_mod, only : SMAP_D_SOIL_MOISTURE
+use obs_kind_mod, only : SSMI_A_SOIL_MOISTURE
+use obs_kind_mod, only : SSMI_D_SOIL_MOISTURE
+use obs_kind_mod, only : AMSRE_A_SOIL_MOISTURE_X
+use obs_kind_mod, only : AMSRE_D_SOIL_MOISTURE_X
+use obs_kind_mod, only : AMSRE_A_SOIL_MOISTURE_C
+use obs_kind_mod, only : AMSRE_D_SOIL_MOISTURE_C
+use obs_kind_mod, only : TRMM_SOIL_MOISTURE
+use obs_kind_mod, only : WINDSAT_SOIL_MOISTURE_X
+use obs_kind_mod, only : WINDSAT_SOIL_MOISTURE_C
+use obs_kind_mod, only : WATER_TABLE_DEPTH
+use obs_kind_mod, only : SOIL_MOISTURE
+use obs_kind_mod, only : LAYER_LIQUID_WATER
+use obs_kind_mod, only : LAYER_ICE
+use obs_kind_mod, only : SNOW_THICKNESS
+use obs_kind_mod, only : SNOW_WATER
+use obs_kind_mod, only : MODIS_SNOWCOVER_FRAC
+use obs_kind_mod, only : MODIS_LEAF_AREA_INDEX
+use obs_kind_mod, only : GIMMS_LEAF_AREA_INDEX
+use obs_kind_mod, only : SP_LEAF_AREA_INDEX
+use obs_kind_mod, only : SOIL_MINERAL_NITROGEN
+use obs_kind_mod, only : MODIS_FPAR
+use obs_kind_mod, only : BIOMASS
+use obs_kind_mod, only : LEAF_CARBON
+use obs_kind_mod, only : LIVE_STEM_CARBON
+use obs_kind_mod, only : DEAD_STEM_CARBON
+use obs_kind_mod, only : LEAF_AREA_INDEX
+use obs_kind_mod, only : LEAF_NITROGEN
+use obs_kind_mod, only : TOWER_AIR_TEMPERATURE
+use obs_kind_mod, only : TREE_RING_NPP_FLUX
+use obs_kind_mod, only : TOWER_SOIL_TEMPERATURE
+use obs_kind_mod, only : TOWER_U_WIND_COMPONENT
+use obs_kind_mod, only : TOWER_V_WIND_COMPONENT
+use obs_kind_mod, only : TOWER_GLOBAL_RADIATION
+use obs_kind_mod, only : TOWER_NET_CARBON_FLUX
+use obs_kind_mod, only : SURFACE_ALBEDO
+use obs_kind_mod, only : OCO2_SIF
+use obs_kind_mod, only : ECOSTRESS_ET
+use obs_kind_mod, only : HARMONIZED_SIF
+use obs_kind_mod, only : SOIL_RESPIRATION_FLUX
+use obs_kind_mod, only : TOWER_ER_FLUX
+use obs_kind_mod, only : TOWER_GPP_FLUX
+use obs_kind_mod, only : TOWER_LATENT_HEAT_FLUX
+use obs_kind_mod, only : TOWER_NETC_ECO_EXCHANGE
+use obs_kind_mod, only : TOWER_SENSIBLE_HEAT_FLUX
                                                                               
 use obs_kind_mod, only : QTY_STATE_VARIABLE
-use obs_kind_mod, only : QTY_1D_INTEGRAL
-use obs_kind_mod, only : QTY_STATE_VAR_POWER
-use obs_kind_mod, only : QTY_LARGE_SCALE_STATE
-use obs_kind_mod, only : QTY_SMALL_SCALE_STATE
-use obs_kind_mod, only : QTY_1D_PARAMETER
-use obs_kind_mod, only : QTY_TRACER_CONCENTRATION
-use obs_kind_mod, only : QTY_TRACER_SOURCE
+use obs_kind_mod, only : QTY_ABSORBED_PAR
+use obs_kind_mod, only : QTY_AQUIFER_WATER
+use obs_kind_mod, only : QTY_BIOMASS
+use obs_kind_mod, only : QTY_BRIGHTNESS_TEMPERATURE
+use obs_kind_mod, only : QTY_BUCKET_MULTIPLIER
+use obs_kind_mod, only : QTY_CANOPY_HEIGHT
+use obs_kind_mod, only : QTY_CANOPY_TEMPERATURE
+use obs_kind_mod, only : QTY_CANOPY_WATER
+use obs_kind_mod, only : QTY_CARBON
+use obs_kind_mod, only : QTY_CLAY_FRACTION
+use obs_kind_mod, only : QTY_DEAD_ROOT_CARBON
+use obs_kind_mod, only : QTY_DEAD_ROOT_NITROGEN
+use obs_kind_mod, only : QTY_DEAD_STEM_CARBON
+use obs_kind_mod, only : QTY_DEAD_STEM_NITROGEN
+use obs_kind_mod, only : QTY_DEEP_GROUNDWATER_LEVEL
+use obs_kind_mod, only : QTY_ER_FLUX
+use obs_kind_mod, only : QTY_FPAR
+use obs_kind_mod, only : QTY_FPAR_DIFFUSE
+use obs_kind_mod, only : QTY_FPAR_DIRECT
+use obs_kind_mod, only : QTY_FPAR_SHADED_DIFFUSE
+use obs_kind_mod, only : QTY_FPAR_SHADED_DIRECT
+use obs_kind_mod, only : QTY_FPAR_SUNLIT_DIFFUSE
+use obs_kind_mod, only : QTY_FPAR_SUNLIT_DIRECT
+use obs_kind_mod, only : QTY_FPSN
+use obs_kind_mod, only : QTY_FRACTION_ABSORBED_PAR
+use obs_kind_mod, only : QTY_FRAC_PHOTO_AVAIL_RADIATION
+use obs_kind_mod, only : QTY_FSIF
+use obs_kind_mod, only : QTY_GEOPOTENTIAL_HEIGHT
+use obs_kind_mod, only : QTY_GROSS_PRIMARY_PROD_FLUX
+use obs_kind_mod, only : QTY_GROUND_HEAT_FLUX
+use obs_kind_mod, only : QTY_ICE
+use obs_kind_mod, only : QTY_LATENT_HEAT_FLUX
+use obs_kind_mod, only : QTY_LEAF_AREA_INDEX
+use obs_kind_mod, only : QTY_LEAF_CARBON
+use obs_kind_mod, only : QTY_LEAF_NITROGEN
+use obs_kind_mod, only : QTY_LIQUID_WATER
+use obs_kind_mod, only : QTY_LIVE_ROOT_CARBON
+use obs_kind_mod, only : QTY_LIVE_ROOT_NITROGEN
+use obs_kind_mod, only : QTY_LIVE_STEM_CARBON
+use obs_kind_mod, only : QTY_LIVE_STEM_NITROGEN
+use obs_kind_mod, only : QTY_NET_CARBON_FLUX
+use obs_kind_mod, only : QTY_NET_CARBON_PRODUCTION
+use obs_kind_mod, only : QTY_NET_PRIMARY_PROD_FLUX
+use obs_kind_mod, only : QTY_NEUTRON_INTENSITY
+use obs_kind_mod, only : QTY_NITROGEN
+use obs_kind_mod, only : QTY_PAR_DIFFUSE
+use obs_kind_mod, only : QTY_PAR_DIRECT
+use obs_kind_mod, only : QTY_PHOTO_AVAILABLE_RADIATION
+use obs_kind_mod, only : QTY_RADIATION
+use obs_kind_mod, only : QTY_RADIATION_NEAR_IR_DOWN
+use obs_kind_mod, only : QTY_RADIATION_NEAR_IR_UP
+use obs_kind_mod, only : QTY_RADIATION_VISIBLE_DOWN
+use obs_kind_mod, only : QTY_RADIATION_VISIBLE_UP
+use obs_kind_mod, only : QTY_ROOT_CARBON
+use obs_kind_mod, only : QTY_ROOT_NITROGEN
+use obs_kind_mod, only : QTY_RTM_PARAMETERS_N
+use obs_kind_mod, only : QTY_RTM_PARAMETERS_P
+use obs_kind_mod, only : QTY_RUNOFF_MULTIPLIER
+use obs_kind_mod, only : QTY_SAND_FRACTION
+use obs_kind_mod, only : QTY_SENSIBLE_HEAT_FLUX
+use obs_kind_mod, only : QTY_SNOWCOVER_FRAC
+use obs_kind_mod, only : QTY_SNOW_DEPTH
+use obs_kind_mod, only : QTY_SNOW_GRAIN_SIZE
+use obs_kind_mod, only : QTY_SNOW_MIXING_RATIO
+use obs_kind_mod, only : QTY_SNOW_NUMBER_CONCENTR
+use obs_kind_mod, only : QTY_SNOW_TEMPERATURE
+use obs_kind_mod, only : QTY_SNOW_THICKNESS
+use obs_kind_mod, only : QTY_SNOW_WATER
+use obs_kind_mod, only : QTY_SOIL_CARBON
+use obs_kind_mod, only : QTY_SOIL_ICE
+use obs_kind_mod, only : QTY_SOIL_LIQUID_WATER
+use obs_kind_mod, only : QTY_SOIL_MATRIC_POTENTIAL
+use obs_kind_mod, only : QTY_SOIL_MINERAL_NITROGEN
+use obs_kind_mod, only : QTY_SOIL_MOISTURE
+use obs_kind_mod, only : QTY_SOIL_NITROGEN
+use obs_kind_mod, only : QTY_SOIL_RESPIRATION_FLUX
+use obs_kind_mod, only : QTY_SOIL_TEMPERATURE
+use obs_kind_mod, only : QTY_SOLAR_INDUCED_FLUORESCENCE
+use obs_kind_mod, only : QTY_STEM_AREA_INDEX
+use obs_kind_mod, only : QTY_STEM_CARBON
+use obs_kind_mod, only : QTY_STEM_NITROGEN
+use obs_kind_mod, only : QTY_STREAM_FLOW
+use obs_kind_mod, only : QTY_STREAM_HEIGHT
+use obs_kind_mod, only : QTY_SURFACE_ALBEDO
+use obs_kind_mod, only : QTY_SURFACE_EMISSIVITY
+use obs_kind_mod, only : QTY_SURFACE_HEAD
+use obs_kind_mod, only : QTY_SURFACE_PRESSURE
+use obs_kind_mod, only : QTY_SURFACE_RUNOFF
+use obs_kind_mod, only : QTY_SURFACE_TYPE
+use obs_kind_mod, only : QTY_TEMPERATURE
+use obs_kind_mod, only : QTY_TOTAL_WATER_STORAGE
+use obs_kind_mod, only : QTY_UNCONFINED_WATER
+use obs_kind_mod, only : QTY_UNDER_RUNOFF
+use obs_kind_mod, only : QTY_U_WIND_COMPONENT
+use obs_kind_mod, only : QTY_VEGETATED_AREA_FRACTION
+use obs_kind_mod, only : QTY_VEGETATION_TEMPERATURE
+use obs_kind_mod, only : QTY_V_WIND_COMPONENT
+use obs_kind_mod, only : QTY_WATER_TABLE_DEPTH
                                                                               
 !---------------------------------------------------------------------------  
                                                                               
@@ -721,9 +1677,15 @@ use obs_kind_mod, only : QTY_TRACER_SOURCE
 ! will have been added above, and now a use statement will be generated
 ! here so the generic obs_def_mod has access to the code.
 
-   use obs_def_1d_state_mod, only : write_1d_integral, read_1d_integral, &
-                                     interactive_1d_integral, get_expected_1d_integral, &
-                                     write_power, read_power, interactive_power, get_expected_power
+  use obs_def_land_mod, only : calculate_albedo, &
+                               calculate_biomass, &
+                               calculate_biomass_tem, &
+                               calculate_fpar, &
+                               calculate_sif, &
+                               read_sif_wavelength, &
+                               write_sif_wavelength, &
+                               interactive_sif_wavelength
+  use obs_def_tower_mod, only : get_scalar_from_history
 
 !----------------------------------------------------------------------
 ! End of any obs_def_xxx_mod specific use statements
@@ -1233,20 +2195,113 @@ if(assimilate_this_ob .or. evaluate_this_ob) then
          ! CASE statements and algorithms for specific observation kinds are
          ! inserted here by the DART preprocess program.
 
-         case(RAW_STATE_1D_INTEGRAL)
-            call get_expected_1d_integral(state_handle, ens_size, location, obs_def%key, expected_obs, istatus)
-         case(RAW_STATE_VAR_POWER)
-            call get_expected_power(state_handle, ens_size, location, obs_def%key, expected_obs, istatus)
-      case(RAW_STATE_VARIABLE)
-         call interpolate(state_handle, ens_size, location, QTY_STATE_VARIABLE, expected_obs, istatus)
-      case(RAW_TRACER_CONCENTRATION)
-         call interpolate(state_handle, ens_size, location, QTY_TRACER_CONCENTRATION, expected_obs, istatus)
-      case(RAW_TRACER_SOURCE)
-         call interpolate(state_handle, ens_size, location, QTY_TRACER_SOURCE, expected_obs, istatus)
-      case(LARGE_SCALE_STATE)
-         call interpolate(state_handle, ens_size, location, QTY_LARGE_SCALE_STATE, expected_obs, istatus)
-      case(SMALL_SCALE_STATE)
-         call interpolate(state_handle, ens_size, location, QTY_SMALL_SCALE_STATE, expected_obs, istatus)
+  case(SURFACE_ALBEDO)
+     call calculate_albedo(state_handle, ens_size, location, expected_obs, istatus)
+  case(BIOMASS)
+     !call calculate_biomass(state_handle, ens_size, location, expected_obs, istatus)
+     call calculate_biomass_tem(state_handle, ens_size, location, expected_obs, istatus)!CCC
+  case(MODIS_FPAR)
+     call calculate_fpar(state_handle, ens_size, location, expected_obs, istatus)
+  case(HARMONIZED_SIF)
+     call calculate_sif(state_handle, ens_size, location, expected_obs, istatus)
+  case(TOWER_LATENT_HEAT_FLUX)
+     call get_scalar_from_history('EFLX_LH_TOT_R', state_handle, ens_size, &
+                    copy_indices, location, obs_time, expected_obs, istatus)
+  case(TOWER_SENSIBLE_HEAT_FLUX)
+     call get_scalar_from_history('FSH', state_handle, ens_size, &
+                    copy_indices, location, obs_time, expected_obs, istatus)
+  case(TOWER_NETC_ECO_EXCHANGE)
+     call get_scalar_from_history('NEP', state_handle, ens_size, &
+                    copy_indices, location, obs_time, expected_obs, istatus)
+  case(TOWER_GPP_FLUX)
+     call get_scalar_from_history('GPP', state_handle, ens_size, &
+                    copy_indices, location, obs_time, expected_obs, istatus)
+  case(TOWER_ER_FLUX)
+     call get_scalar_from_history('ER', state_handle, ens_size, &
+                    copy_indices, location, obs_time, expected_obs, istatus)
+  case(SOIL_RESPIRATION_FLUX)
+     call get_scalar_from_history('SR', state_handle, ens_size, &
+                    copy_indices, location, obs_time, expected_obs, istatus)
+      case(SOIL_TEMPERATURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_TEMPERATURE, expected_obs, istatus)
+      case(LPRM_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(SMOS_A_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(SMOS_D_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(SMAP_A_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(SMAP_D_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(SSMI_A_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(SSMI_D_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(AMSRE_A_SOIL_MOISTURE_X)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(AMSRE_D_SOIL_MOISTURE_X)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(AMSRE_A_SOIL_MOISTURE_C)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(AMSRE_D_SOIL_MOISTURE_C)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(TRMM_SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(WINDSAT_SOIL_MOISTURE_X)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(WINDSAT_SOIL_MOISTURE_C)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(WATER_TABLE_DEPTH)
+         call interpolate(state_handle, ens_size, location, QTY_WATER_TABLE_DEPTH, expected_obs, istatus)
+      case(SOIL_MOISTURE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MOISTURE, expected_obs, istatus)
+      case(LAYER_LIQUID_WATER)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_LIQUID_WATER, expected_obs, istatus)
+      case(LAYER_ICE)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_ICE, expected_obs, istatus)
+      case(SNOW_THICKNESS)
+         call interpolate(state_handle, ens_size, location, QTY_SNOW_THICKNESS, expected_obs, istatus)
+      case(SNOW_WATER)
+         call interpolate(state_handle, ens_size, location, QTY_SNOW_WATER, expected_obs, istatus)
+      case(MODIS_SNOWCOVER_FRAC)
+         call interpolate(state_handle, ens_size, location, QTY_SNOWCOVER_FRAC, expected_obs, istatus)
+      case(MODIS_LEAF_AREA_INDEX)
+         call interpolate(state_handle, ens_size, location, QTY_LEAF_AREA_INDEX, expected_obs, istatus)
+      case(GIMMS_LEAF_AREA_INDEX)
+         call interpolate(state_handle, ens_size, location, QTY_LEAF_AREA_INDEX, expected_obs, istatus)
+      case(SP_LEAF_AREA_INDEX)
+         call interpolate(state_handle, ens_size, location, QTY_LEAF_AREA_INDEX, expected_obs, istatus)
+      case(SOIL_MINERAL_NITROGEN)
+         call interpolate(state_handle, ens_size, location, QTY_SOIL_MINERAL_NITROGEN, expected_obs, istatus)
+      case(LEAF_CARBON)
+         call interpolate(state_handle, ens_size, location, QTY_LEAF_CARBON, expected_obs, istatus)
+      case(LIVE_STEM_CARBON)
+         call interpolate(state_handle, ens_size, location, QTY_LIVE_STEM_CARBON, expected_obs, istatus)
+      case(DEAD_STEM_CARBON)
+         call interpolate(state_handle, ens_size, location, QTY_DEAD_STEM_CARBON, expected_obs, istatus)
+      case(LEAF_AREA_INDEX)
+         call interpolate(state_handle, ens_size, location, QTY_LEAF_AREA_INDEX, expected_obs, istatus)
+      case(LEAF_NITROGEN)
+         call interpolate(state_handle, ens_size, location, QTY_LEAF_NITROGEN, expected_obs, istatus)
+      case(TOWER_AIR_TEMPERATURE)
+         call interpolate(state_handle, ens_size, location, QTY_TEMPERATURE, expected_obs, istatus)
+      case(TREE_RING_NPP_FLUX)
+         call interpolate(state_handle, ens_size, location, QTY_NET_PRIMARY_PROD_FLUX, expected_obs, istatus)
+      case(TOWER_SOIL_TEMPERATURE)
+         call interpolate(state_handle, ens_size, location, QTY_TEMPERATURE, expected_obs, istatus)
+      case(TOWER_U_WIND_COMPONENT)
+         call interpolate(state_handle, ens_size, location, QTY_U_WIND_COMPONENT, expected_obs, istatus)
+      case(TOWER_V_WIND_COMPONENT)
+         call interpolate(state_handle, ens_size, location, QTY_V_WIND_COMPONENT, expected_obs, istatus)
+      case(TOWER_GLOBAL_RADIATION)
+         call interpolate(state_handle, ens_size, location, QTY_RADIATION, expected_obs, istatus)
+      case(TOWER_NET_CARBON_FLUX)
+         call interpolate(state_handle, ens_size, location, QTY_NET_CARBON_FLUX, expected_obs, istatus)
+      case(OCO2_SIF)
+         call interpolate(state_handle, ens_size, location, QTY_SOLAR_INDUCED_FLUORESCENCE, expected_obs, istatus)
+      case(ECOSTRESS_ET)
+         call interpolate(state_handle, ens_size, location, QTY_LATENT_HEAT_FLUX, expected_obs, istatus)
 
          ! If the observation kind is not available, it is an error. The DART
          ! preprocess program should provide code for all available kinds.
@@ -1351,19 +2406,98 @@ select case(obs_def%kind)
    ! an observation sequence file. Case code to do this is inserted here by
    ! the DART preprocess program.
 
-      case(RAW_STATE_1D_INTEGRAL)
-         call read_1d_integral(obs_def%key, ifile, fform)
-      case(RAW_STATE_VAR_POWER)
-         call read_power(obs_def%key, ifile, fform)
-   case(RAW_STATE_VARIABLE)
+    case(SURFACE_ALBEDO, &
+         BIOMASS, &
+         MODIS_FPAR)
+       continue
+    case(HARMONIZED_SIF)
+       call read_SIF_wavelength(obs_def%key, key, ifile, fform)
+    case(TOWER_LATENT_HEAT_FLUX, &
+         TOWER_SENSIBLE_HEAT_FLUX, &
+         TOWER_NETC_ECO_EXCHANGE, &
+         TOWER_GPP_FLUX, &
+         TOWER_ER_FLUX, &
+         SOIL_RESPIRATION_FLUX)
+       continue
+   case(SOIL_TEMPERATURE)
       continue
-   case(RAW_TRACER_CONCENTRATION)
+   case(LPRM_SOIL_MOISTURE)
       continue
-   case(RAW_TRACER_SOURCE)
+   case(SMOS_A_SOIL_MOISTURE)
       continue
-   case(LARGE_SCALE_STATE)
+   case(SMOS_D_SOIL_MOISTURE)
       continue
-   case(SMALL_SCALE_STATE)
+   case(SMAP_A_SOIL_MOISTURE)
+      continue
+   case(SMAP_D_SOIL_MOISTURE)
+      continue
+   case(SSMI_A_SOIL_MOISTURE)
+      continue
+   case(SSMI_D_SOIL_MOISTURE)
+      continue
+   case(AMSRE_A_SOIL_MOISTURE_X)
+      continue
+   case(AMSRE_D_SOIL_MOISTURE_X)
+      continue
+   case(AMSRE_A_SOIL_MOISTURE_C)
+      continue
+   case(AMSRE_D_SOIL_MOISTURE_C)
+      continue
+   case(TRMM_SOIL_MOISTURE)
+      continue
+   case(WINDSAT_SOIL_MOISTURE_X)
+      continue
+   case(WINDSAT_SOIL_MOISTURE_C)
+      continue
+   case(WATER_TABLE_DEPTH)
+      continue
+   case(SOIL_MOISTURE)
+      continue
+   case(LAYER_LIQUID_WATER)
+      continue
+   case(LAYER_ICE)
+      continue
+   case(SNOW_THICKNESS)
+      continue
+   case(SNOW_WATER)
+      continue
+   case(MODIS_SNOWCOVER_FRAC)
+      continue
+   case(MODIS_LEAF_AREA_INDEX)
+      continue
+   case(GIMMS_LEAF_AREA_INDEX)
+      continue
+   case(SP_LEAF_AREA_INDEX)
+      continue
+   case(SOIL_MINERAL_NITROGEN)
+      continue
+   case(LEAF_CARBON)
+      continue
+   case(LIVE_STEM_CARBON)
+      continue
+   case(DEAD_STEM_CARBON)
+      continue
+   case(LEAF_AREA_INDEX)
+      continue
+   case(LEAF_NITROGEN)
+      continue
+   case(TOWER_AIR_TEMPERATURE)
+      continue
+   case(TREE_RING_NPP_FLUX)
+      continue
+   case(TOWER_SOIL_TEMPERATURE)
+      continue
+   case(TOWER_U_WIND_COMPONENT)
+      continue
+   case(TOWER_V_WIND_COMPONENT)
+      continue
+   case(TOWER_GLOBAL_RADIATION)
+      continue
+   case(TOWER_NET_CARBON_FLUX)
+      continue
+   case(OCO2_SIF)
+      continue
+   case(ECOSTRESS_ET)
       continue
 
 ! A negative value means identity observations, just move along
@@ -1487,19 +2621,98 @@ select case(obs_def%kind)
    ! an observation sequence file. Case code to do this is inserted here by
    ! the DART preprocess program.
 
-      case(RAW_STATE_1D_INTEGRAL)
-         call write_1d_integral(obs_def%key, ifile, fform)
-      case(RAW_STATE_VAR_POWER)
-         call write_power(obs_def%key, ifile, fform)
-   case(RAW_STATE_VARIABLE)
+    case(SURFACE_ALBEDO, &
+         BIOMASS, &
+         MODIS_FPAR)
+       continue
+    case(HARMONIZED_SIF)
+       call write_SIF_wavelength(key, ifile, fform)
+    case(TOWER_LATENT_HEAT_FLUX, &
+         TOWER_SENSIBLE_HEAT_FLUX, &
+         TOWER_NETC_ECO_EXCHANGE, &
+         TOWER_GPP_FLUX, &
+         TOWER_ER_FLUX, &
+         SOIL_RESPIRATION_FLUX)
+       continue
+   case(SOIL_TEMPERATURE)
       continue
-   case(RAW_TRACER_CONCENTRATION)
+   case(LPRM_SOIL_MOISTURE)
       continue
-   case(RAW_TRACER_SOURCE)
+   case(SMOS_A_SOIL_MOISTURE)
       continue
-   case(LARGE_SCALE_STATE)
+   case(SMOS_D_SOIL_MOISTURE)
       continue
-   case(SMALL_SCALE_STATE)
+   case(SMAP_A_SOIL_MOISTURE)
+      continue
+   case(SMAP_D_SOIL_MOISTURE)
+      continue
+   case(SSMI_A_SOIL_MOISTURE)
+      continue
+   case(SSMI_D_SOIL_MOISTURE)
+      continue
+   case(AMSRE_A_SOIL_MOISTURE_X)
+      continue
+   case(AMSRE_D_SOIL_MOISTURE_X)
+      continue
+   case(AMSRE_A_SOIL_MOISTURE_C)
+      continue
+   case(AMSRE_D_SOIL_MOISTURE_C)
+      continue
+   case(TRMM_SOIL_MOISTURE)
+      continue
+   case(WINDSAT_SOIL_MOISTURE_X)
+      continue
+   case(WINDSAT_SOIL_MOISTURE_C)
+      continue
+   case(WATER_TABLE_DEPTH)
+      continue
+   case(SOIL_MOISTURE)
+      continue
+   case(LAYER_LIQUID_WATER)
+      continue
+   case(LAYER_ICE)
+      continue
+   case(SNOW_THICKNESS)
+      continue
+   case(SNOW_WATER)
+      continue
+   case(MODIS_SNOWCOVER_FRAC)
+      continue
+   case(MODIS_LEAF_AREA_INDEX)
+      continue
+   case(GIMMS_LEAF_AREA_INDEX)
+      continue
+   case(SP_LEAF_AREA_INDEX)
+      continue
+   case(SOIL_MINERAL_NITROGEN)
+      continue
+   case(LEAF_CARBON)
+      continue
+   case(LIVE_STEM_CARBON)
+      continue
+   case(DEAD_STEM_CARBON)
+      continue
+   case(LEAF_AREA_INDEX)
+      continue
+   case(LEAF_NITROGEN)
+      continue
+   case(TOWER_AIR_TEMPERATURE)
+      continue
+   case(TREE_RING_NPP_FLUX)
+      continue
+   case(TOWER_SOIL_TEMPERATURE)
+      continue
+   case(TOWER_U_WIND_COMPONENT)
+      continue
+   case(TOWER_V_WIND_COMPONENT)
+      continue
+   case(TOWER_GLOBAL_RADIATION)
+      continue
+   case(TOWER_NET_CARBON_FLUX)
+      continue
+   case(OCO2_SIF)
+      continue
+   case(ECOSTRESS_ET)
       continue
 
    ! A negative value means identity observations, just move along
@@ -1563,19 +2776,98 @@ select case(obs_def%kind)
    ! define an observation. Case code to do this is inserted here by the
    ! DART preprocess program.
 
-      case(RAW_STATE_1D_INTEGRAL)
-         call interactive_1d_integral(obs_def%key)
-      case(RAW_STATE_VAR_POWER)
-         call interactive_power(obs_def%key)
-   case(RAW_STATE_VARIABLE)
+    case(SURFACE_ALBEDO, &
+         BIOMASS, &
+         MODIS_FPAR)
+       continue
+    case(HARMONIZED_SIF)
+       call interactive_SIF_wavelength(obs_def%key)
+    case(TOWER_LATENT_HEAT_FLUX, &
+         TOWER_SENSIBLE_HEAT_FLUX, &
+         TOWER_NETC_ECO_EXCHANGE, &
+         TOWER_GPP_FLUX, &
+         TOWER_ER_FLUX, &
+         SOIL_RESPIRATION_FLUX)
+       continue
+   case(SOIL_TEMPERATURE)
       continue
-   case(RAW_TRACER_CONCENTRATION)
+   case(LPRM_SOIL_MOISTURE)
       continue
-   case(RAW_TRACER_SOURCE)
+   case(SMOS_A_SOIL_MOISTURE)
       continue
-   case(LARGE_SCALE_STATE)
+   case(SMOS_D_SOIL_MOISTURE)
       continue
-   case(SMALL_SCALE_STATE)
+   case(SMAP_A_SOIL_MOISTURE)
+      continue
+   case(SMAP_D_SOIL_MOISTURE)
+      continue
+   case(SSMI_A_SOIL_MOISTURE)
+      continue
+   case(SSMI_D_SOIL_MOISTURE)
+      continue
+   case(AMSRE_A_SOIL_MOISTURE_X)
+      continue
+   case(AMSRE_D_SOIL_MOISTURE_X)
+      continue
+   case(AMSRE_A_SOIL_MOISTURE_C)
+      continue
+   case(AMSRE_D_SOIL_MOISTURE_C)
+      continue
+   case(TRMM_SOIL_MOISTURE)
+      continue
+   case(WINDSAT_SOIL_MOISTURE_X)
+      continue
+   case(WINDSAT_SOIL_MOISTURE_C)
+      continue
+   case(WATER_TABLE_DEPTH)
+      continue
+   case(SOIL_MOISTURE)
+      continue
+   case(LAYER_LIQUID_WATER)
+      continue
+   case(LAYER_ICE)
+      continue
+   case(SNOW_THICKNESS)
+      continue
+   case(SNOW_WATER)
+      continue
+   case(MODIS_SNOWCOVER_FRAC)
+      continue
+   case(MODIS_LEAF_AREA_INDEX)
+      continue
+   case(GIMMS_LEAF_AREA_INDEX)
+      continue
+   case(SP_LEAF_AREA_INDEX)
+      continue
+   case(SOIL_MINERAL_NITROGEN)
+      continue
+   case(LEAF_CARBON)
+      continue
+   case(LIVE_STEM_CARBON)
+      continue
+   case(DEAD_STEM_CARBON)
+      continue
+   case(LEAF_AREA_INDEX)
+      continue
+   case(LEAF_NITROGEN)
+      continue
+   case(TOWER_AIR_TEMPERATURE)
+      continue
+   case(TREE_RING_NPP_FLUX)
+      continue
+   case(TOWER_SOIL_TEMPERATURE)
+      continue
+   case(TOWER_U_WIND_COMPONENT)
+      continue
+   case(TOWER_V_WIND_COMPONENT)
+      continue
+   case(TOWER_GLOBAL_RADIATION)
+      continue
+   case(TOWER_NET_CARBON_FLUX)
+      continue
+   case(OCO2_SIF)
+      continue
+   case(ECOSTRESS_ET)
       continue
 
    ! A negative value means identity observations, just move along

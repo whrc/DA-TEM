@@ -107,7 +107,7 @@ subroutine adv_1step(x, time)
 real(r8), intent(inout) :: x(:)
 type(time_type), intent(in) :: time
 
-call error_handler(E_ERR, 'adv_1step', 'unable to advance model', source)
+!call error_handler(E_ERR, 'adv_1step', 'unable to advance model', source)
 
 end  subroutine adv_1step
 

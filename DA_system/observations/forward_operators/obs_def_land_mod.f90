@@ -85,6 +85,7 @@
 ! BEGIN DART PREPROCESS USE OF SPECIAL OBS_DEF MODULE
 !  use obs_def_land_mod, only : calculate_albedo, &
 !                               calculate_biomass, &
+!                               calculate_biomass_tem, &
 !                               calculate_fpar, &
 !                               calculate_sif, &
 !                               read_sif_wavelength, &
@@ -98,7 +99,8 @@
 !  case(SURFACE_ALBEDO)
 !     call calculate_albedo(state_handle, ens_size, location, expected_obs, istatus)
 !  case(BIOMASS)
-!     call calculate_biomass(state_handle, ens_size, location, expected_obs, istatus)
+!     !call calculate_biomass(state_handle, ens_size, location, expected_obs, istatus)
+!     call calculate_biomass_tem(state_handle, ens_size, location, expected_obs, istatus)!CCC
 !  case(MODIS_FPAR)
 !     call calculate_fpar(state_handle, ens_size, location, expected_obs, istatus)
 !  case(HARMONIZED_SIF)
@@ -171,13 +173,15 @@ use         obs_kind_mod, only : QTY_RADIATION_VISIBLE_DOWN, &
                                  QTY_PAR_DIRECT, &
                                  QTY_PAR_DIFFUSE, &
                                  QTY_ABSORBED_PAR, &
-                                 QTY_SOLAR_INDUCED_FLUORESCENCE
+                                 QTY_SOLAR_INDUCED_FLUORESCENCE,&
+                                 QTY_STEM_CARBON
 
 implicit none
 private
 
 public :: calculate_albedo, &
           calculate_biomass, &
+          calculate_biomass_tem, &
           calculate_fpar, &
           calculate_sif, &
           set_SIF_wavelength, &
@@ -342,6 +346,56 @@ if (debug .and. do_output()) then
 endif
 
 end subroutine calculate_biomass
+
+
+subroutine calculate_biomass_tem(state_handle, ens_size, location, obs_val, istatus)
+!================================================================================
+! This is a revised version for TEM model since the biomass definition
+! is a little different from CLM
+type(ensemble_type), intent(in)  :: state_handle
+integer,             intent(in)  :: ens_size
+type(location_type), intent(in)  :: location
+real(r8),            intent(out) :: obs_val(ens_size)
+integer,             intent(out) :: istatus(ens_size)
+
+real(r8) ::      leaf_carbon(ens_size)
+real(r8) ::      stem_carbon(ens_size)
+integer  :: stat(ens_size,2)
+integer  :: imem
+
+istatus = 1           ! 0 == success, anything else is a failure
+obs_val = MISSING_R8
+
+if ( .not. module_initialized ) call initialize_module()
+
+! Intentionally try to compute all required components before failing.
+! The desire is to inform about ALL failed components instead of failing
+! one-by-one.
+
+call interpolate(state_handle, ens_size, location, QTY_LEAF_CARBON, &
+                 leaf_carbon,      stat(:,1))
+call interpolate(state_handle, ens_size, location, QTY_STEM_CARBON, &
+                 stem_carbon, stat(:,2))
+
+if (any(stat /= 0)) then
+   istatus = stat(:,1)*100 + stat(:,2)*10
+   return
+endif
+
+obs_val = leaf_carbon + stem_carbon  ! aboveground biomass
+
+istatus = 0   ! success
+
+if (debug .and. do_output()) then
+   do imem = 1,ens_size
+      write(string1,*)'biomass for ensemble member ', imem
+      write(string2,*)'carbon: leaf, stem', leaf_carbon(imem), stem_carbon(imem)
+      write(string3,*)'status: leaf,stem', stat(imem,:)
+      call error_handler(E_MSG,'calculate_biomass_tem:',string1,text2=string2,text3=string3)
+   enddo
+endif
+
+end subroutine calculate_biomass_tem
 
 
 !===============================================================================
