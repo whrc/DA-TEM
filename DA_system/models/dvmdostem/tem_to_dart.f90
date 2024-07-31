@@ -19,6 +19,9 @@ use    utilities_mod, only : initialize_utilities, finalize_utilities, &
                              find_namelist_in_file, check_namelist_read, &
                              error_handler, E_MSG, E_ERR
 
+use time_manager_mod, only : time_type,set_date, set_time, set_calendar_type,&
+                             get_date
+
 use netcdf_utilities_mod
 !use netcdf_utilities_mod, only : nc_check, nc_define_dimension, &
 !                                 nc_define_real_scalar, & 
@@ -28,26 +31,35 @@ use netcdf_utilities_mod
 !                                 nc_close_file
 
 
-use netcdf
- 
+use netcdf 
     
- implicit none
+
+implicit none
  
- character(len=*), parameter :: source = 'tem_to_dart.f90'
+character(len=*), parameter :: source = 'tem_to_dart.f90'
+
+!--------------------------------------------------------------------------
+! Default Dimensions of dvmdostem restart file
+integer :: ngrid     = -1  ! number of grid cells
+integer :: nx        = -1  ! X
+integer :: ny        = -1  ! Y
+integer :: npft      = 10  ! number of pfts
+integer :: nlevsoi   = -1  ! Number of 'soil' layers
+
+integer :: pftpart   =  3
+integer :: snowlayer =  6  ! snow layer
+integer :: rootlayer = 10  ! root layer
+integer :: rocklayer =  5
+integer ::    fronts = 10
+integer ::   prevten = 10
+integer :: prevtwelve = 12
+
 
 !--------------------------------------------------------------
 ! Global variables
 !---------------------------------------------------------------
-
- integer :: cmt
- real(r8), allocatable,dimension(:)  :: cmax, nmax, kra, frg     ! dimension(PFT)
- real(r8), allocatable, dimension(:) :: cfall0, cfall1, cfall2    
- real(r8), allocatable, dimension(:) :: nfall0, nfall1, nfall2
- real(r8), allocatable, dimension(:) :: krb0, krb1, krb2 
-  
- ! soil calibrated parameters
- real(r8) :: micbnup, kdcrawc, kdcsoma, kdcsompr, kdcsomcr
-
+ real(r8), allocatable,dimension(:,:,:)    :: leaf_C, stem_C, root_C
+ real(r8), allocatable,dimension(:,:,:,:)  :: vegc
 
  character(len=6) :: str
  integer :: n, i, j, k, iunit, io
@@ -57,17 +69,14 @@ use netcdf
  !-------------------------------------------
  ! parameters that can move to namelist later
  !-------------------------------------------
- integer :: target_cmt = 13            ! Target CMT number
- integer,parameter :: cmt_num = 14     ! total CMT number
- integer :: npft = 10                  ! number of PFT
- integer :: hlines = 4                 ! length of headlines 
- logical :: debug = .true.
- character(len=256) :: para_infile ='cmt_calparbgc.txt'  ! parameter file for cmax
- character(len=256) :: para_outfile = 'cmax_output.nc'                 ! output netcdf file name
- character(len=256) :: run_mask_file = 'run-mask.nc'     ! run-mask.nc  
+ logical :: debug     = .true.
+ logical :: add_time  = .false.
+ character(len=256) :: nc_input ='restart-eq.nc'         ! input netcdf file name
+ character(len=256) :: nc_output = 'model_bkgd.nc'       ! output netcdf file name
+ integer            :: input_date
+ type(time_type)    :: dart_date
 
- namelist /tem_to_dart_nml/ para_infile, para_outfile, target_cmt, npft, run_mask_file,&
-                            debug 
+ namelist /tem_to_dart_nml/ nc_input, nc_output, debug, add_time, input_date 
 
 
 !==================================================================
@@ -82,36 +91,41 @@ use netcdf
  call check_namelist_read(iunit, io, "model_to_dart.nml")
 
  if(debug)then
-   print*,'para_infile = ',para_infile
-   print*,'target_cmt = ',target_cmt
+   print*,'infile = ',nc_input
    print*,'npft = ',npft
  endif
 
 !-----------------------------------------------------
 ! allocate arrays
 !----------------------------------------------------
- allocate(cmax(npft), nmax(npft))
- allocate(kra(npft), frg(npft))
- allocate(cfall0(npft), cfall1(npft),cfall2(npft))
- allocate(nfall0(npft), nfall1(npft), nfall2(npft))
- allocate(krb0(npft), krb1(npft), krb2(npft))
-
- call read_calparbgc()
+ 
+ call read_restart_vegc(nc_input,'vegc',vegc,leaf_C, stem_C, root_C)
 
 !---------------------------------------------------
 ! output as netcdf file
 !---------------------------------------------------
- call write_nc_state(trim(para_outfile))
+ call add_variable_to_nc(trim(nc_output),'leaf_C', leaf_C)
+ call add_variable_to_nc(trim(nc_output),'stem_C', stem_C)
+ call add_variable_to_nc(trim(nc_output),'root_C', root_C)
 
  ! Notes for future work: pararell computing output at rank=0
- write(*,*) "Output netcdf file : ",trim(para_outfile)
+ write(*,*) "Output netcdf file : ",trim(nc_output)
+
+!-----------------------------------------------------
+! add date time if neccessary
+!----------------------------------------------------
+ if(add_time)then
+     write(*,*) "Add dvmdostem_time : ",input_date
+     call YYYYMMDD_to_darttime(input_date, dart_date)
+     !write(*,*) " convert to dart time :", dart_date   
+     call add_time_to_nc(trim(nc_output),'dvmdostem_date', input_date)    
+ endif 
 
 !----------------------------------------------------
 ! release memory space
 !---------------------------------------------------
-deallocate(cmax, nmax)
-deallocate(kra, frg, cfall0, cfall1, cfall2)
-deallocate(nfall0, nfall1, nfall2, krb0, krb1, krb2)
+deallocate(vegc)
+deallocate(leaf_C, stem_C, root_C)
 
  
  call finalize_utilities('tem_to_dart')
@@ -121,217 +135,246 @@ deallocate(nfall0, nfall1, nfall2, krb0, krb1, krb2)
 
 contains
 
-subroutine read_calparbgc()        
-!==========================================================
-! read parameter file 'cmt_calparbgc.txt' for target CMT
-!==========================================================
- !character(len=256), intent(in) :: para_file
- 
 
- ! check parameter file existence
-   inquire (FILE = trim(para_infile), EXIST = exists)
+subroutine read_restart_vegc(ncfile,varname, vegc, leaf_C, stem_C, root_C)
+!================================================================
+! read and extract model restart VEGC for the DA timestep
+! return selected data and date time
+! split VEGC into leaf_C, stem_C, and root_C 
+!================================================================
+ character(len=*), intent(in)     :: ncfile        ! model transition var file name
+ character(len=*), intent(in)     :: varname       ! var name 
+ real(r8), allocatable, intent(out) :: vegc(:,:,:,:)
+ real(r8), allocatable, intent(out) :: leaf_C(:,:,:) 
+ real(r8), allocatable, intent(out) :: stem_C(:,:,:)
+ real(r8), allocatable, intent(out) :: root_C(:,:,:)
 
-   if (.not. exists) then
-        write (*,'(2A/)') ' >> Cannot find file ', para_infile
-        return
-        !exit
-   endif
+ integer :: ncid
+ character(len=*), parameter :: routine = 'read_restart_vegc'
+ logical, parameter :: debug = .true.
 
- ! open fortran file
-   open(10,file=para_infile, status='old')
 
- ! skip first 4 headlines   
- do i=1,hlines
-   read(10,*)
- enddo
 
- ! start reading parameters
- ! will read until cmt_num (doesn't need to read them all for now) 
- 
-do n = 1,cmt_num
-   read(10,*) ! divided line
-   read(10,'(A6,I2)') str,cmt
-   if(cmt .eq. 0)then
-      read(10,*)       ! CMT00 has an extra headline     
-   endif
-   read(10,*)          ! PFT headline
+! open model nc file
+ ncid = nc_open_file_readonly(trim(ncfile), routine)
 
-   ! read target_cmt only
-   if (cmt .eq. target_cmt)then
-      read(10,*) cmax
-      read(10,*) nmax
-      read(10,*) cfall0
-      read(10,*) cfall1
-      read(10,*) cfall2
-      read(10,*) nfall0
-      read(10,*) nfall1
-      read(10,*) nfall2
-      read(10,*) kra
-      read(10,*) krb0
-      read(10,*) krb1
-      read(10,*) krb2
-      read(10,*) frg
-   
-      ! soil calibrated parameters
-      read(10,*) str         ! soil headline
-      read(10,*) micbnup
-      read(10,*) kdcrawc
-      read(10,*) kdcsoma
-      read(10,*) kdcsompr
-      read(10,*) kdcsomcr
-   else
-      do k =1,19
-        read(10,*) str
-      enddo     
-   
-   endif
+! get dimension names & lengths
+ nx = nc_get_dimension_size(ncid,'X',routine)
+ ny = nc_get_dimension_size(ncid,'Y',routine)
+ npft = nc_get_dimension_size(ncid,'pft',routine)
+ pftpart = nc_get_dimension_size(ncid,'pftpart',routine)
 
- enddo
+! read vegc
+ allocate(vegc(npft, pftpart, nx, ny))
+ allocate(leaf_C(npft, nx, ny))
+ allocate(stem_C(npft, nx, ny))
+ allocate(root_C(npft, nx, ny))
+
+ call nc_get_variable(ncid, trim(varname), vegc, routine)
+
+ leaf_C = vegc(:,1,:,:)
+ stem_C = vegc(:,2,:,:)
+ root_C = vegc(:,3,:,:)
 
  if(debug)then
-   print*,'Target CMT =',target_cmt   
-   print*,'cmax(PFT 1:10) = ',cmax(:) 
-   print*,'kdcsomcr = ',kdcsomcr 
- endif   
+   write(*,*)"Debugging from ",routine  
+   write(*,*)"vegc(1,1,1,1) = ",vegc(1,1,2,1)
+   write(*,*)"leaf_C(1,1,1) = ",leaf_C(1,2,1)
+   write(*,*)"vegc(1,2,1,1) = ",vegc(1,2,2,1)
+   write(*,*)"stem_C(1,1,1) =",stem_C(1,2,1)    
+ endif
 
- close(10)
-
- end subroutine read_calparbgc
-
-
- subroutine write_nc_state(filename)
-!===========================================================
-! purpose: 
-! write out traget states in netcdf
-! only support for calparbgc for now
-!
-! NOTE: the netcdf here is using DART's netcdf interface
-!       not the regular netcdf-fortran function 
-!
-!===========================================================
- character(len = 128), intent(in) :: filename ! output netcdf file name
- integer :: ncid, varid, iunit
- integer :: n, nsize, ns
-
- ! grid dimension and coordinate variables
- integer, parameter :: ndim = 1       ! dimension
- integer, parameter :: nx =1, ny = 1  ! nx*ny data 
- character(len = 128) :: varLongName
-
- ! self-defined array type
- type para_1D
-  character(len=128) :: varname
-  real(r8) :: state
- end type para_1D
-
- type(para_1D), allocatable :: cmax_state(:) !maximum for 10 PFTs
+call nc_close_file(ncid)
 
 
- ! coordinate variables 
- real :: xlon, ylat
+end subroutine read_restart_vegc        
 
-!--------------------------------------------------------------
-! Setting up
-!--------------------------------------------------------------
+subroutine add_time_to_nc(ncfile,varname, YYYYMMDD)
+!====================================================
+! Add new variable to existing netcdf file
+! design for leafc, stemc, rootc
+! variable dimension = (npft, nx, ny)
 
-! Check if we have avaiable cmax data
-nsize = 0
-do n = 1,npft
-  ! loop over all PFTs but only save those with cmax > 0
-  if(cmax(n) > 0)then
-     nsize = nsize+1
-   endif
-enddo
+character(len=*), intent(in) :: ncfile
+character(len=*), intent(in) :: varname
+integer, intent(in)          :: YYYYMMDD
 
-if (nsize == 0)then
-  write(*,*) "======================================================"
-  write(*,*) "  WARNING : no avaiable state vector detected!!!"
-  write(*,*) "  PROGRAM STOP"
-  write(*,*) "======================================================"
-  return
+! local variables
+integer   :: ncid, varid, retval
+integer   :: FillValue
+
+! Attribute for the new variable
+!character(len=*) :: attr_name = 'units'
+!character(len=*) :: attr_value = 'unitless'
+
+
+! Open the existing NetCDF file
+retval = nf90_open(trim(ncfile), NF90_WRITE, ncid)
+if (retval /= NF90_NOERR) then
+    write(*,*) 'Error opening file : ',trim(ncfile)
+    stop
 endif
 
-!allocate data array
-allocate(cmax_state(nsize))
+! Define the new variable
+retval = nf90_redef(ncid)
+if (retval /= NF90_NOERR) call handle_error(retval)
+
+retval = nf90_def_var(ncid, trim(varname), NF90_INT, varid)
+if (retval /= NF90_NOERR) then
+    print *, 'Error defining variable :',trim(varname)
+    call handle_error(retval)
+endif
+
+! Add attribute to the new variable
+FillValue = -9999
+retval = nf90_put_att(ncid, varid, '_FillValue', FillValue)
+
+! End define mode
+call nc_end_define_mode(ncid)
 
 
-! TODO: read geo location from run-mask.nc --> lon, lat
-! for prototype, assume a number for lon and lat
- xlon = -147.85 
- ylat = 65.126
+! Write data to the new variable
+!call nc_put_variable(ncid, trim(varname), YYYYMMDD)
+retval = nf90_put_var(ncid, varid, YYYYMMDD)
+if (retval /= NF90_NOERR) then
+     print *, 'Error writing variable :', trim(varname)
+     call handle_error(retval)
+endif
+
+! Close the NetCDF file
+call nc_close_file(ncid)
+
+end subroutine add_time_to_nc
+
+
+
+subroutine add_variable_to_nc(ncfile,varname, var)
+!====================================================
+! Add new variable to existing netcdf file 
+! design for leafc, stemc, rootc
+! variable dimension = (npft, nx, ny)
+
+character(len=*), intent(in) :: ncfile
+character(len=*), intent(in) :: varname
+real(r8), intent(in)         :: var(npft, nx, ny)
+
+! local variables
+integer   :: ncid, varid, dimid_x, dimid_y, dimid_pft, retval
+integer   :: dimids(3)
+real(r8)  :: FillValue
+
+! Attribute for the new variable
+!character(len=*) :: attr_name = 'units'
+!character(len=*) :: attr_value = 'unitless'
+
+
+! Open the existing NetCDF file
+retval = nf90_open(trim(ncfile), NF90_WRITE, ncid)
+if (retval /= NF90_NOERR) then
+    write(*,*) 'Error opening file : ',trim(ncfile)
+    stop
+endif
+
+! Get the existing dimensions
+retval = nf90_inq_dimid(ncid, 'X', dimid_x)
+if (retval /= NF90_NOERR) then
+    print *, 'Error getting dimension x'
+    call handle_error(retval)
+endif
+
+retval = nf90_inq_dimid(ncid, 'Y', dimid_y)
+if (retval /= NF90_NOERR) then
+    print *, 'Error getting dimension y'
+    call handle_error(retval)
+endif
+
+retval = nf90_inq_dimid(ncid, 'pft', dimid_pft)
+if (retval /= NF90_NOERR) then
+    print *, 'Error getting dimension pft'
+    call handle_error(retval)
+endif
+
+call nc_get_attribute_from_variable(ncid,'vegc','_FillValue',FillValue)
+
+
+! Define the new variable
+retval = nf90_redef(ncid)
+if (retval /= NF90_NOERR) call handle_error(retval)
+dimids = (/dimid_pft, dimid_x, dimid_y/)
+retval = nf90_def_var(ncid, trim(varname), NF90_DOUBLE, dimids, varid)
+if (retval /= NF90_NOERR) then
+    print *, 'Error defining variable :',trim(varname)
+    call handle_error(retval)
+endif
+
+! define variable
+!call nc_define_real_variable(ncid, trim(cmax_state(ns)%varname), (/"location"/) )
+
+
+!call nc_define_real_variable(ncid, trim(varname), dimids)
+
+! Add attribute to the new variable
+retval = nf90_put_att(ncid, varid, '_FillValue', FillValue)
+if (retval /= NF90_NOERR) then
+    print *, 'Error adding attribute to variable :',trim(varname)
+    call handle_error(retval)
+endif
+
+! End define mode
+call nc_end_define_mode(ncid)
+
+
+! Write data to the new variable
+call nc_put_variable(ncid, trim(varname), var)
+!retval = nf90_put_var(ncid, varid, var)
+!if (retval /= NF90_NOERR) then
+!     print *, 'Error writing variable :', trim(varname)
+!     call handle_error(retval)
+!endif
+
+! Close the NetCDF file
+!retval = nf90_close(ncid)
+call nc_close_file(ncid)
+
+end subroutine add_variable_to_nc        
+
+
+subroutine handle_error(retval)
+   integer, intent(in) :: retval
+   print *, nf90_strerror(retval)
+   stop
+end subroutine handle_error
+
+
+subroutine YYYYMMDD_to_darttime(YYYYMMDD, dart_time)
+integer, intent(in)          :: YYYYMMDD
+type(time_type), intent(out) :: dart_time
+integer                      :: year, month, day 
+integer                      :: hour, minute, second
+
+
+call set_calendar_type( 'NOLEAP' )
+
+! Extract year, month, and day using integer arithmetic
+ year = YYYYMMDD / 10000
+ month = (YYYYMMDD / 100) - (year * 100)
+ day = YYYYMMDD - (year * 10000) - (month * 100)
  
-!------------------------------------------------------ 
-! create a new nc file 
-!------------------------------------------------------
- ncid = nc_create_file(filename)
- call nc_define_dimension(ncid, "location", nx)
+ minute = 0
+ hour = 0
+ second = 0
+ write(*,*) " file year = ",year
+ write(*,*) "     month = ",month
+ write(*,*) " file day  = ",day
+ write(*,*) " file hour = ",hour
+ write(*,*) " file mins = ",minute
+ write(*,*) " file secs = ",second
+! convert to dart time
+ dart_time = set_date(year, month, day)
+
+end subroutine YYYYMMDD_to_darttime
 
 
-!TODO: set time coordinate
-! Setting a time frame is important for DART if you want to use 4D-EnKF
-! TEM is very different from weather/ocean model ...
-! currently I don't have a good idea on the time coordinate for TEM
-
-
- call nc_define_real_scalar(ncid, "lon")
- call nc_add_attribute_to_variable(ncid, 'lon', "units", 'degrees_east')
- call nc_define_real_scalar(ncid, "lat")
- call nc_add_attribute_to_variable(ncid, 'lat', "units", 'degrees_north')
-
- ns = 0
-! Define state variables
- do n = 1, npft
- 
-   ! loop over all PFTs but only save those with cmax > 0
-    if(cmax(n) > 0)then
-       ns = ns + 1
-       cmax_state(ns)%state = cmax(n)
-
-       if(n < 10)then
-           write(cmax_state(ns)%varname,'("cmax",I1)') n
-           write(varLongName,'("cmax for PFT = ",I1)') n
-       else
-           write(cmax_state(ns)%varname,'("cmax",I2)') n
-           write(varLongName,'("cmax for PFT = ",I2)') n
-       endif
-       
-       ! define variable
-       call nc_define_real_variable(ncid, trim(cmax_state(ns)%varname), (/"location"/) )
-       call nc_add_attribute_to_variable(ncid, trim(cmax_state(ns)%varname), "units", 'cmax')
-       call nc_add_attribute_to_variable(ncid, trim(cmax_state(ns)%varname), "long name", varLongName)
-    endif
-
- enddo
-
- call nc_end_define_mode(ncid)
-
-!--------------------------------------------------------
-! put coordinate data (xlon & ylat) in
-!---------------------------------------------------------
- call nc_put_variable(ncid, "lon", xlon)
- call nc_put_variable(ncid, "lat", ylat)
-
-!-------------------------------------------------------
-! putt state variables (cmax)
-!--------------------------------------------------------
-
- do i = 1,nsize
-    call nc_put_variable(ncid, trim(cmax_state(i)%varname), cmax_state(i)%state)
-  
-    if(debug)then
-        print*,"write varname = "//trim(cmax_state(i)%varname)
-        print*,"state (cmax) = ",cmax_state(i)%state    
-    endif
- enddo
-
-! close nc file
- call nc_close_file(ncid)
-
-! release memory
- deallocate(cmax_state)
-
-
-end subroutine write_nc_state
 
 
 subroutine read_run_mask(filename,ndim,ngrid,lon,lat)

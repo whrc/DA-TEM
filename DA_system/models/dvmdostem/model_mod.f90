@@ -18,6 +18,7 @@ use time_manager_mod,      only : time_type,set_date, set_time,                 
                                   set_calendar_type, get_date
 
 use location_mod,          only : location_type, set_location, get_location,    &
+                                  get_close_type,                               &
                                   loc_get_close_obs => get_close_obs,           &
                                   loc_get_close_state => get_close_state,       &
                                   convert_vertical_obs, convert_vertical_state, &
@@ -53,6 +54,8 @@ use         obs_kind_mod,  only : QTY_STATE_VARIABLE,             &
 !                                  QTY_PAR_DIRECT,                 &
 !                                  QTY_SOLAR_INDUCED_FLUORESCENCE, &
                                   QTY_LEAF_AREA_INDEX,            &
+                                  QTY_LEAF_CARBON,                &
+                                  QTY_STEM_CARBON,                &                     
                                   QTY_GROSS_PRIMARY_PROD_FLUX,    &
                                   get_index_for_quantity,         &
                                   get_name_for_quantity
@@ -70,7 +73,8 @@ use state_structure_mod,   only : add_domain,  get_domain_size,       &
                                   get_model_variable_indices,         &
                                   get_variable_name, get_varid_from_kind 
 
-use default_model_mod,     only : pert_model_copies, nc_write_model_vars  
+use default_model_mod,     only : adv_1step, init_time, init_conditions, &
+                                  pert_model_copies, nc_write_model_vars  
 
 use typesizes
 
@@ -338,7 +342,9 @@ do ivar = 1, get_num_variables(dom_restart)
    ! Get gridcell weighting (varwt_pft) for each variable with pft dimension 
    if ( trim(dimnames(1)) == 'pft') then   
         !! Here we assumes the variable with pft dimensions are all rank = 3
-        allocate(varwt_pft(dimlens(1), dimlens(2), dimlens(3)))   
+        if (.not. pft_dim)then
+          allocate(varwt_pft(dimlens(1), dimlens(2), dimlens(3)))   
+        endif
         varwt_pft(:,:,:) = 1 ! default value
         ! calculate varwt_pft
         call get_varwt_pft(ncid, varname, dimlens)
@@ -541,7 +547,7 @@ endif
 ! select interpolation method for variables
 select case( iqty )
      
-    case( QTY_LEAF_AREA_INDEX, QTY_GROSS_PRIMARY_PROD_FLUX) ! 2D on grid cell 
+    case( QTY_LEAF_AREA_INDEX, QTY_LEAF_CARBON, QTY_STEM_CARBON ) ! 2D on grid cell 
         write(*,*) '2D Grid cell interpolation'
         call compute_gridcell_value(state_handle, ens_size, location, iqty, &
                                     expected_obs, istatus) 
@@ -1030,7 +1036,8 @@ character(len=*), intent(in) :: filename
 type(time_type) :: read_model_time
 
 character(len=*), parameter :: routine = 'read_model_time'
-integer, allocatable :: time(:)
+!integer, allocatable :: time(:)
+integer :: time
 integer :: ncid, nt, i, n
 integer :: datetime, YYYYMMDD
 integer :: year, month, day, hour, minute, second
@@ -1049,25 +1056,22 @@ hour = 0
 minute = 0
 second = 0
 
-
-
-
 ! For now, there's no time dimension in dvmdostem restart file
 ! In order to preliminarily test our code, we temporarily set
 ! time equal to 20100101
-year = 2010
-month = 01
-day = 01
+!year = 2010
+!month = 01
+!day = 01
 
 !! Below are the code for file that has "time" dimension in netcdf
 ! open model nc file
-! ncid = nc_open_file_readonly(trim(filename), routine)
+ncid = nc_open_file_readonly(trim(filename), routine)
 ! ! if we have timeseries
 ! nt = nc_get_dimension_size(ncid,'time',routine) !get dimension
 
 ! ! allocate and read data
 ! allocate(time(nt))
-! call nc_get_variable(ncid, 'time', time, routine)
+call nc_get_variable(ncid, 'dvmdostem_date', time, routine)
 
 !============ For multiple time steps =============
 ! The GPP monthly file has multiple epochtime time 
@@ -1101,9 +1105,15 @@ day = 01
 ! endif
 
 !call nc_close_file(ncid)
+!=========== For read from single file added from tem_to_dart ===============
+! In this case, the time is already set to be YYYYMMDD as an integer variable
+ year = time / 10000
+ month = (time / 100) - (year * 100)
+ day =  time - (year * 10000) - (month * 100)
 
 ! Return model time
-read_model_time=set_date(year, month, day, hour, minute, second)
+!read_model_time=set_date(year, month, day, hour, minute, second)
+read_model_time=set_date(year, month, day) ! the time resolution is monthly for now
 
 end function read_model_time
 
@@ -1757,37 +1767,6 @@ endif
 
 end subroutine end_model
 
-
-
-
-!=================================================
-! Not neccessary for dvmdostem
-!=================================================
-subroutine adv_1step(x, time)
-
-real(r8),        intent(inout) :: x(:)
-type(time_type), intent(in)    :: time
-
-end subroutine adv_1step
-
-
-subroutine init_conditions(x)
-
-real(r8), intent(out) :: x(:)
-
-x = MISSING_R8
-
-end subroutine init_conditions
-
-
-subroutine init_time(time)
-
-type(time_type), intent(out) :: time
-
-! for now, just set to 0
-time = set_time(0,0)
-
-end subroutine init_time
 
 
 !===================================================================
